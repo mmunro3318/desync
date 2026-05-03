@@ -61,6 +61,9 @@ When a task is narrow, Claude should read only the smallest relevant subset of d
 | `portal-visibility-local-render-streaming-spec.md` | Spec | Portal visibility, local render truth, and streaming rules | implementing portal render/stream/visibility | `house-graph-core-epic.md`, `co-op-observation-and-sync-rules-spec.md` |
 | `anomaly-families-epic.md` | Epic | Taxonomy and roadmap of anomaly types | planning or implementing anomaly families | `spatial-horror-gdd.md` |
 | `anchor-artifact-loop-epic.md` | Epic | Anchor/artifact objective loop and related systems | implementing objective/win-con systems | `spatial-horror-gdd.md`, `match-loop-and-session-flow.md` |
+| `environmental-prop-taxonomy-asset-kit-spec.md` | Spec | Prop families, authoring tags, prefab kit rules, and placement metadata for room population system | implementing room population, prop placement, or world-layer variants | `spatial-horror-gdd.md`, `room-identity-environmental-legibility-spec.md` |
+| `lighting-and-visibility-spec.md` | Spec | Lighting as atmosphere, navigation, interaction readability, and state communication; visibility tiers and room light signatures | implementing lighting systems, URP setup, or readability tuning | `spatial-horror-gdd.md`, `navigation-and-orientation-ux.md`, `environmental-prop-taxonomy-asset-kit-spec.md` |
+
 
 ## Pipeline and builder docs
 
@@ -105,6 +108,19 @@ When a task is narrow, Claude should read only the smallest relevant subset of d
 | `claude-code-implementation-prompt-pack-vertical-slice.md` | Prompt Pack | Sequenced bounded prompts for vertical slice implementation | actively driving Claude task-by-task | `networked-house-vertical-slice-integration-checklist.md`, `networked-house-graybox-test-plan.md` |
 | `repo-docs-index-claude-file-map.md` | Index | Stable documentation map for Claude | first file to read in repo docs context | none |
 
+## Unity Research Docs
+
+| Filename | Type | Purpose | Read when | Depends |
+| --- | --- | --- | --- | --- |
+| `99-perplexity-deep-research-seed-prompt-unity-csharp-best-practices.md` | Checklist / Research brief | Defines the research goals, run structure, deliverables, and topic checklist for the Unity/C# deep research series | starting, extending, or auditing the research program | `99-perplexity-deep-research-seed-prompt-unity-csharp-best-practices.md` |
+| `00-unity-technology-baseline-report.md` | Research report | Establishes the baseline Unity 6 stack, recommended defaults, and core technology choices for the prototype | deciding engine stack, rendering path, networking baseline, and overall technical posture | `99-perplexity-deep-research-seed-prompt-unity-csharp-best-practices.md` |
+| `01-project-architecture-and-code-organization-report.md` | Research report | Documents project architecture, folder/code organization, ScriptableObject boundaries, bootstrap patterns, and service/manager discipline | setting up project structure, composition root, and coding conventions | `99-perplexity-deep-research-seed-prompt-unity-csharp-best-practices.md`, `00-unity-technology-baseline-report.md` |
+| `02-scenes-prefabs-and-level-building-report.md` | Research report | Covers scene layout, prefab strategy, graybox workflow, and level-building discipline for a maintainable Unity project | defining gameplay scene structure, prefabs, additive loading, and environment-building workflow | `99-perplexity-deep-research-seed-prompt-unity-csharp-best-practices.md`, `01-project-architecture-and-code-organization-report.md` |
+| `03-unity-urp-graphics-lighting-horror-report.md` | Research report | Covers URP configuration, lighting, shadows, post-processing, reflection probes, and horror-specific visual guidance | tuning rendering, fixing light leaks, improving atmosphere, or setting URP defaults | `99-perplexity-deep-research-seed-prompt-unity-csharp-best-practices.md`, `00-unity-technology-baseline-report.md` |
+| `04-ngo-multiplayer-architecture-report.md` | Research report | Defines NGO architecture, authority model, ownership rules, state sync patterns, and multiplayer implementation guardrails | implementing multiplayer gameplay, interactables, spawning, authority, or scene synchronization | `99-perplexity-deep-research-seed-prompt-unity-csharp-best-practices.md`, `00-unity-technology-baseline-report.md`, `01-project-architecture-and-code-organization-report.md` |
+| `05-testing-profiling-debug-overlay-report.md` | Research report | Covers local multiplayer testing workflow, profiling tools, runtime debug overlays, observability, and pooling guidance | testing co-op sessions, diagnosing performance issues, or adding runtime developer tooling | `99-perplexity-deep-research-seed-prompt-unity-csharp-best-practices.md`, `04-ngo-multiplayer-architecture-report.md` |
+| `06-ai-guardrails-and-unity-antipatterns-report.md` | Research report | Defines Claude/AI coding guardrails, Unity-specific anti-patterns, and repo-level rules for safe implementation assistance | writing CLAUDE.md, reviewing AI-generated code, or enforcing project coding constraints | `99-perplexity-deep-research-seed-prompt-unity-csharp-best-practices.md`, `01-project-architecture-and-code-organization-report.md`, `04-ngo-multiplayer-architecture-report.md`, `05-testing-profiling-debug-overlay-report.md`|
+
 ## Legacy source docs from the earlier clone phase
 These are older foundation docs that many newer docs implicitly build on. They should be preserved for architecture philosophy, but current implementation work should usually prefer the newer impossible-house docs.
 
@@ -130,6 +146,7 @@ Use this quick routing table to decide what Claude should read for a given task.
 | Claude task execution | `claude-code-implementation-prompt-pack-vertical-slice.md` |
 | Objective/anchor loop work | `anchor-artifact-loop-epic.md`, `sprint-5a-anchor-core-state.md`, `match-loop-and-session-flow.md` |
 | Builder/pipeline work | `house-builder-pipeline-epic.md`, `house-layout-dsl-spec.md`, `importer-contracts-and-data-model.md` |
+| Unity code work | `98-unity-research/` |
 
 ## Canonical repo convention
 These docs now live in the stable folder structure below:
@@ -144,6 +161,7 @@ docs/design
   04-sprints/
   05-debug-and-testing/
   06-claude-prompts/
+  98-unity-research/
   99-legacy/
 ```
 
@@ -155,6 +173,7 @@ Folder intent:
 - `04-sprints/`: sprint and PDD execution docs.
 - `05-debug-and-testing/`: debug overlays, plans, checklists, and validation docs.
 - `06-claude-prompts/`: Claude-oriented prompt packs and implementation task packs.
+- `98-unity-research/`: Claude-oriented research docs for Unity development for our specific game project.
 - `99-legacy/`: older clone-phase reference docs retained for architectural context.
 
 ## Usage note for Claude
