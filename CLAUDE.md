@@ -108,7 +108,7 @@ Follow the authority/ownership rules in `docs/design/98-unity-research/04-ngo-mu
 - Spawn networked prefabs through the `DefaultNetworkPrefabs` registry; do not `Instantiate` them locally.
 - The `NetworkBootstrapConsistencyTests` regression exists because `ConnectionApprovalCallback`/`NetworkConfig.ConnectionApproval` previously drifted apart (TD0002). If you touch connection approval in `Bootstrap.unity` or `GameBootstrap.cs`, that test must still pass.
 
-**The carried-forward networking is graybox-grade only.** Local LAN host/join works against a hardcoded port (7777). **Cross-machine LAN multiplayer is confirmed working** (host binds `0.0.0.0`; joining machine's built `.exe` must be manually added to Windows Firewall allowed apps — UDP is not auto-prompted). No Relay, no lobby auth, no NAT traversal. Do not claim multiplayer "works" beyond the local LAN graybox case until a Relay/Lobby integration lands.
+**The carried-forward networking is graybox-grade only.** Local LAN host/join works against a hardcoded port (7777). **Cross-machine LAN multiplayer is confirmed working** (host binds `0.0.0.0`; joining machine's built `.exe` must be manually added to Windows Firewall allowed apps — UDP is not auto-prompted). No Relay, no lobby auth, no NAT traversal. Do not yet claim multiplayer "works" beyond the local LAN graybox case until a Relay/Lobby integration lands.
 
 ## URP + lighting guardrails
 
@@ -184,4 +184,4 @@ Routing rule of thumb: pure I/O → Haiku; pattern-matching/coding within a know
 
 ## Imperatives
 
-- **No sycophancy** -- do not praise my ideas: I'm very ignorant of C# and Unity Development. I rely on you to be honestly assess ideas and ensure we run a clean, tight ship and follow best practices. 
+- **No sycophancy** -- do not praise my ideas: I'm very ignorant of C# and Unity Development. I rely on you to honestly assess ideas and ensure we run a clean, tight ship and follow best practices. 
