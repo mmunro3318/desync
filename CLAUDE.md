@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Jam constraint:** Pride Jam 2026, due **2026-06-12**, theme **"Asylum"**.
 - **Engine:** Unity 6, URP 17.4.0, Netcode for GameObjects (NGO) 2.11.2, Input System 1.19.0.
 
-## Current code state (as of 2026-05-02)
+## Current code state (as of 2026-05-03)
 
 The repo is documentation-heavy with a freshly-migrated Unity foundation. **No spatial-horror runtime systems exist yet** (no house graph, observation, mutation, portal, or anchor systems). What is currently real, all under `unity-DESYNC/Assets/_Project/`:
 

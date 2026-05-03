@@ -33,10 +33,10 @@ ToolSearch query="select:TaskCreate,TaskUpdate,ReadMcpResourceTool,ListMcpResour
 
 Use the `select:` form — it's the only way to load schemas deterministically. Keyword search may miss. `select:` takes a comma-separated list of exact tool names.
 
-**Unity MCP tools** (all deferred, all prefixed `mcp__UnityMCP__`):
+**Unity MCP tools** (all deferred, all prefixed `mcp__coplay-mcp__`):
 
 ```
-ToolSearch query="select:mcp__UnityMCP__execute_code,mcp__UnityMCP__manage_gameobject,mcp__UnityMCP__manage_components"
+ToolSearch query="select:mcp__coplay-mcp__execute_script,mcp__coplay-mcp__create_game_object,mcp__coplay-mcp__add_component"
 ```
 
 Load in one message before the first use.
@@ -215,6 +215,12 @@ The subagent-driven-development pattern works well for mechanical Unity MCP work
 - **Key:** dispatch with `unity_instance` pre-set in the prompt; include the full list of deferred tools to pre-load; include the exact probe scripts to run for verification.
 
 Worked well in D7 (Tasks 1–3). Pattern: give each subagent a self-contained prompt with "done" definition, specific GameObjects and expected values, and the probe scripts to run.
+
+---
+
+## MCP Server Migration Note (2026-05-03)
+
+The Unity MCP server migrated from `UnityMCP` (prefix `mcp__UnityMCP__`) to `coplay-mcp` (prefix `mcp__coplay-mcp__`, port 6400). Tool names also changed (e.g., `execute_code` → `execute_script`, `manage_gameobject` → `create_game_object`/`set_transform`/etc.). Failure log entries below predate this migration; the patterns they describe still apply but tool names differ.
 
 ---
 
