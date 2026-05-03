@@ -108,12 +108,12 @@ When a task is narrow, Claude should read only the smallest relevant subset of d
 ## Legacy source docs from the earlier clone phase
 These are older foundation docs that many newer docs implicitly build on. They should be preserved for architecture philosophy, but current implementation work should usually prefer the newer impossible-house docs.
 
-| Legacy reference | Actual filename | Why it matters now |
+| Legacy reference | Current filename | Why it matters now |
 |---|---|---|
-| `[file:12]` | `Clone-MVP-Vision.md` | Source of core architecture philosophy: modularity, runtime-vs-definition separation, debug-first, graybox-first |
-| `[file:13]` | `3-Starter-Design-Doc.md` | Source of starter implementation structure, ownership rules, scene discipline |
-| `[file:14]` | `2-Project-Structure.md` | Source of folder/scene/class organization guidance |
-| `[file:15]` | `1-Phasmo-Clone-MVP.md` | Source of milestone-slice thinking and build-order philosophy |
+| `[file:12]` | `Clone MVP Vision.md` | Source of core architecture philosophy: modularity, runtime-vs-definition separation, debug-first, graybox-first |
+| `[file:13]` | `3 - Starter Design Doc.md` | Source of starter implementation structure, ownership rules, scene discipline |
+| `[file:14]` | `2 - Project Structure.md` | Source of folder/scene/class organization guidance |
+| `[file:15]` | `1 - Phasmo Clone MVP.md` | Source of milestone-slice thinking and build-order philosophy |
 
 ## Task-to-doc routing guide
 Use this quick routing table to decide what Claude should read for a given task.
@@ -131,11 +131,11 @@ Use this quick routing table to decide what Claude should read for a given task.
 | Objective/anchor loop work | `anchor-artifact-loop-epic.md`, `sprint-5a-anchor-core-state.md`, `match-loop-and-session-flow.md` |
 | Builder/pipeline work | `house-builder-pipeline-epic.md`, `house-layout-dsl-spec.md`, `importer-contracts-and-data-model.md` |
 
-## Recommended repo convention
-Store these docs in a stable docs folder structure such as:
+## Canonical repo convention
+These docs now live in the stable folder structure below:
 
 ```txt
-docs/
+docs/design
   00-index/
     repo-docs-index-claude-file-map.md
   01-vision/
@@ -147,7 +147,15 @@ docs/
   99-legacy/
 ```
 
-This is optional, but it will make Claude’s navigation much easier.
+Folder intent:
+- `00-index/`: repo-native indexes and navigation docs.
+- `01-vision/`: core design direction, player-experience, and UX docs.
+- `02-architecture/`: runtime framework, contracts, graph architecture, and authoring specs.
+- `03-systems/`: system-specific specs and epics, including observation, mutation, portal, and builder docs.
+- `04-sprints/`: sprint and PDD execution docs.
+- `05-debug-and-testing/`: debug overlays, plans, checklists, and validation docs.
+- `06-claude-prompts/`: Claude-oriented prompt packs and implementation task packs.
+- `99-legacy/`: older clone-phase reference docs retained for architectural context.
 
 ## Usage note for Claude
 When asked to implement a feature:
