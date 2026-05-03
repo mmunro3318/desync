@@ -38,6 +38,7 @@ Full smoke-test detail and known issues (e.g. the floor-to-floor light leak in `
 
 ## Where to read next
 
+- **Roadmap / progress:** `ROADMAP.md` (status dashboard, sprint dependencies, acceptance checkboxes)
 - **Vision / pillars:** `docs/design/01-vision/spatial-horror-gdd.md`, `player-experience-pillars.md`
 - **Architecture:** `docs/design/02-architecture/spatial-runtime-framework.md`, `networked-house-runtime-interfaces-contracts.md`
 - **Doc map:** `docs/design/00-index/repo-docs-index-claude-file-map.md`
