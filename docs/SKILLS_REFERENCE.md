@@ -1,21 +1,22 @@
 # SKILLS_REFERENCE — Which Skill, When
 
-**Last updated:** 2026-04-21
+**Last updated:** 2026-05-03
 **Owner:** Mike
 **Audience:** Mike + any session agent doing skill triage
 **Source brief:** `docs/handoff-prompts/cowork/outgoing/2026-04-19-skills-reference-deepdive-cc.md`
 
-## Install status (checked 2026-04-21)
+## Install status (checked 2026-05-03)
 
 | Suite | Location | Count | Health |
 |---|---|---|---|
 | **Native Claude Code** | bundled into CC binary (no on-disk files) | ~55 commands + ~6 bundled skills | OK |
 | **gstack** | `~/.claude/skills/gstack/` | 41 skills | OK — but `/browse` and its downstream stack is **disabled** in this repo per `CLAUDE.md` (Playwright only) |
 | **superpowers** | `.claude/sources/superpowers/skills/` | 14 real + 3 deprecated aliases | OK |
+| **mattpocock** | `.claude/skills/<name>/` (symlinked from `mattpocock/skills` GitHub repo, pinned in `skills-lock.json`) | 12 skills | OK |
 | **speckit** | `.claude/skills/speckit-*/` + `.specify/` | 9 skills, v0.7.4.dev0 | **Blocked on constitution** — see §Speckit below |
 | **Custom / stray** | `~/.claude/skills/unity-mcp-skill/`, `.claude/skills/logging-file-metadata/` | 2 | OK |
 
-**Not installed (expected by brief):** `engineering:*` plugin skills. Brief assumed they were present; they are not.
+**Not installed (expected by brief):** `engineering:*` plugin skills. Brief assumed they were present; they are not. (Mattpocock skills are a separate suite from those plugin skills.)
 
 ---
 
@@ -351,6 +352,45 @@ No specs have been generated in `.specify/specs/` — speckit has not yet been u
 
 ---
 
+## mattpocock
+
+12 skills sourced from the `mattpocock/skills` GitHub repo and pinned in `skills-lock.json`. Symlinked into `.claude/skills/<name>/`. Philosophy: small, sharp single-purpose skills that pair well with the deeper gstack/superpowers suites — the **deep-modules / interface-discipline** lens (matches `docs/DEEP_MODULES_SPEC.md`) is the throughline.
+
+### Per-skill table
+
+| Skill | Purpose | Trigger | Don't use for |
+|---|---|---|---|
+| `tdd` | Red-green-refactor with vertical-slice discipline (no horizontal slicing — never write all tests first). Tests verify behavior through public interfaces. Bundles `tests.md`, `mocking.md`, `interface-design.md`, `refactoring.md`, `deep-modules.md` as references | TDD on a feature or bug fix; user says "red-green-refactor" | Generated code, prototypes you intend to throw away |
+| `diagnose` | Disciplined diagnosis loop: build a feedback loop → reproduce → minimise → hypothesise → instrument → fix → regression-test. "If you don't have a fast deterministic pass/fail signal, no amount of staring at code will save you." | Hard bug, perf regression, "diagnose this" | Bugs already root-caused (skip to fix) |
+| `improve-codebase-architecture` | Find **deepening opportunities** — refactors that turn shallow modules into deep ones. Uses precise glossary (Module / Interface / Implementation / Depth / Seam / Adapter / Leverage) | Audit before a refactor; "make this more testable / AI-navigable" | Greenfield design (use brainstorming/writing-plans) |
+| `grill-me` | Interview the user relentlessly about a plan, walking each branch of the decision tree and proposing an answer per question | Stress-test a plan; "grill me on this" | Implementation execution |
+| `grill-with-docs` | `grill-me` plus codebase + ADR awareness; updates `CONTEXT.md` / ADRs inline as decisions crystallize | Stress-test against existing domain language and architectural decisions | Solo green-field thinking |
+| `caveman` | Ultra-compressed output mode — drops articles, filler, pleasantries; ~75% token cut while keeping technical accuracy. Persistent until "stop caveman" / "normal mode" | Long sessions running tight on context; explicit "be brief" / "less tokens" | First-time explanations to a user, anything where prose nuance matters |
+| `zoom-out` | "Go up a layer of abstraction. Give me a map of relevant modules and callers using the project glossary." Has `disable-model-invocation: true` — must be invoked manually | Unfamiliar with an area; need orientation before diving in | Single-file edits |
+| `triage` | Move issues through a small triage state machine. Every comment posted starts with an AI disclaimer | Issue-tracker triage; AFK-agent issue prep | Mike doesn't currently use a hosted issue tracker for DESYNC — limits applicability |
+| `to-prd` | Synthesize current conversation context into a PRD and publish to issue tracker (no user interview). Looks for deep-module extraction opportunities | Convert a finished design discussion into a durable spec | Pre-design exploration (use `brainstorming` / `grill-me`) |
+| `to-issues` | Break a plan / spec / PRD into independently-grabbable vertical-slice ("tracer-bullet") issues on the issue tracker | Convert an approved plan into tickets | Plan authoring (use `writing-plans` / `/speckit-plan`) |
+| `write-a-skill` | Author a new skill with progressive disclosure and bundled resources | Adding a project-local skill | Editing/fixing existing skills (prefer `superpowers:writing-skills` which is TDD-integrated) |
+| `setup-matt-pocock-skills` | One-time setup: hands the model the issue-tracker + triage-label vocabulary that `triage` / `to-prd` / `to-issues` depend on | Before first use of any of those three | Repeat invocation per session — the vocabulary should persist |
+
+### Mattpocock vs. neighbouring skills
+
+- **`tdd` (mattpocock) vs. `superpowers:test-driven-development`.** Both enforce TDD. `superpowers` is rule-based with explicit Iron Laws and integrates with the broader execution chain; `mattpocock` is the deeper interface/test-design tutorial. Use `superpowers` when you want a process gate; use `mattpocock` when you want a vertical-slice walkthrough on a specific feature.
+- **`diagnose` (mattpocock) vs. gstack `/investigate` vs. `superpowers:systematic-debugging`.** All three are root-cause-first debug skills. `gstack /investigate` is the lightest fresh-triage scaffold; `superpowers:systematic-debugging` is the strictest mid-session discipline; `mattpocock:diagnose` puts the most weight on **building the feedback loop first** — reach for it when the bug is hard *because* you don't yet have a deterministic repro.
+- **`grill-me` / `grill-with-docs` vs. `superpowers:brainstorming`.** Brainstorming produces a spec from a vague idea. Grilling stress-tests an existing plan/design. Run brainstorming first, then grill before committing.
+- **`improve-codebase-architecture` vs. `/simplify` (gstack) vs. `/health` (gstack).** `/simplify` polishes recently-changed files; `/health` is a composite quality score; `improve-codebase-architecture` specifically hunts shallow modules to deepen — use when the architecture itself is suspect, not when individual files need cleanup.
+- **`triage` / `to-prd` / `to-issues` (mattpocock) vs. `/speckit-taskstoissues`.** Mattpocock's trio assumes a hosted issue tracker (GitHub Issues, Linear, etc.). Mike's DESYNC workflow uses `docs/TODO.md` and `docs/handoff-prompts/`, not an issue tracker — these three are situational here unless that changes.
+
+### When to reach for mattpocock first
+
+- Building or fixing a feature where you want **TDD with explicit vertical-slice discipline** rather than the rigid superpowers law-set.
+- A nasty bug where the *first* problem is "I have no reliable repro" — `diagnose` directly addresses that.
+- Codebase audit aimed at restructuring around the deep-modules pattern (matches `docs/DEEP_MODULES_SPEC.md`).
+- Any time you want a high-precision **glossary-driven** conversation (`zoom-out`, `improve-codebase-architecture`).
+- Token-budget pressure on a long session → `caveman`.
+
+---
+
 ## Stray / custom skills
 
 | Skill | Location | Origin | Notes |
@@ -508,10 +548,11 @@ Pulled from CLAUDE.md "Plans/Document Storage" — restated inline:
 
 | Suite | Plans live at |
 |---|---|
-| Claude Code (native memory) | `~/.claude/projects/C--Users-admin-Desktop-Projects-Unity-phasmo-clone/memory/` |
-| gstack | `~/.gstack-dev/plans/` and `~/.gstack/projects/phasmo-clone/` |
+| Claude Code (native memory) | `~/.claude/projects/C--Users-admin-Desktop-Projects-Unity-spatial-horror/memory/` |
+| gstack | `~/.gstack-dev/plans/` and `~/.gstack/projects/spatial-horror/` |
 | superpowers | `docs/superpowers/plans/` and `docs/superpowers/specs/` |
 | speckit | `.specify/{memory,scripts,specs,templates,workflows,integrations}/` (specs nested per feature: `specs/001-<name>/{spec,plan,tasks,data-model,research}.md` + `contracts/`) |
+| mattpocock | n/a (skills are stateless; `to-prd` / `to-issues` publish to whichever issue tracker has been set up via `setup-matt-pocock-skills`) |
 
 ---
 

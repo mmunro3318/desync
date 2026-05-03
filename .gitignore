@@ -1,0 +1,34 @@
+# Node / build (legacy)
+node_modules/
+dist/
+build/
+.env
+
+# Unity Editor
+unity-DESYNC/Library/
+unity-DESYNC/Temp/
+unity-DESYNC/Logs/
+unity-DESYNC/obj/
+unity-DESYNC/UserSettings/
+
+# Unity generated meta files (usually auto-regenerated)
+*.meta
+
+# IDE
+.vs/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build output
+unity-DESYNC/Build/
+unity-DESYNC/Builds/
+
+# Optional: uncommitted local project files (but Packages/manifest.json IS committed)
+unity-DESYNC/*.slnx
+unity-DESYNC/*.csproj

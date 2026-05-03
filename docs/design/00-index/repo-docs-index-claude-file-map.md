@@ -39,6 +39,7 @@ When a task is narrow, Claude should read only the smallest relevant subset of d
 | `navigation-and-orientation-ux.md` | Spec | Navigation, readability, and orientation rules in impossible space | building traversal, readability, signposting | `spatial-horror-gdd.md` |
 | `room-identity-environmental-legibility-spec.md` | Spec | Rules for keeping rooms distinct/legible under anomaly pressure | implementing room variants or environmental readability | `navigation-and-orientation-ux.md` |
 | `ux-principles-and-interaction-spec.md` | Spec | Core interaction and usability principles | implementing player interaction or UX glue | `spatial-horror-gdd.md` |
+| `spatial-horror-reference-board.md` | Vision | Creative anchor -- digest Mike's (dev) vision and inspiration for the game project | planning out new features, unsure about dev direction or Mike's intent for game/features, deciding on next steps | none |
 
 ## Runtime architecture docs
 
