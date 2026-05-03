@@ -18,21 +18,34 @@ namespace Desync.UI
             hostButton.onClick.AddListener(OnHostClicked);
             joinButton.onClick.AddListener(OnJoinClicked);
             bootstrap.OnHostStartFailed += OnHostFailed;
+            bootstrap.OnConnectionFailed += OnConnectionFailed;
             ipField.text = "127.0.0.1";
             statusText.text = "Ready";
         }
 
         private void OnDestroy()
         {
-            if (bootstrap != null)
-                bootstrap.OnHostStartFailed -= OnHostFailed;
+            if (bootstrap == null) return;
+            bootstrap.OnHostStartFailed -= OnHostFailed;
+            bootstrap.OnConnectionFailed -= OnConnectionFailed;
+        }
+
+        private void ResetButtons()
+        {
+            hostButton.interactable = true;
+            joinButton.interactable = true;
         }
 
         private void OnHostFailed(string reason)
         {
             statusText.text = reason;
-            hostButton.interactable = true;
-            joinButton.interactable = true;
+            ResetButtons();
+        }
+
+        private void OnConnectionFailed(string reason)
+        {
+            statusText.text = reason;
+            ResetButtons();
         }
 
         private void OnHostClicked()

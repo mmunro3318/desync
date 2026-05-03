@@ -21,6 +21,16 @@ namespace Desync.Player
             ApplyCapsuleSettings();
         }
 
+        public override void OnNetworkSpawn()
+        {
+            if (!IsOwner)
+            {
+                // Disable CharacterController on non-owner so it doesn't
+                // fight NetworkTransform position updates
+                _controller.enabled = false;
+            }
+        }
+
         private void ApplyCapsuleSettings()
         {
             if (settings == null)

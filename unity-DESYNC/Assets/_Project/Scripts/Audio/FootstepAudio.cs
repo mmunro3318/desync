@@ -58,7 +58,7 @@ namespace Desync.Audio
             {
                 _stepTimer -= interval;
                 PlayFootstepLocal();
-                PlayFootstepRemoteClientRpc();
+                RequestFootstepServerRpc();
             }
         }
 
@@ -70,6 +70,12 @@ namespace Desync.Audio
                 _localSource.pitch = Random.Range(0.9f, 1.1f);
                 _localSource.PlayOneShot(clip);
             }
+        }
+
+        [ServerRpc]
+        private void RequestFootstepServerRpc()
+        {
+            PlayFootstepRemoteClientRpc();
         }
 
         [ClientRpc]

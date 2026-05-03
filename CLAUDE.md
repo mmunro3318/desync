@@ -135,13 +135,13 @@ Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-
 
 Manual verification that the migrated foundation still works. Run before assuming the project is healthy:
 
-1. Open `unity-DESYNC/` in Unity 6. Allow package import to complete.
-2. Open `Assets/_Project/Scenes/Bootstrap.unity`.
-3. Confirm `Bootstrap` and `House_Graybox` are both in **Build Settings → Scenes In Build** (Bootstrap first).
-4. Enter Play, click **Host** in the lobby UI. Verify scene transitions to `House_Graybox.unity` and the player spawns.
-5. Verify flashlight toggle (input action `ToggleFlashlight`) and footstep audio fire on movement.
-6. From a second Editor instance (Multiplayer Play Mode) or build, **Join** at `127.0.0.1`. Verify a second player spawns and flashlight state replicates.
-7. Run **Window → General → Test Runner → EditMode → Desync.Tests.EditMode**. `NetworkBootstrapConsistencyTests` must be green.
+1. [x] Open `unity-DESYNC/` in Unity 6. Allow package import to complete.
+2. [x] Open `Assets/_Project/Scenes/Bootstrap.unity`.
+3. [x] Confirm `Bootstrap` and `House_Graybox` are both in **Build Settings → Scenes In Build** (Bootstrap first).
+4. [x] Enter Play, click **Host** in the lobby UI. Verify scene transitions to `House_Graybox.unity` and the player spawns.
+5. [x] Verify flashlight toggle (input action `ToggleFlashlight`) and footstep audio fire on movement.
+6. [ ] From a second Editor instance (Multiplayer Play Mode) or build, **Join** at `127.0.0.1`. Verify a second player spawns and flashlight state replicates.
+7. [ ] Run **Window → General → Test Runner → EditMode → Desync.Tests.EditMode**. `NetworkBootstrapConsistencyTests` must be green.
 
 Any failure here is a migration regression — fix before building new systems on top.
 
