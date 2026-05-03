@@ -106,9 +106,24 @@ These decisions originated in the Phasmo-Clone era but remain load-bearing becau
 **How to apply:** New systems get their own modules. The migrated code is allowed to be edited where the manifest's "Bucket B" notes call for it, but new system architecture is not negotiated against it.
 
 ### Local LAN graybox is the only multiplayer claim until Relay/Lobby lands
-**What:** `GameBootstrap.StartClient` uses a hardcoded `127.0.0.1`-style IP and port `7777`. There is no Relay, no Lobby, no auth, no NAT traversal.
-**Why:** The migration brought the graybox networking forward but explicitly did not solve cross-machine play. Claiming otherwise creates a credibility gap with playtesters.
-**How to apply:** Until a Relay/Lobby integration lands, all multiplayer claims in docs, PR descriptions, and playtest invites are scoped to "local LAN graybox." Do not weaken this language.
+**What:** `GameBootstrap.StartClient` uses a user-entered IP and port `7777`. There is no Relay, no Lobby, no auth, no NAT traversal. Cross-machine LAN is confirmed working; internet play is not.
+**Why:** The migration brought the graybox networking forward but explicitly did not solve cross-machine internet play. Claiming otherwise creates a credibility gap with playtesters.
+**How to apply:** Until a Relay/Lobby integration lands, all multiplayer claims in docs, PR descriptions, and playtest invites are scoped to "local LAN graybox." The Windows Firewall caveat must be communicated — UDP-only apps are not auto-prompted, so the built `.exe` must be manually allowed.
+
+### Host binds to `0.0.0.0` (all network interfaces)
+**What:** `GameBootstrap` calls `transport.SetConnectionData("0.0.0.0", port, "0.0.0.0")` before `StartHost()`, binding to all interfaces rather than localhost.
+**Why:** Binding to `127.0.0.1` (previous behavior) prevented any cross-machine connection. `0.0.0.0` works for any LAN topology without requiring the host to know its own IP.
+**How to apply:** Do not revert to a specific IP in `SetConnectionData`. If the host IP ever needs to be surfaced to the UI (for the joining player to type), read it from `Dns.GetHostEntry` — do not hardcode it.
+
+### FootstepAudio uses ServerRpc → ClientRpc relay (owner-initiated effects)
+**What:** `FootstepAudio.PlayFootstepRemoteClientRpc()` is sent via a `RequestFootstepServerRpc()` → `PlayFootstepRemoteClientRpc()` relay rather than calling the ClientRpc directly from the owning client.
+**Why:** Only the server can send ClientRpcs. Calling a ClientRpc from the owning client triggers an NGO ownership error. This is the standard NGO pattern for effects that originate on the owner and must reach all clients.
+**How to apply:** Any new "owner plays something, everyone hears it" pattern must use this relay shape. Direct owner → ClientRpc calls are always wrong.
+
+### CharacterController disabled on non-owner player instances
+**What:** `PlayerMotor.OnNetworkSpawn()` calls `GetComponent<CharacterController>().enabled = false` on non-owner instances.
+**Why:** An enabled `CharacterController` fights `NetworkTransform` on remote player representations — two systems writing to `Transform.position` in the same frame produces jitter and wrong positions.
+**How to apply:** Any physics/movement component on a networked prefab that should only drive the owner must be disabled for non-owners in `OnNetworkSpawn`. Do not rely on `if (!IsOwner) return;` inside `Update` alone — the component must be fully disabled to prevent physics interference.
 
 ### Tests are EditMode-first, behavioral, and namespace-portable
 **What:** The single existing test (`NetworkBootstrapConsistencyTests`) runs in EditMode and asserts on scene-serialized state, not source strings. The test asmdef is `Desync.Tests.EditMode`.

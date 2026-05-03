@@ -22,16 +22,16 @@ CLAUDE.md      operating manual for Claude Code sessions
 
 ## Status
 
-**Documentation-heavy with a freshly-migrated Unity foundation.** Player movement, lobby, host/join (local LAN only), flashlight, footstep audio, and a graybox two-floor house are working. **None of the spatial-horror runtime systems** (house graph, observation lock, mutation, portal, anchor) are implemented yet — they live in `docs/design/02-architecture/` and `03-systems/` as specs awaiting build-out.
+**Documentation-heavy with a freshly-migrated Unity foundation.** Player movement, lobby, host/join, flashlight, footstep audio, and a graybox two-floor house are working. **None of the spatial-horror runtime systems** (house graph, observation lock, mutation, portal, anchor) are implemented yet — they live in `docs/design/02-architecture/` and `03-systems/` as specs awaiting build-out.
 
-Cross-machine multiplayer is **not solved**. Local LAN graybox only until a Relay/Lobby integration lands.
+Cross-machine **local LAN multiplayer is confirmed working**. Internet play (Relay/Lobby/NAT) is not solved. Joining from a build requires manually adding the `.exe` to Windows Firewall allowed apps — Windows does not auto-prompt for UDP-only executables.
 
 ## Getting started
 
 1. Open `unity-DESYNC/` in Unity 6 (let packages import).
 2. Open `Assets/_Project/Scenes/Bootstrap.unity` and confirm both `Bootstrap` and `House_Graybox` are in **Build Settings → Scenes In Build** (Bootstrap first).
 3. Press Play, click **Host**. Verify the player spawns into `House_Graybox`, flashlight toggles, footsteps fire.
-4. From a second Editor instance (Multiplayer Play Mode) or build, **Join** at `127.0.0.1` and confirm replication.
+4. From a second Editor instance (Multiplayer Play Mode) or build, **Join** at the host's LAN IP and confirm both players are visible. For builds on a separate machine, add the `.exe` to Windows Firewall allowed apps first (Firewall → Allow an app → browse to the build).
 5. Run **Test Runner → EditMode → Desync.Tests.EditMode** — `NetworkBootstrapConsistencyTests` must be green.
 
 Full smoke-test detail and known issues (e.g. the floor-to-floor light leak in `House_Graybox.unity`) are in `CLAUDE.md`.

@@ -108,7 +108,7 @@ Follow the authority/ownership rules in `docs/design/98-unity-research/04-ngo-mu
 - Spawn networked prefabs through the `DefaultNetworkPrefabs` registry; do not `Instantiate` them locally.
 - The `NetworkBootstrapConsistencyTests` regression exists because `ConnectionApprovalCallback`/`NetworkConfig.ConnectionApproval` previously drifted apart (TD0002). If you touch connection approval in `Bootstrap.unity` or `GameBootstrap.cs`, that test must still pass.
 
-**The carried-forward networking is graybox-grade only.** Local LAN host/join works against a hardcoded port (7777). **Cross-machine multiplayer is not solved** — no Relay, no lobby auth, no NAT traversal. Do not claim multiplayer "works" beyond the local LAN graybox case until a Relay/Lobby integration lands.
+**The carried-forward networking is graybox-grade only.** Local LAN host/join works against a hardcoded port (7777). **Cross-machine LAN multiplayer is confirmed working** (host binds `0.0.0.0`; joining machine's built `.exe` must be manually added to Windows Firewall allowed apps — UDP is not auto-prompted). No Relay, no lobby auth, no NAT traversal. Do not claim multiplayer "works" beyond the local LAN graybox case until a Relay/Lobby integration lands.
 
 ## URP + lighting guardrails
 
@@ -122,7 +122,7 @@ Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-
 
 - **Don't** treat the carried Phasmo-Clone code as the architectural template. It is a fixture, not a foundation.
 - **Don't** import internal files across modules. Work through the public interface.
-- **Don't** *yet* assume cross-machine multiplayer works. Local LAN graybox only. (*update when fixed*)
+- **Don't** assume cross-machine multiplayer works beyond local LAN. LAN works with the Windows Firewall `.exe` allowance; internet/NAT traversal is not solved.
 - **Don't** silently expand a function past the LoC budget. Justify in a comment + tag for refactor, and surface to Mike.
 - **Don't** introduce new managers/singletons or new ScriptableObject categories without surfacing the trade-off.
 - **Don't** edit Unity `.meta` files manually unless you are explicitly fixing a GUID issue. Let the editor regenerate them.
