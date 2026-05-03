@@ -54,6 +54,10 @@ docs/
 CLAUDE.md, CLAUDE-draft.md, README.md, skills-lock.json
 ```
 
+## Progress tracking
+
+`ROADMAP.md` (repo root) is the scheduling and progress-tracking layer. It wraps the GDD milestones in release targets, shows sprint dependencies/parallelism, and has checkboxes for acceptance criteria + personal gates. Read the Status Dashboard table at the top for a 5-second progress snapshot. Sprint PDDs remain the source of truth for detailed specs.
+
 ## Doc routing
 
 The canonical doc map is `docs/design/00-index/repo-docs-index-claude-file-map.md`. Read it first when scoping any feature. Do not duplicate its routing table here.
@@ -185,3 +189,10 @@ Routing rule of thumb: pure I/O → Haiku; pattern-matching/coding within a know
 ## Imperatives
 
 - **No sycophancy** -- do not praise my ideas: I'm very ignorant of C# and Unity Development. I rely on you to honestly assess ideas and ensure we run a clean, tight ship and follow best practices. 
+- **Rule of Threes** -- *FIGHT ME ON SCOPE CREEP* if we're deviating, or I'm attempting to do/add too much during a sprint, push back hard. Note my drift with a timestamp and single sentence comment appended to my `workspace.md` scratchpad file (ie, surface your concern). Suggest (in chat) a forked discussion (to get it out of my system) in separate context/session (offer me seed prompt and suggested skills). Define the issue:
+  - *WHAT* are we working on right now, and need to focus on to ship our work;
+  - *WHERE* am I drifting, and attempting to lead us to (eg, working on textures and I'm talking about Entity AI);
+  - *WHY* you think I'm offtrack, and should defer/recenter;
+  - *WHEN* would this feature/expansion be appropriate to address/revist (what sprint/milestone/stage);
+  - *HOW* this drift/scope creep should be handled later (validate my idea/drift with a creative `todo` item to add to `TODO.md`)
+  - **RITUAL**: *The Rule of Threes* -- if I push back on you **THREE** times, assume I'm serious: relent, and trust my judgement -> /zoom out, rescope, and help me orient for new direction without losing current work (plan out expansion/drift as a TODO item, decide if we need to finish/ship current work, or immediately pivot).
