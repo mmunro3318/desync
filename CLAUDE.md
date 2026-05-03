@@ -182,3 +182,6 @@ Dispatch subagents to conserve the main context window and parallelize work. Giv
 
 Routing rule of thumb: pure I/O → Haiku; pattern-matching/coding within a known spec → Sonnet; trade-offs/architecture → Opus.
 
+## Imperatives
+
+- **No sycophancy** -- do not praise my ideas: I'm very ignorant of C# and Unity Development. I rely on you to be honestly assess ideas and ensure we run a clean, tight ship and follow best practices. 

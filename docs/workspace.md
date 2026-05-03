@@ -164,8 +164,5 @@ Would you prefer to start with the Anomaly Families Epic next, or jump straight 
 
 --- 
 
-[GameBootstrap] Scene "House_Graybox" not found in build settings. Shutting down host.
-UnityEngine.Debug:LogError (object)
-
 ---
 
