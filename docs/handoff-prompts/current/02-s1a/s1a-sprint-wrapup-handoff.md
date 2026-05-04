@@ -143,6 +143,37 @@ Changing `[SerializeField] private string gameplaySceneName = "House_Prototype"`
 
 6. **Input System vs legacy Input.** Any code using `Input.GetKeyDown` will throw if Player Settings are set to "Input System Package (New)" only. Always check `ARCH.md` for the input stack before writing input code. The project's stack entry explicitly says "New Input System 1.19.0" and "no legacy Input.GetAxis."
 
+## Open bug: overlay + input not working in Play mode
+
+**Symptom (Mike playtest, 2026-05-04 15:41):**
+- Player spawns on brown plane with skybox, no visible room geometry (expected — rooms are trigger-only boxes with no mesh)
+- No IMGUI overlay visible (should start with `_visible = true`)
+- F3 and F5 keys do nothing
+- Console: `ArgumentNullException: Value cannot be null. Parameter name: key` — repeating every few seconds (once per Update frame)
+- Screenshot: `docs/handoff-prompts/current/02-s1a/error-console-unity-3-41-pm.png`
+
+**Debug hypotheses for next session (ordered by likelihood):**
+
+1. **Input System `Keyboard.current` null or stale** — `Keyboard.current` can be null if the Game View isn't focused or the Input System hasn't registered a keyboard device yet. Our null guard (`if (kb == null) return;`) should handle this, but the `ArgumentNullException` with `Parameter name: key` suggests the crash happens *inside* an Input System property accessor (`.f3Key` or `.wasPressedThisFrame`), not at the `Keyboard.current` level. Possible cause: accessing a `KeyControl` on a disposed or not-yet-ready keyboard. **Action:** get full stack trace, check if `Keyboard.current` is non-null but internally invalid.
+
+2. **Update crash prevents OnGUI from executing** — if the `ArgumentNullException` is thrown in `Update()` before the input check completes, Unity may suppress the rest of the frame's callbacks including `OnGUI`. The overlay would exist but never render. **Action:** wrap the Input System calls in a try-catch temporarily to isolate, or move input handling to OnGUI itself (IMGUI has its own `Event.current.type == EventType.KeyDown` API that doesn't depend on Input System).
+
+3. **SpatialDebugOverlay's `graphHost` serialized reference is null** — if the reference broke during NGO scene loading (scene objects load in unpredictable order), graphHost would be null. The current OnGUI code doesn't early-return on null graphHost (it null-coalescces to show zeroes), so this alone wouldn't hide the overlay. But combined with hypothesis 2, a crash in Update would prevent OnGUI entirely. **Action:** add a null-guard log in Awake.
+
+4. **IMGUI rendering requires Game View focus** — IMGUI's `OnGUI` only fires when the Game View is focused in the editor. If Mike is looking at the Scene View, no overlay renders. **Action:** verify Game View tab is active/focused during playtest.
+
+5. **Alternative fix approach:** ditch Input System dependency for the debug overlay entirely. Use IMGUI's built-in `Event.current` in OnGUI for key detection — this is the standard pattern for debug overlays and avoids the Input System dependency altogether:
+```csharp
+// In OnGUI, before rendering:
+if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.F3)
+    _visible = !_visible;
+```
+This removes the Input System asmdef dependency for the debug overlay and sidesteps the keyboard initialization issue.
+
+**Severity:** The overlay is a dev tool, not gameplay-blocking. The graph runtime, prefabs, scene, and tests all work correctly. The overlay rendering + input is the only issue. P2 fix for next session or hotfix before /ship.
+
+---
+
 ## Handoff to /document-release -> /ship -> /review
 1. Run /document-release to update README, ROADMAP, CLAUDE.md for what shipped
 2. Run /ship to create PR (squash merge target: main)
