@@ -18,6 +18,7 @@ Systematic fix of coplanar geometry artifacts (z-fighting, light leak banding) a
 
 **Docs:**
 - `GEOMETRY_GRAMMAR.md` — codified construction rules for coplanar-safe modular geometry (5 rule groups: horizontal separators, exterior walls, internal walls, railings, general constraints)
+    - **Note:** this grammar is a **brittle** solution that will likely break as we scale level assets, it should be marked as a TODO for review, and noted as a potential failure point during dev.
 - `04-geometry-validator-tdd-handoff.md` — seed prompt for a `/tdd` session to build EditMode validator tests + `GeometryGrammarValidator` utility class
 - `TODO.md` — added procedural room geometry builder to tooling backlog
 
@@ -30,7 +31,8 @@ Systematic fix of coplanar geometry artifacts (z-fighting, light leak banding) a
 ## For `/document-release`
 
 Update these docs to reflect the geometry grammar:
-- `docs/ARCH.md` — the "URP lighting: modular graybox floor/ceiling construction" section needs updating to reference `GEOMETRY_GRAMMAR.md` and reflect the corrected rules (trim inward, wall midpoint extent). The existing construction rules in ARCH.md were from the first light-leak fix and are now superseded by the grammar.
+- `docs/ARCH.md` — the "URP lighting: modular graybox floor/ceiling construction" section needs updating to reference `GEOMETRY_GRAMMAR.md` and reflect the corrected rules (trim inward, wall midpoint extent). The existing construction rules in ARCH.md were from the first ~~light-leak~~ fix and are now superseded by the grammar.
+    - **Note:** we affectionately refer to the bug as the "light-leak" bug/fix out of habit/canon because that was the original hypothesis... it was in fact a **geometry/coplanar z-fighting** situation.
 - `CLAUDE.md` — the "URP + lighting guardrails" section references the old ceiling-only fix. Update to reference the grammar and note the broader fix.
 - Check if any other docs reference the old "inset to wall inner edges" rule and update them.
 
