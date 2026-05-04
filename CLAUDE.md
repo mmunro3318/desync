@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The repo is documentation-heavy with a freshly-migrated Unity foundation. **No spatial-horror runtime systems exist yet** (no house graph, observation, mutation, portal, or anchor systems). What is currently real, all under `unity-DESYNC/Assets/_Project/`:
 
 - **Scripts** (`Scripts/`, namespace `Desync.*`): `Core/GameBootstrap.cs`, `Core/GameplaySettings.cs` (ScriptableObject), `Player/{PlayerInputRouter,PlayerLook,PlayerMotor}.cs`, `Items/FlashlightController.cs`, `Audio/{AmbientAudioManager,FootstepAudio}.cs`, `UI/LobbyUI.cs`.
-- **Scenes** (`Scenes/`): `Bootstrap.unity` (lobby + NetworkManager), `House_Graybox.unity` (two-floor modular graybox; **known floor-to-floor light leak** — validate before treating as ground truth).
+- **Scenes** (`Scenes/`): `Bootstrap.unity` (lobby + NetworkManager), `House_Graybox.unity` (two-floor modular graybox; floor-to-floor light leak **fixed 2026-05-04** — geometry inset fix, safe to use as lighting reference).
 - **Tests** (`Tests/EditMode/`): `Desync.Tests.EditMode` asmdef with `NetworkBootstrapConsistencyTests` (regression for NGO `ConnectionApproval` flag/callback drift, TD0002).
 - **Settings**: tuned `GameplaySettings.asset`, `AtmosphereVolumeProfile.asset`, `PlayerInputActions` input asset + generated wrapper.
 - **Prefabs**: `PF_Player` (Motor+Look+Input+Flashlight+Footstep+NetworkObject), `Railing_Graybox`.
@@ -67,7 +67,7 @@ The canonical doc map is `docs/design/00-index/repo-docs-index-claude-file-map.m
 For Unity engine-side conventions, the source of truth is `docs/design/98-unity-research/`:
 - `00-unity-landscape-taxonomy-report.md` — engine stack baseline
 - `01-unity-architecture-code-organization-report.md` — folder/code organization, ScriptableObject boundaries, bootstrap patterns
-- `03-unity-urp-graphics-lighting-horror-report.md` — URP/lighting (load when fixing the House_Graybox light leak)
+- `03-unity-urp-graphics-lighting-horror-report.md` — URP/lighting diagnostics, shadow cascades, interior light containment
 - `04-ngo-multiplayer-architecture-report.md` — NGO authority/ownership rules
 - `05-testing-profiling-debug-overlay-report.md` — testing & profiling
 - `06-ai-guardrails-and-unity-antipatterns-report.md` — directly informs the rules below
@@ -135,7 +135,7 @@ Follow the authority/ownership rules in `docs/design/98-unity-research/04-ngo-mu
 
 Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-report.md` and `docs/design/03-systems/lighting-and-visibility-spec.md`.
 
-- `_Project/Scenes/House_Graybox.unity` has a **known floor-to-floor light leak**. Validate (and ideally fix) before using it as a lighting reference. See the archaeology report's Lighting section.
+- `_Project/Scenes/House_Graybox.unity` floor-to-floor light leak is **fixed** (geometry protrusion, not lighting — see `docs/ARCH.md`). Scene is now safe to use as a lighting reference. Construction rules for new rooms: floor/ceiling rects inset to wall inner edges, ceiling tops flush with wall tops, TwoSided shadow casting on all floor/ceiling renderers.
 - Atmosphere is driven by the tuned `_Project/Settings/AtmosphereVolumeProfile.asset` — modify the profile, not per-scene volumes, when adjusting global mood.
 - Lighting communicates state; do not reach for ambient-fill solutions that erase the readability tiers defined in the lighting spec.
 

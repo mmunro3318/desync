@@ -34,7 +34,7 @@ Cross-machine **local LAN multiplayer is confirmed working**. Internet play (Rel
 4. From a second Editor instance (Multiplayer Play Mode) or build, **Join** at the host's LAN IP and confirm both players are visible. For builds on a separate machine, add the `.exe` to Windows Firewall allowed apps first (Firewall → Allow an app → browse to the build).
 5. Run **Test Runner → EditMode → Desync.Tests.EditMode** — `NetworkBootstrapConsistencyTests` must be green.
 
-Full smoke-test detail and known issues (e.g. the floor-to-floor light leak in `House_Graybox.unity`) are in `CLAUDE.md`.
+Full smoke-test detail is in `CLAUDE.md`.
 
 ## Where to read next
 

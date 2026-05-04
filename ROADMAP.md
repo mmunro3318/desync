@@ -107,11 +107,31 @@ S0.1 Multiplayer fix ──┘         │                      ├──► S4B
 
 ---
 
-### S0.1 — Light Leak Fix + Graphics Deep Dive
+### S0.1 — Multiplayer Fix
 
 **Milestone:** M0 (Foundation cleanup) | **Release:** POC
 **Blocked by:** — | **Unblocks:** S1A, S1B
 **Parallel with:** S0.2
+
+**Branch:** `debug/networking-multiplayer-fix`
+
+**Objective:** Fix the 4 code bugs + 1 environment issue that broke cross-machine multiplayer after migration. Establish LAN multiplayer as the baseline networking claim.
+
+**Acceptance Criteria:**
+- [x] Host binds to `0.0.0.0` (all interfaces) — cross-machine LAN works
+- [x] FootstepAudio uses ServerRpc → ClientRpc relay (owner-initiated effects)
+- [x] CharacterController disabled on non-owner (prevents NetworkTransform fight)
+- [x] LobbyUI shows connection failure state (not stuck on "Connecting...")
+- [x] Windows Firewall caveat documented (UDP-only .exe requires manual allowance)
+- [x] Cross-machine LAN verified: host on desktop, join from laptop build
+
+---
+
+### S0.2 — Light Leak Fix + Graphics Deep Dive
+
+**Milestone:** M0 (Foundation cleanup) | **Release:** POC
+**Blocked by:** — | **Unblocks:** S1A, S1B
+**Parallel with:** S0.1
 
 **Source:** `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-report.md`
 **Scene:** `unity-DESYNC/Assets/_Project/Scenes/House_Graybox.unity`
@@ -123,28 +143,6 @@ S0.1 Multiplayer fix ──┘         │                      ├──► S4B
 - [x] Document findings in `docs/ARCH.md` (URP lighting decisions) (2026-05-04)
 - [ ] Validate fix doesn't break AtmosphereVolumeProfile mood (visual check in Play mode — pending)
 - [x] Developer confidence: can explain how Unity handles light boundaries between floors (2026-05-04)
-
----
-
-### S0.2 — Research Spike: Unity Geometry & Streaming
-
-**Milestone:** M0 (Foundation cleanup) | **Release:** POC
-**Blocked by:** — | **Unblocks:** S1A
-**Parallel with:** S0.1
-
-**Objective:** Deep research on how Unity handles runtime geometry loading/unloading, additive scene management, and room-based streaming. Answer: can we reference the abstract graph and load only room nodes that are occupied + adjacent? What are the performance characteristics of load/unload cycles?
-
-**Acceptance Criteria:**
-- [ ] Research report written (Unity geometry loading patterns, additive scenes vs prefab instantiation vs addressables)
-- [ ] Recommendation locked: which approach for room node loading in DESYNC
-- [ ] Performance envelope documented (how many room nodes before lag)
-- [ ] Decision recorded in `docs/ARCH.md`
-
-**Key questions to answer:**
-- [ ] Can room nodes be loaded/unloaded independently at runtime?
-- [ ] What's the cost of instantiate vs addressable load vs additive scene?
-- [ ] Can we keep baseline house geometry always-loaded (it's small)?
-- [ ] How do we handle portal/threshold visuals during load transitions?
 
 ---
 

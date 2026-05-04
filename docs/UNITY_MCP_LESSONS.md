@@ -265,7 +265,7 @@ The Unity MCP server migrated from `UnityMCP` (prefix `mcp__UnityMCP__`) to `cop
 - Root cause: `execute_code` runs the body as a method body, NOT a full file. `using` directives at file scope are illegal inside a method.
 - Fix: omit `using` directives entirely and fully-qualify types (`UnityEngine.GameObject`, `System.Text.StringBuilder`, `UnityEngine.SceneManagement.SceneManager`, etc.). Or rely on the implicit usings the harness injects (verify per-call by attempting unqualified first; if it errors, switch to fully-qualified).
 
-### 2026-05-04 — S0.1 light leak fix session
+### 2026-05-04 — S0.2 light leak fix session
 
 **7. `execute_code` changes are invisible during Play mode**
 - Tried: disabling lights via `execute_code` while user was in Play mode
