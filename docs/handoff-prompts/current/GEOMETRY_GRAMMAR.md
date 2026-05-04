@@ -66,11 +66,19 @@ All exterior walls use a uniform thickness (currently 0.15m). Inner face positio
 
 Internal walls partition rooms. They terminate at other walls or at horizontal separators.
 
-### R3.1: Extend into host
-Where an internal wall meets an exterior wall, the internal wall must extend **0.05m past** the exterior wall's inner face, into the exterior wall's volume. The internal wall's end is buried inside the exterior wall.
+**Key insight:** The original graybox construction has internal walls extending to the exterior wall **outer face** (X=0.0, Z=0.0), passing through the full wall thickness. This creates z-fighting at the building exterior. The fix is to **trim inward**, not extend outward.
 
-### R3.2: Extend into separator
-Where an internal wall meets a horizontal separator (floor/ceiling), the wall's top/bottom extends **0.05m into** the separator per R1.2. (In practice, the separator is positioned to achieve this — the wall height stays at the nominal room height.)
+### R3.1: Trim to inner face overlap
+Where an internal wall meets an exterior wall, the internal wall must be **trimmed** so its exterior-facing end sits **0.05m inside the exterior wall inner face**. The end is embedded in the exterior wall, but does NOT reach the outer face.
+
+For a 0.15m-thick exterior wall:
+- Left wall (outer X=0.0, inner X=0.15): internal wall X-min = **0.10**
+- Right wall (outer X=14.0, inner X=13.85): internal wall X-max = **13.90**
+- Front wall (outer Z=0.0, inner Z=0.15): internal wall Z-min = **0.10**
+- Back wall (outer Z=10.0, inner Z=9.85): internal wall Z-max = **9.90**
+
+### R3.2: Wall-separator junction
+Where an internal wall meets a horizontal separator (floor/ceiling), the separator is positioned so the wall top is **0.05m below** the separator top per R1.2. Wall heights stay at the nominal room height — the separator handles the burial.
 
 ### R3.3: Internal T-junctions
 Where two internal walls meet at a T-junction, the terminating wall extends **0.05m into** the continuous wall. Document which wall is continuous in ambiguous cases.
@@ -88,7 +96,7 @@ Railings, trim, and decorative geometry are always the lowest-priority pieces.
 Railing bases must extend **0.05m into** the floor slab they sit on. Position the railing so its bottom is 0.05m below the floor's top face.
 
 ### R4.2: Wall contact
-Where a railing meets a wall (exterior or internal), the railing extends **0.05m into** the wall volume. Never terminate flush with a wall face.
+Where a railing meets an **internal** wall, the railing extends **0.05m into** the wall volume. Where a railing meets an **exterior** wall, the railing is **trimmed** to 0.05m inside the inner face per R3.1 — never extend to the outer face.
 
 ---
 
@@ -122,7 +130,7 @@ The overlap/inset constant is **0.05m** everywhere. Do not use different values 
 | Violation | What's wrong | Fix |
 |-----------|-------------|-----|
 | Ceiling top flush with wall top (Y=2.700 = Y=2.700) | Coplanar face, causes banding | Raise ceiling top to Y=2.750 (R1.2) |
-| Internal wall ends at exterior wall inner face (X=0.15) | Coplanar face at T-junction | Extend internal wall to X=0.10 (R3.1) |
+| Internal wall extends to exterior outer face (X=0.0) | Z-fighting at building exterior | Trim internal wall to X=0.10 (R3.1) |
 | Thin-plane ceiling (Y-scale < 0.01) | No volume for walls to terminate into | Replace with 0.1m thick rect (R1.1) |
 | Railing base sits exactly on floor top (Y=2.750) | Coplanar face | Lower railing base to Y=2.700 (R4.1) |
 | Roof ceiling inset to wall inner edge only | Float precision causes sub-pixel protrusion | Inset additional 0.05m past inner edge (R1.3 + R1.5) |

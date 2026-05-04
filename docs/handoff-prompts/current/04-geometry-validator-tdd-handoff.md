@@ -37,11 +37,11 @@ EditMode tests in `Desync.Tests.EditMode` that validate the geometry grammar rul
 - `R1_6_HorizontalSeparators_HaveTwoSidedShadows` — all separator MeshRenderers have shadowCastingMode == TwoSided
 
 **R3 — Internal Wall T-Junctions:**
-- `R3_1_InternalWalls_ExtendIntoExteriorWalls` — internal wall endpoints extend >= 0.05m past the exterior wall inner face they contact
+- `R3_1_InternalWalls_TrimmedInsideExteriorWalls` — internal wall exterior-facing endpoints are >= 0.05m inside the exterior wall inner face (never at the outer face)
 
 **R4 — Railings:**
 - `R4_1_Railings_ExtendIntoFloorSlabs` — railing bottoms are >= 0.05m below floor slab top face
-- `R4_2_Railings_ExtendIntoContactWalls` — railing ends touching walls extend >= 0.05m into wall volume
+- `R4_2_Railings_TrimmedAtExteriorWalls` — railing ends touching exterior walls are >= 0.05m inside the inner face (per R3.1); ends touching internal walls extend >= 0.05m into wall volume
 
 **R5 — General:**
 - `R5_1_NoGeometry_ExtendsBeyondBuildingEnvelope` — all internal geometry within exterior wall outer faces
