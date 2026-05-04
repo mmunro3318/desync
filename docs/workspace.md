@@ -48,36 +48,53 @@ UnityEngine.Debug:LogError (object)
 ```
 ---
 
-## First-session smoke test
+**Frontier Coding Agents Can Now Implement an AlphaZero Self-Play Machine Learning Pipeline For Connect Four That Performs Comparably to an External Solver**
 
-Manual verification that the migrated foundation still works. Run before assuming the project is healthy:
+  S1A Skill Pipeline
 
-1. [x] Open `unity-DESYNC/` in Unity 6. Allow package import to complete.
-2. [x] Open `Assets/_Project/Scenes/Bootstrap.unity`.
-3. [x] Confirm `Bootstrap` and `House_Graybox` are both in **Build Settings → Scenes In Build** (Bootstrap first).
-4. [x] Enter Play, click **Host** in the lobby UI. Verify scene transitions to `House_Graybox.unity` and the player spawns.
-5. [x] Verify flashlight toggle (input action `ToggleFlashlight`) and footstep audio fire on movement.
-6. [x] From a second Editor instance (Multiplayer Play Mode) or build, **Join** at `127.0.0.1`. Verify a second player spawns and flashlight state replicates.
-7. [x] Run **Window → General → Test Runner → EditMode → Desync.Tests.EditMode**. `NetworkBootstrapConsistencyTests` must be green.
+  Here's the suggested workflow for S1A (House Graph Authoring), with session breakpoints marked:
 
-Any failure here is a migration regression — fix before building new systems on top.
+  Session 1: Architecture + Plan
 
----
+  /office-hours           → Scope the sprint, challenge premises, design doc
+  /plan-eng-review        → Lock architecture (graph data model, module boundaries, network sync)
+                          ↓
+  📋 Output: approved design doc + eng plan
+  🔄 COMPACT/NEW SESSION — plan is on disk, context can be clean
 
-No PRs. All commits went direct to main. Fine for a solo bootstrap phase, but worth establishing a PR
-  workflow before S1A starts.
+  Session 2: Core Graph Implementation
 
-  Test coverage: 0%. Zero test files in the project. The existing NetworkBootstrapConsistencyTests
-  asmdef is set up but no test files were added this week. The test ratio will need to climb as runtime
-  systems land in S1A+.
+  /context-restore        → Pick up the plan
+  /tdd                    → HouseGraphDefinition (SO) + HouseGraphInstance (runtime)
+                            Vertical slice: author 3-node graph, load, query adjacency
+  /unity-mcp-skill        → Materialize graph as scene objects (room nodes)
+                          ↓
+  📋 Output: graph loads, queries work, rooms appear in scene
+  🔄 COMPACT/NEW SESSION — heavy Unity MCP work fills context fast
 
-  Where to level up:
-  - Test coverage is at 0%. The NetworkBootstrapConsistencyTests asmdef exists but the test file wasn't
-  carried forward or created this week. Before S1A starts, write at least a smoke test that validates
-  the House_Graybox scene state (geometry bounds, light counts, etc.) -- this would have caught the
-  light leak root cause faster.
-  - The light leak debugging session (S0.2, today) burned cycles on wrong hypotheses because the
-  feedback loop was manual. The /diagnose skill's Phase 1 asks you to build a fast, deterministic
-  pass/fail signal -- for a visual bug in Unity, that means a programmatic scene-state probe that checks
-   geometry bounds against wall bounds. Writing that probe upfront would have identified "floor/ceiling
-  extends past walls" in 1 step instead of 5 hypothesis rounds.
+  Session 3: Network Sync + Debug Overlay
+
+  /context-restore        → Pick up from Session 2
+  /tdd                    → NetworkVariable sync of graph state, 2-player validation
+  /unity-mcp-skill        → Debug overlay (graph topology viz, node states)
+                          ↓
+  📋 Output: graph replicates, debug overlay functional
+  🔄 COMPACT/NEW SESSION
+
+  Session 4: Ship + Integration
+
+  /context-restore        → Pick up from Session 3
+  Manual                  → Quick restart support, edge case cleanup
+  /ship                   → PR with full test suite
+  /review                 → Final review gate
+                          ↓
+  📋 Output: S1A PR merged to main
+
+  Key notes:
+  - Sessions 2-3 are the heaviest. Unity MCP tool calls + TDD loops eat context fast. Plan for compaction between them.
+  - The /context-restore → /context-save pattern preserves state across sessions.
+  - Read the S1A sprint PDD (docs/design/04-sprints/sprint-1a-house-graph-authoring.md) and contracts doc (docs/design/02-architecture/networked-house-runtime-interfaces-contracts.md) at
+  Session 1 start, not Session 2.
+
+  ---
+
