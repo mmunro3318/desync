@@ -37,6 +37,17 @@ namespace Desync.Tests.EditMode
             Assert.IsTrue(
                 _openedScene.IsValid() && _openedScene.isLoaded,
                 $"Failed to open scene at '{ScenePath}'.");
+
+            // Preflight: verify expected root objects exist before tests run.
+            Assert.IsNotNull(GameObject.Find("GF_Walls_Exterior"),
+                "Scene opened but GF_Walls_Exterior not found — scene may be corrupt or stale.");
+        }
+
+        [TearDown]
+        public void RestoreCleanScene()
+        {
+            EditorSceneManager.NewScene(
+                NewSceneSetup.EmptyScene, NewSceneMode.Single);
         }
 
         [Test]
