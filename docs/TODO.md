@@ -8,6 +8,10 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 
 - **Expand UNITY_MCP_LESSONS.md to INSIGHTS.md** — Broaden from Unity MCP-specific gotchas to a general dev insights doc with sections for: Unity MCP, Windows/bash shell quirks (PATH refresh after installs, cmd.exe vs bash), Git workflow patterns, Claude Code session patterns (token-burning antipatterns). Rename and restructure. (Identified during S0.3 workflow hardening, 2026-05-04)
 
+- **Update GameBootstrap.gameplaySceneName for House_Prototype** — Change default from `"House_Graybox"` to `"House_Prototype"` in `GameBootstrap.cs:9` and add `House_Prototype` to Build Settings. Current bootstrap targets the old graybox scene. Do this when House_Prototype scene is created in S1A Session 2. Depends on: House_Prototype scene existing. (Identified during S1A eng review, 2026-05-04)
+
+- **Add room-volume trigger colliders for GetNodeForPosition** — Each room prefab needs a BoxCollider (isTrigger=true) covering the room's interior volume so GetNodeForPosition works everywhere, not just at doorway thresholds. Handle overlapping triggers at boundaries (last-entered-wins or priority). Needed for spawn, teleport, join-in-progress node resolution. Implement alongside room prefab creation in S1A Session 2. (Identified during S1A eng review, Codex outside voice, 2026-05-04)
+
 ---
 
 ## Nascent — Geometry Test Maturity

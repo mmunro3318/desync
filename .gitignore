@@ -20,6 +20,7 @@ unity-DESYNC/UserSettings/
 .vscode/
 *.swp
 *.swo
+.claude/worktrees/
 
 # OS
 .DS_Store

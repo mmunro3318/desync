@@ -163,7 +163,7 @@ S0.1 Multiplayer fix ──┘         │                      ├──► S4B
 - [ ] `HouseGraphInstance` runtime loads from authored data
 - [ ] Runtime exposes node/edge/portal queries (adjacency, occupancy, active layer)
 - [ ] Graph state replicates over network (NetworkVariable-based)
-- [ ] Room nodes manifest as geometry in scene (load/unload per S0.2 findings)
+- [ ] Room nodes manifest as geometry in scene (load/unload per research findings)
 - [ ] Debug overlay renders graph topology, node states, edge connections
 - [ ] Quick restart supported (graph reset without scene reload)
 
