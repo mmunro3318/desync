@@ -48,7 +48,9 @@ docs/
     current/                    # active session briefs (incl. 01-migration/)
     archived/                   # session pipeline
   templates/                    # TODO/prompt templates
-  TODO.md, UNITY_MCP_LESSONS.md, 
+  ARCH.md
+  TODO.md, TODO_INDEX.md, TODO_ARCHIVE.md
+  UNITY_MCP_LESSONS.md, DEEP_MODULES_SPEC.md, SKILLS_REFERENCE.md
   workspace.md (Mike's scratchpad — ignore / do not read)
 .claude/skills/                 # mattpocock skills (symlinks; see skills-lock.json)
 CLAUDE.md, CLAUDE-draft.md, README.md, skills-lock.json
@@ -151,20 +153,6 @@ Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-
 - **Don't** read `docs/workspace.md` unsolicited — Mike's scratchpad.
 - **Don't** duplicate doc content in code comments or in this file. Link to the source-of-truth doc.
 - **Don't** make aspirational claims about systems that don't exist yet (the house graph runtime, observation lock, portals, anchors — none are implemented).
-
-## First-session smoke test
-
-Manual verification that the migrated foundation still works. Run before assuming the project is healthy:
-
-1. [x] Open `unity-DESYNC/` in Unity 6. Allow package import to complete.
-2. [x] Open `Assets/_Project/Scenes/Bootstrap.unity`.
-3. [x] Confirm `Bootstrap` and `House_Graybox` are both in **Build Settings → Scenes In Build** (Bootstrap first).
-4. [x] Enter Play, click **Host** in the lobby UI. Verify scene transitions to `House_Graybox.unity` and the player spawns.
-5. [x] Verify flashlight toggle (input action `ToggleFlashlight`) and footstep audio fire on movement.
-6. [ ] From a second Editor instance (Multiplayer Play Mode) or build, **Join** at `127.0.0.1`. Verify a second player spawns and flashlight state replicates.
-7. [ ] Run **Window → General → Test Runner → EditMode → Desync.Tests.EditMode**. `NetworkBootstrapConsistencyTests` must be green.
-
-Any failure here is a migration regression — fix before building new systems on top.
 
 ## Skill routing
 

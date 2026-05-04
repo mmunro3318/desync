@@ -1,0 +1,35 @@
+{
+  "date": "2026-05-04",
+  "window": "7d",
+  "metrics": {
+    "commits": 14,
+    "contributors": 1,
+    "prs_merged": 0,
+    "insertions": 113699,
+    "deletions": 406,
+    "net_loc": 113293,
+    "test_loc": 0,
+    "test_ratio": 0,
+    "active_days": 2,
+    "sessions": 5,
+    "deep_sessions": 1,
+    "avg_session_minutes": 38,
+    "loc_per_session_hour": 35750,
+    "feat_pct": 0.07,
+    "fix_pct": 0.14,
+    "peak_hour": 3,
+    "ai_assisted_commits": 2
+  },
+  "authors": {
+    "Michael Munro": {
+      "commits": 14,
+      "insertions": 113699,
+      "deletions": 406,
+      "test_ratio": 0,
+      "top_area": "docs/"
+    }
+  },
+  "version_range": ["0.0.0", "0.0.0"],
+  "streak_days": 0,
+  "tweetable": "Week of Apr 27: 14 commits (solo), repo bootstrap + Unity migration + multiplayer fix + light leak diagnosis, 2 active days | S0.1 & S0.2 complete"
+}

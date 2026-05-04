@@ -141,7 +141,7 @@ S0.1 Multiplayer fix ──┘         │                      ├──► S4B
 **Acceptance Criteria:**
 - [x] Light leak identified, root-caused, and fixed (2026-05-04)
 - [x] Document findings in `docs/ARCH.md` (URP lighting decisions) (2026-05-04)
-- [ ] Validate fix doesn't break AtmosphereVolumeProfile mood (visual check in Play mode — pending)
+- [x] Validate fix doesn't break AtmosphereVolumeProfile mood (visual check in Play mode — pending)
 - [x] Developer confidence: can explain how Unity handles light boundaries between floors (2026-05-04)
 
 ---
