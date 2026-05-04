@@ -2,7 +2,7 @@
 
 Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to stub, record, and expand in this document.
 
-**LAST_USED_ID:** TD0008
+**LAST_USED_ID:** TD0010
 
 ---
 
@@ -140,6 +140,43 @@ Items surfaced by S0.3 adversarial review (2026-05-04). Not blocking now, but wi
 - Parent: None
 - Source docs:
   - docs/handoff-prompts/current/04-geometry-validator-tdd-handoff.md
+
+## [TD0009] M0: [KNOWN_BUG] GF_Ceiling/SF_Floor coplanar — stagger inter-floor slab positions
+**What:** In `House_Graybox.unity`, GF_Ceiling and SF_Floor_* are both at Y=2.70 with scale.y=0.1, giving identical extents [2.65, 2.75]. Bottom faces coplanar at Y=2.65, top faces coplanar at Y=2.75. S0.3 moved GF_Ceiling from Y=2.65→2.70 (to comply with R1.2 wall-top burial), inadvertently matching SF_Floor's position. Shipped with visual confirmation (no visible banding at time of test), but coplanar faces exist in data and may surface under baked lighting or different view angles.
+**Why:** Coplanar faces cause z-fighting under some rendering conditions. Grammar R1.4 requires staggered inter-floor slabs but doesn't explicitly prohibit full coincidence. Future geometry validators will report this as a violation.
+**How:** Move SF_Floor_A/B/C from Y=2.70 to Y=2.725 (top=2.775, not coplanar with GF_Ceiling top=2.75) and update stairwell/landing colliders accordingly. Or keep GF_Ceiling at Y=2.70 and move SF_Floor to Y=2.75. Verify both floors' collision and visual with lighting enabled. Add a dedicated R1.4 test that checks no two inter-floor separators share exact XZ overlap at the same Y center.
+
+**Priority:** P[~2]
+**Effort:** ~1–2h (Size: XS; Human: ~1h ProBuilder session, CC: ~15m coord update)
+**Regression risk:** Medium — stairwell geometry connects GF_Ceiling and SF_Floor; moving one requires verifying the other doesn't produce a gap or new violation.
+**Depends on:** Nothing — fix anytime before baked lighting or geometry validator TDD session (TD0003)
+**Types:** [KNOWN_BUG]
+**Tags:** [GEOMETRY, SCENE, HOUSE_GRAYBOX]
+
+**Added:** 2026-05-04 (S0.3 ship adversarial review — user-accepted risk, flagged for downstream fix)
+**Context Reference:**
+- Parent: None
+- Source docs:
+  - docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md (R1.2, R1.4)
+  - unity-DESYNC/Assets/_Project/Scenes/House_Graybox.unity
+
+## [TD0010] M0: [TECH_DEBT] House_Graybox.unity: 4 unnamed scene-embedded PhysicsMaterials
+**What:** ProBuilder editing during S0.3 auto-injected 4 unnamed `PhysicsMaterial` objects (friction=0.6) directly into `House_Graybox.unity`'s scene YAML. They are embedded as inline scene objects with `m_Name: ""` rather than reusable `.physicsMaterial` assets. Only 4 of ~17 modified colliders got them; others retain Unity defaults (friction 0.4). Inconsistent and unintended.
+**Why:** Unnamed embedded physics materials are tech debt — not reusable, not named, inconsistent friction across the scene. Will confuse future physics tuning.
+**How:** Open scene in editor, find the 4 affected colliders (search for colliders with non-default friction), strip the inline materials, and if friction tuning is needed create a proper named `.physicsMaterial` asset in `Assets/_Project/Art/Materials/Physics/`.
+
+**Priority:** P[~4]
+**Effort:** ~30m (Size: XS; Human: ~20m, CC: ~10m)
+**Regression risk:** Low — physics material removal returns those colliders to Unity defaults. Graybox physics aren't tuned yet.
+**Depends on:** Nothing — fix on next scene-edit pass
+**Types:** [TECH_DEBT]
+**Tags:** [SCENE, PHYSICS, HOUSE_GRAYBOX]
+
+**Added:** 2026-05-04 (S0.3 ship adversarial review — ProBuilder editing side effect)
+**Context Reference:**
+- Parent: None
+- Source docs:
+  - unity-DESYNC/Assets/_Project/Scenes/House_Graybox.unity
 
 ---
 

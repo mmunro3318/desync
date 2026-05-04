@@ -18,12 +18,14 @@ Glance-only summary of active TODOs. Read before major planning or scoping decis
 | TD0006 | M1 | KNOWN_BUG | ComputeExteriorWallInteriorBounds: square panel misclassification | non-rect rooms (trigger) | 2026-05-04 |
 | TD0007 | M1 | KNOWN_BUG | ComputeExteriorWallInteriorBounds: unbounded interior for one-sided walls | open-plan rooms (trigger) | 2026-05-04 |
 | TD0008 | M1 | TECH_DEBT | GeometryGrammarValidator: hardcoded minInset 0.05f | per-room validation infra (trigger) | 2026-05-04 |
+| TD0009 | M0 | KNOWN_BUG | House_Graybox: GF_Ceiling/SF_Floor coplanar — stagger inter-floor slab Y positions | — | 2026-05-04 |
+| TD0010 | M0 | TECH_DEBT | House_Graybox: 4 unnamed scene-embedded PhysicsMaterials | — | 2026-05-04 |
 
 ## Counts
 
-- **M0 open:** 1 (TD0003)
+- **M0 open:** 3 (TD0003, TD0009, TD0010)
 - **M1 open:** 5 (TD0004–TD0008)
-- **LAST_USED_ID:** TD0008 *(mirror of `docs/TODO.md` header)*
+- **LAST_USED_ID:** TD0010 *(mirror of `docs/TODO.md` header)*
 
 ## Archived / closed
 
