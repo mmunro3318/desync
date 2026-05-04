@@ -2,7 +2,7 @@
 
 Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to stub, record, and expand in this document.
 
-**LAST_USED_ID:** TD0010
+**LAST_USED_ID:** TD0011
 
 ---
 
@@ -26,6 +26,23 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 - Parent: None
 - Source docs:
   - docs/UNITY_MCP_LESSONS.md
+
+---
+
+## [TD0011] S1A: [NAMING] Consider SpatialGraphRuntime → HouseGraphRuntime rename
+
+**What:** The class `SpatialGraphRuntime` uses "Spatial" prefix while all other types in `Desync.World.Graph` use "House" prefix (`HouseGraphDefinition`, `HouseNodeDefinition`, `HouseEdgeDefinition`). Consider renaming to `HouseGraphRuntime` for consistency.
+**Why:** Counter-drift session flagged the naming inconsistency. The "Spatial" prefix comes from the pre-migration framework spec (`Desync.Spatial.*`), while the namespace moved to `Desync.World.Graph.*`. Either name is defensible — "Spatial" describes what it does (spatial queries), "House" matches the type family. Taste call, not a bug.
+**How:** `git mv` + find/replace across 5 referencing files (SpatialGraphRuntime.cs, PortalResolver.cs, GraphRuntimeHost.cs, SpatialGraphRuntimeTests.cs, PortalResolverTests.cs). Low risk — plain C# class, no scene/prefab GUID references.
+
+**Priority:** P[~5]
+**Effort:** ~15m (Size: XS; Human: ~5m, CC: ~10m)
+**Regression risk:** Low — rename + reference update only.
+**Depends on:** S1A merge to main
+**Types:** [NAMING]
+**Tags:** [GRAPH, CONSISTENCY]
+
+**Added:** 2026-05-04 (counter-drift session flagged, deferred by Mike)
 
 ---
 
