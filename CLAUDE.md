@@ -141,6 +141,14 @@ Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-
 - Atmosphere is driven by the tuned `_Project/Settings/AtmosphereVolumeProfile.asset` — modify the profile, not per-scene volumes, when adjusting global mood.
 - Lighting communicates state; do not reach for ambient-fill solutions that erase the readability tiers defined in the lighting spec.
 
+## Git workflow
+
+- **Branch for any non-doc, non-trivial change.** Prefixes: `feat/`, `fix/`, `debug/`, `mini-sprint/`.
+- **PR flow:** create PR via `/ship` (runs tests, reviews diff, creates PR) → review via `/review` (AI code review) → squash merge to `main` via GitHub.
+- **Merge strategy:** squash merge to main for clean linear history. Note: squash merges leave the source branch tip unrecognized by `git branch -d`; use `git branch -D` after merge.
+- **Commit messages:** concise, imperative, prefixed (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
+- **Doc-only changes** (markdown, comments, CLAUDE.md updates) can go direct to main if trivial.
+
 ## Don'ts
 
 - **Don't** treat the carried Phasmo-Clone code as the architectural template. It is a fixture, not a foundation.
