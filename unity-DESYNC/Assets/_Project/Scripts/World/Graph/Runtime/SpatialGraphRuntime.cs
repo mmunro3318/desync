@@ -22,6 +22,9 @@ namespace Desync.World.Graph.Runtime
         {
             Reset();
 
+            if (definition == null)
+                return;
+
             foreach (var node in definition.nodes)
             {
                 _nodes[node.nodeId] = node;
@@ -59,10 +62,10 @@ namespace Desync.World.Graph.Runtime
             return _edges.TryGetValue(edgeId, out edge);
         }
 
-        public List<HouseEdgeDefinition> GetConnectedEdges(string nodeId)
+        public IReadOnlyList<HouseEdgeDefinition> GetConnectedEdges(string nodeId)
         {
             if (_connectedEdges.TryGetValue(nodeId, out var edges))
-                return edges;
+                return edges.AsReadOnly();
             return new List<HouseEdgeDefinition>();
         }
 

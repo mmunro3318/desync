@@ -3,6 +3,9 @@ namespace Desync.World.Graph.Runtime
     /// <summary>
     /// Resolves portal traversals: given an edge and the node you're in,
     /// returns the destination node and anchor on the other side.
+    /// This is a pure topology query — it does NOT check RuntimeEdgeState.IsOpen.
+    /// Traversal gating (can the player actually walk through?) belongs in a
+    /// higher-level system that consults both this resolver and edge state.
     /// </summary>
     public class PortalResolver
     {

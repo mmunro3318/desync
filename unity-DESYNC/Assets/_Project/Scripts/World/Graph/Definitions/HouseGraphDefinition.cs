@@ -24,6 +24,12 @@ namespace Desync.World.Graph.Definitions
 
             foreach (var node in nodes)
             {
+                if (string.IsNullOrEmpty(node.nodeId))
+                {
+                    errors.Add($"Node has null or empty ID (displayName: '{node.displayName}')");
+                    continue;
+                }
+
                 if (!nodeIds.Add(node.nodeId))
                 {
                     errors.Add($"Duplicate node ID: '{node.nodeId}'");
@@ -35,7 +41,8 @@ namespace Desync.World.Graph.Definitions
                 {
                     foreach (var anchor in node.portalAnchors)
                     {
-                        anchors.Add(anchor.anchorId);
+                        if (!anchors.Add(anchor.anchorId))
+                            errors.Add($"Duplicate anchor ID '{anchor.anchorId}' on node '{node.nodeId}'");
                     }
                 }
                 nodeAnchors[node.nodeId] = anchors;

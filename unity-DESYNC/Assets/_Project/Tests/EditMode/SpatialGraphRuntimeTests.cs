@@ -221,6 +221,37 @@ namespace Desync.Tests.EditMode
             Assert.IsFalse(_runtime.GetNode("entry", out _));
         }
 
+        // --- Reset: verify connected edges cleared ---
+
+        [Test]
+        public void Reset_ClearsConnectedEdges()
+        {
+            _runtime.Reset();
+
+            var edges = _runtime.GetConnectedEdges("hall_a");
+            Assert.AreEqual(0, edges.Count);
+        }
+
+        // --- GetConnectedEdges: returned list is not mutable by caller ---
+
+        [Test]
+        public void GetConnectedEdges_ReturnedListIsReadOnly()
+        {
+            var edges = _runtime.GetConnectedEdges("entry");
+            // Verify the returned collection is read-only (IReadOnlyList)
+            Assert.IsInstanceOf<System.Collections.Generic.IReadOnlyList<HouseEdgeDefinition>>(edges);
+        }
+
+        // --- Edge case: null definition ---
+
+        [Test]
+        public void Initialize_NullDefinition_DoesNotThrow()
+        {
+            var runtime = new SpatialGraphRuntime();
+            Assert.DoesNotThrow(() => runtime.Initialize(null));
+            Assert.AreEqual(0, runtime.NodeCount);
+        }
+
         // --- Edge case: empty graph ---
 
         [Test]

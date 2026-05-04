@@ -178,6 +178,62 @@ namespace Desync.Tests.EditMode
         }
 
         [Test]
+        public void Validate_DetectsNullNodeId()
+        {
+            var definition = ScriptableObject.CreateInstance<HouseGraphDefinition>();
+            definition.nodes = new[]
+            {
+                new HouseNodeDefinition { nodeId = null, displayName = "Unnamed" }
+            };
+
+            var errors = definition.Validate();
+
+            Assert.IsTrue(errors.Count > 0);
+            Assert.IsTrue(errors.Exists(e => e.Contains("null", System.StringComparison.OrdinalIgnoreCase)
+                                            || e.Contains("empty", System.StringComparison.OrdinalIgnoreCase)));
+            Object.DestroyImmediate(definition);
+        }
+
+        [Test]
+        public void Validate_DetectsEmptyNodeId()
+        {
+            var definition = ScriptableObject.CreateInstance<HouseGraphDefinition>();
+            definition.nodes = new[]
+            {
+                new HouseNodeDefinition { nodeId = "", displayName = "Unnamed" }
+            };
+
+            var errors = definition.Validate();
+
+            Assert.IsTrue(errors.Count > 0);
+            Object.DestroyImmediate(definition);
+        }
+
+        [Test]
+        public void Validate_DetectsDuplicateAnchorIdsWithinNode()
+        {
+            var definition = ScriptableObject.CreateInstance<HouseGraphDefinition>();
+            definition.nodes = new[]
+            {
+                new HouseNodeDefinition
+                {
+                    nodeId = "entry",
+                    portalAnchors = new[]
+                    {
+                        new PortalAnchorDefinition { anchorId = "door_a" },
+                        new PortalAnchorDefinition { anchorId = "door_a" }
+                    }
+                }
+            };
+
+            var errors = definition.Validate();
+
+            Assert.IsTrue(errors.Count > 0);
+            Assert.IsTrue(errors.Exists(e => e.Contains("door_a")));
+            Object.DestroyImmediate(definition);
+        }
+
+        [Test]
         public void Validate_ReturnsEmptyForValidGraph()
         {
             var definition = ScriptableObject.CreateInstance<HouseGraphDefinition>();

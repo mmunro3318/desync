@@ -104,9 +104,11 @@ namespace Desync.Tests.EditMode
             // Walk entry -> hall via e1, then hall -> living via e2
             _resolver.Resolve("e1", "entry", out var first);
             Assert.AreEqual("hall", first.destinationNodeId);
+            Assert.AreEqual("door_b", first.destinationAnchorId);
 
             _resolver.Resolve("e2", first.destinationNodeId, out var second);
             Assert.AreEqual("living", second.destinationNodeId);
+            Assert.AreEqual("door_d", second.destinationAnchorId);
         }
     }
 }
