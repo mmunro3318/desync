@@ -54,7 +54,7 @@ UnityEngine.Debug:LogError (object)
 
   Here's the suggested workflow for S1A (House Graph Authoring), with session breakpoints marked:
 
-  Session 1: Architecture + Plan
+ [x] Session 1: Architecture + Plan
 
   /office-hours           → Scope the sprint, challenge premises, design doc
   /plan-eng-review        → Lock architecture (graph data model, module boundaries, network sync)
@@ -62,7 +62,7 @@ UnityEngine.Debug:LogError (object)
   📋 Output: approved design doc + eng plan
   🔄 COMPACT/NEW SESSION — plan is on disk, context can be clean
 
-  Session 2: Core Graph Implementation
+ [x] Session 2: Core Graph Implementation
 
   /context-restore        → Pick up the plan
   /tdd                    → HouseGraphDefinition (SO) + HouseGraphInstance (runtime)
@@ -72,7 +72,7 @@ UnityEngine.Debug:LogError (object)
   📋 Output: graph loads, queries work, rooms appear in scene
   🔄 COMPACT/NEW SESSION — heavy Unity MCP work fills context fast
 
-  Session 3: Network Sync + Debug Overlay
+ [ ] Session 3: Network Sync + Debug Overlay
 
   /context-restore        → Pick up from Session 2
   /tdd                    → NetworkVariable sync of graph state, 2-player validation
@@ -81,7 +81,7 @@ UnityEngine.Debug:LogError (object)
   📋 Output: graph replicates, debug overlay functional
   🔄 COMPACT/NEW SESSION
 
-  Session 4: Ship + Integration
+ [ ] Session 4: Ship + Integration
 
   /context-restore        → Pick up from Session 3
   Manual                  → Quick restart support, edge case cleanup
@@ -96,15 +96,6 @@ UnityEngine.Debug:LogError (object)
   - Read the S1A sprint PDD (docs/design/04-sprints/sprint-1a-house-graph-authoring.md) and contracts doc (docs/design/02-architecture/networked-house-runtime-interfaces-contracts.md) at
   Session 1 start, not Session 2.
 
-  ---
-
-/subagent-driven-development Plan complete and saved to docs/superpowers/plans/2026-05-04-roof-geometry-leak-fix.md.
-
-  Summary: The roof leak is the same geometry bug as before, but specific to the topmost ceiling. SF_Ceiling edges are exactly coplanar with wall inner faces — and unlike lower ceilings,       
-  there's no floor piece overlapping from above to mask the seam. IEEE 754 float imprecision in the 13.7 scale value causes a sub-pixel protrusion. The fix: reduce SF_Ceiling scale from (13.7, 
-  0.1, 9.7) to (13.6, 0.1, 9.6), creating 0.05m of wall overlap on each edge — same safety margin used in the original fix for floor-ceiling overlaps.  
-
-  Leverage Sonnet subagents for targeted work to conserve context. You should write/edit *no* code yourself -- dispatch and review their work, please.
 
 ---
 
@@ -380,3 +371,39 @@ I bring this up because *I'm* ignorant of Unity/C# and **can't** help you if you
   - Session 2 -- /context-restore then /tdd for core graph implementation
 
 **If you want to run the S1.SQA spike first (in a separate worktree), the handoff doc is at docs/handoff-prompts/current/02-s1a/s1-sqa-vertical-slice-spike-handoff.md.**
+
+  What you did well:
+  - Didn't let "light leak" stay as a fuzzy label. You traced to root cause (z-fighting), named it correctly, and made the fix reusable as grammar instead of just patching the scene.
+  - The Perplexity deep-research pipeline is smart. Offloading research to a purpose-built research tool and bringing structured reports back into the codebase means Claude Code sessions stay
+  focused on implementation rather than context gathering.
+  - Three sprints in 3 days with 0 scope creep. Every commit maps to a known sprint goal.
+
+  Where to level up:
+  - Test ratio is 0.3%. The geometry test is a good start, but it's 1 file against a codebase that's about to grow 10x. Every new C# system that lands in M1 should have at minimum a smoke test
+  — commit to this now while the habit is easy to form.
+  - Sessions average 17 minutes. That works for doc commits, but M1 runtime systems (house graph, observation lock) will need 60+ min blocks to avoid context-switching overhead. Consider
+  scheduling explicit deep-work blocks before those sprints begin.
+
+  ---
+  Top Wins This Week
+
+  1. Geometry Grammar codified — the light leak fix didn't just fix the scene, it became a construction grammar. Every future room benefits automatically.
+  2. LAN multiplayer confirmed — de-risked the core co-op premise on real hardware before any gameplay systems exist. The firewall caveat is documented so no future session wastes time
+  re-diagnosing.
+  3. S0.3 PR workflow established — first full /ship run with tests, review, and squash merge. The workflow is proven; all future sprints follow the same rail.
+
+  3 Things to Improve
+
+  1. Test coverage commitment: Agree on a minimum test ratio per new system before M1 sprint planning. Even 10% is 30x better than current.
+  2. Longer sessions for runtime work: The 17-min average is fine for docs but will hurt when writing stateful systems. Block calendar time for M1.
+  3. ROADMAP checkbox discipline: Several S0 completion markers should be checked off now that the branch is merged. Do a ROADMAP sweep before starting M1.
+
+  3 Habits for Next Week
+
+  1. After each new .cs file: check if there's a corresponding test file. If not, add a stub.
+  2. Before starting a sprint: update ROADMAP.md checkboxes from the previous sprint.
+  3. Mark any AI-assisted commit with Co-Authored-By consistently — the 37% AI-assist rate is useful data to track over time.
+
+---
+
+

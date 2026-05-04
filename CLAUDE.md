@@ -152,6 +152,7 @@ Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-
 ## Don'ts
 
 - **Don't** treat the carried Phasmo-Clone code as the architectural template. It is a fixture, not a foundation.
+- **Don't** use/defer to Phasmo-Clone era naming schemes (ie, `GhostHunt.*` vs `Desync.*`) as canon over our living, Source-of-Truth design docs `ARCH.md` and `ROADMAP.md`
 - **Don't** import internal files across modules. Work through the public interface.
 - **Don't** assume cross-machine multiplayer works beyond local LAN. LAN works with the Windows Firewall `.exe` allowance; internet/NAT traversal is not solved.
 - **Don't** silently expand a function past the LoC budget. Justify in a comment + tag for refactor, and surface to Mike.
@@ -160,7 +161,8 @@ Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-
 - **Don't** modify `Library/`, `Temp/`, `Logs/`, or `UserSettings/` — they are editor-local and not source.
 - **Don't** read `docs/workspace.md` unsolicited — Mike's scratchpad.
 - **Don't** duplicate doc content in code comments or in this file. Link to the source-of-truth doc.
-- **Don't** make aspirational claims about systems that don't exist yet (the house graph runtime, observation lock, portals, anchors — none are implemented).
+- **Don't** make aspirational claims about systems that don't exist yet (the house graph runtime, observation lock, portals, anchors — if not yet implemented).
+- **Don't** ignore discrepencies in docs/code (naming schemes, tech/architectural choices), errors (failed/errored CLI commands, tool calls, MCP requests, fizzled skill invocations) -- **surface them for doc/code alignment**
 
 ## Skill routing
 

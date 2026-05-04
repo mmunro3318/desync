@@ -50,18 +50,18 @@ Use `v_*` for nodes, `e_*` for edges, and `p_*` for portal anchors so Claude tas
 Following the earlier predictable folder strategy reduces project sprawl and makes AI-assisted generation easier to constrain [file:13][file:14].
 
 ### Data / authoring
-- `Scripts/Spatial/Definitions/HouseGraphDefinition.cs`
-- `Scripts/Spatial/Definitions/RoomNodeDefinition.cs`
-- `Scripts/Spatial/Definitions/PortalEdgeDefinition.cs`
-- `Scripts/Spatial/Definitions/PortalAnchorDefinition.cs`
-- `Scripts/Spatial/Authoring/RoomNodeAuthoring.cs`
-- `Scripts/Spatial/Authoring/PortalAnchorAuthoring.cs`
+- `Scripts/World/Graph/Definitions/HouseGraphDefinition.cs`
+- `Scripts/World/Graph/Definitions/RoomNodeDefinition.cs`
+- `Scripts/World/Graph/Definitions/PortalEdgeDefinition.cs`
+- `Scripts/World/Graph/Definitions/PortalAnchorDefinition.cs`
+- `Scripts/World/Graph/Authoring/RoomNodeAuthoring.cs`
+- `Scripts/World/Graph/Authoring/PortalAnchorAuthoring.cs`
 
 ### Runtime
-- `Scripts/Spatial/Runtime/SpatialGraphRuntime.cs`
-- `Scripts/Spatial/Runtime/RuntimeNodeState.cs`
-- `Scripts/Spatial/Runtime/RuntimeEdgeState.cs`
-- `Scripts/Spatial/Runtime/PortalResolver.cs`
+- `Scripts/World/Graph/Runtime/SpatialGraphRuntime.cs`
+- `Scripts/World/Graph/Runtime/RuntimeNodeState.cs`
+- `Scripts/World/Graph/Runtime/RuntimeEdgeState.cs`
+- `Scripts/World/Graph/Runtime/PortalResolver.cs`
 
 ### Debug
 - `Scripts/UI/Debug/SpatialDebugOverlay.cs`

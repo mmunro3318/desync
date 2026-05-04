@@ -80,11 +80,11 @@ This sprint should fit into the existing project structure and naming discipline
 Use the same namespace discipline established in the starter docs so future Claude tasks remain unambiguous [file:13].
 
 ### Recommended namespaces
-- `GhostHunt.World.Graph`
-- `GhostHunt.World.Graph.Mutation`
-- `GhostHunt.World.Observation`
-- `GhostHunt.UI.Debug`
-- `GhostHunt.Core.Events`
+- `Desync.World.Graph`
+- `Desync.World.Graph.Mutation`
+- `Desync.World.Observation`
+- `Desync.UI.Debug`
+- `Desync.Core.Events`
 
 ## Milestone framing
 This sprint breaks into two concrete milestones.
