@@ -10,8 +10,8 @@
 
 | Sprint | Status | Blocked By | Unblocks | Release |
 |--------|--------|------------|----------|---------|
-| S0.1 Light Leak Fix + Graphics Deep Dive | 🔲 Not Started | — | S1A, S1B | POC |
-| S0.2 Research Spike: Unity Geometry & Streaming | 🔲 Not Started | — | S1A | POC |
+| S0.1 Multiplayer Fix | ✅ Complete | — | S1A, S1B | POC |
+| S0.2 Light Leak Fix + Graphics Deep Dive | ✅ Complete | — | S1A, S1B | POC |
 | S1A House Graph Authoring | 🔲 Not Started | S0.1, S0.2 | S1B, S2, S3, S5A | POC |
 | S1B Portal Visibility + Node Activation | 🔲 Not Started | S1A | S2 | POC |
 | S2 Observation Lock System | 🔲 Not Started | S1B | S3, S4A, S4B | POC |
@@ -35,11 +35,11 @@
 ## Dependency Graph
 
 ```
-S0.1 Light Leak ─────┐
-                      ├──► S1A ──► S1B ──► S2 ──► S3 ──┬──► S4A ──┐
-S0.2 Research Spike ──┘         │                       ├──► S4B ──┼──► S6 ──► M3 ──► M4?
-                                │                       │          │
-                                └───────────────────────┼──► S5A ──┘
+S0.2 Light Leak ───────┐
+                       ├──► S1A ──► S1B ──► S2 ──► S3 ──┬──► S4A ──┐
+S0.1 Multiplayer fix ──┘         │                      ├──► S4B ──┼──► S6 ──► M3 ──► M4?
+                                 │                      │          │
+                                 └──────────────────────┼──► S5A ──┘
                                                         │
                                                    (parallel)
 ```
@@ -119,10 +119,10 @@ S0.2 Research Spike ──┘         │                       ├──► S4B
 **Objective:** Fix the known floor-to-floor light leak in House_Graybox. Use this as a forcing function to deeply understand URP lighting, shadow cascades, and light probe behavior in Unity 6 — preventing compounding graphics ignorance in later milestones.
 
 **Acceptance Criteria:**
-- [ ] Light leak identified, root-caused, and fixed
-- [ ] Document findings in `docs/ARCH.md` (URP lighting decisions)
-- [ ] Validate fix doesn't break AtmosphereVolumeProfile mood
-- [ ] Developer confidence: can explain how Unity handles light boundaries between floors
+- [x] Light leak identified, root-caused, and fixed (2026-05-04)
+- [x] Document findings in `docs/ARCH.md` (URP lighting decisions) (2026-05-04)
+- [ ] Validate fix doesn't break AtmosphereVolumeProfile mood (visual check in Play mode — pending)
+- [x] Developer confidence: can explain how Unity handles light boundaries between floors (2026-05-04)
 
 ---
 

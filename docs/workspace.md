@@ -47,3 +47,5 @@ UnityEngine.Debug:LogError (object)
 UnityEngine.Debug:LogError (object)
 ```
 ---
+
+Remaining: AtmosphereVolumeProfile mood validation in Play mode, multiplayer lighting consistency check, and NetworkBootstrapConsistencyTests green.

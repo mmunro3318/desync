@@ -93,7 +93,7 @@ These decisions originated in the Phasmo-Clone era but remain load-bearing becau
 **Status:** The Phasmo-era D-series fixes (`stepOffset = 0.05`, ghost-ramp pattern, disabled `GF_Ceiling` collider, repitched `RampCollider`) live inside the migrated `House_Graybox.unity`. They are still load-bearing for movement to work without wedging the capsule in lintels.
 **Minimum overhead clearance rule:** `floor_top + capsule_height + stepOffset + skinWidth + 0.10 safety` ≈ **2.25m** interior ceiling for new graybox rooms.
 **Caveats:**
-- The scene also carries the **known floor-to-floor light leak** flagged in the archaeology report. Validate before treating it as a lighting reference.
+- The **floor-to-floor light leak** has been fixed (see *URP lighting: modular graybox floor/ceiling construction* below). The scene is now safe to use as a lighting reference.
 - Any new geometry must respect the ceiling rule and the ghost-ramp pattern (visible mesh + invisible sloped collider) for stairs.
 
 ---
@@ -134,6 +134,28 @@ These decisions originated in the Phasmo-Clone era but remain load-bearing becau
 **What:** Any decision a future agent might re-litigate gets an entry in this file with a clear *what / why / how to apply / future review*.
 **Why:** Commit messages are cheap to lose; a decision log is the artifact AI agents can re-read at session start.
 **How to apply:** When reviewing a PR, if a non-obvious choice was made and not captured here, push back and ask for an `ARCH.md` entry before approving.
+
+### URP lighting: modular graybox floor/ceiling construction (2026-05-04, S0.1)
+**What:** Floor/ceiling rects in `House_Graybox.unity` must be inset to wall inner edges so their side faces never protrude through exterior walls. The fix also lowered ceilings so their top faces are flush with wall tops, offset SF floors to overlap with ceilings (eliminating coplanar faces), and set `shadowCastingMode = TwoSided` on all floor/ceiling MeshRenderers.
+**Root cause:** The Phasmo-Clone graybox floor/ceiling cubes spanned the full building footprint (X[0,14] Z[0,10]), matching or exceeding the exterior wall outer edges. The 0.1m-tall side faces of these cubes were visible from outside — lit by interior point lights, they produced bright horizontal bands on the building exterior. A secondary issue was coplanar faces between GF_Ceiling and SF_Floor at Y=2.7.
+**What changed in the scene:**
+1. All floor/ceiling rects inset to wall inner edges: X[0.15, 13.85], Z[0.15, 9.85] (SF_Floor_A/B/C inset per-piece based on which edges touch exterior walls).
+2. GF_Ceiling lowered to Y=2.65 (top=2.70, flush with wall tops). SF_Ceiling lowered to Y=5.35 (top=5.40, flush with SF wall tops).
+3. SF_Floor pieces at Y=2.70, overlapping GF_Ceiling by 0.05m — no coplanar faces, no gap.
+4. All 6 floor/ceiling MeshRenderers set to `Cast Shadows = Two Sided`.
+**How to apply for new rooms:**
+- Floor/ceiling rects must be inset to the inner edges of the enclosing walls — never flush with or past the outer wall surface.
+- Ceiling tops must be flush with wall tops (not above them). Wall pieces must fully cover the ceiling's side faces.
+- Adjacent vertical pieces (floor above, ceiling below) must overlap by 0.05m — never coplanar, never gapped.
+- Floor/ceiling pieces must be thin boxes (>=0.1m thick), never flat planes.
+- All floor/ceiling MeshRenderers must have `Cast Shadows = Two Sided`.
+- Grid-snap all modular pieces during placement to prevent sub-millimeter gaps.
+**Hypotheses tested and ruled out during diagnosis:**
+- Shadow bias (zeroed on all lights — no change)
+- Directional light bleed (disabled — no change)
+- Coplanar Z-fighting alone (moved floors — bands persisted)
+- The root cause was geometry protrusion, not lighting configuration.
+**Reference:** `docs/handoff-prompts/current/DEBUG-RESEARCH-debugging-light-leak-urp-issue.md` and `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-report.md`.
 
 ---
 

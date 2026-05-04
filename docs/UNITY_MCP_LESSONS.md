@@ -265,6 +265,28 @@ The Unity MCP server migrated from `UnityMCP` (prefix `mcp__UnityMCP__`) to `cop
 - Root cause: `execute_code` runs the body as a method body, NOT a full file. `using` directives at file scope are illegal inside a method.
 - Fix: omit `using` directives entirely and fully-qualify types (`UnityEngine.GameObject`, `System.Text.StringBuilder`, `UnityEngine.SceneManagement.SceneManager`, etc.). Or rely on the implicit usings the harness injects (verify per-call by attempting unqualified first; if it errors, switch to fully-qualified).
 
+### 2026-05-04 — S0.1 light leak fix session
+
+**7. `execute_code` changes are invisible during Play mode**
+- Tried: disabling lights via `execute_code` while user was in Play mode
+- Symptom: user reported no change — lights still visible
+- Root cause: `execute_code` modifies the edit-mode scene objects. Play mode creates runtime clones from the **saved** scene state. Edit-mode changes are not reflected in the Play mode runtime.
+- Cost: ~3 wasted diagnostic cycles (disable directional light, zero bias, disable all lights) — all invisible to user
+- Fix: Always check `is_playing` state via `mcpforunity://editor/state` before making scene changes. If in Play mode, ask user to exit first. For diagnostic changes, work in Edit mode Scene View, save the scene, THEN enter Play mode to verify.
+
+**8. `execute_code` transform writes don't persist on save — use `manage_gameobject`**
+- Tried: setting `transform.position` and `transform.localScale` via `execute_code`, then calling `manage_scene save`
+- Symptom: scene save reported success, but values reverted to pre-change state on reload
+- Root cause: Unity's serialization only writes objects marked "dirty" to disk. Direct property writes via `execute_code` do NOT call `EditorUtility.SetDirty()` or `Undo.RecordObject()`. The `manage_gameobject` tool does mark objects dirty, so its changes persist.
+- Cost: full debugging session appeared complete but fix was lost — had to re-apply everything
+- Fix: **Always use `manage_gameobject` (or `manage_components`) for changes that must persist to disk.** Use `execute_code` only for read-only probes or temporary diagnostic changes. If you must use `execute_code` for writes, add `UnityEditor.EditorUtility.SetDirty(go)` after each change.
+
+**9. CoPlay MCP may fail to connect — fallback to UnityMCP**
+- Tried: `mcp__coplay-mcp__set_unity_project_root` + various `mcp__coplay-mcp__` tools
+- Error: "Unity Editor is not running at the specified project root" (even after setting root correctly)
+- Root cause: Port conflict — CoPlay defaulted to 6400, was bumped to 6401 but MCP server config may not have updated
+- Fix: When CoPlay fails, verify UnityMCP via `mcpforunity://editor/state` resource. UnityMCP tools (`mcp__UnityMCP__*`) worked reliably throughout the session. Both servers provide overlapping functionality.
+
 ---
 
 ## Append Template
