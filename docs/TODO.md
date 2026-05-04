@@ -2,11 +2,28 @@
 
 Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to stub, record, and expand in this document.
 
-**LAST_USED_ID:** TD0011
+**LAST_USED_ID:** TD0012
 
 ---
 
 ## TODO Items
+
+## [TD0012] S0.3: [BUG] Fix House_Graybox geometry test failures — grammar rules drift
+
+**What:** 2 EditMode tests in `HouseGrayboxGeometryTests` fail because `House_Graybox.unity` scene geometry does not comply with the geometry grammar rules codified in S0.3. Specifically: (1) `CeilingsFlushWithWallTops` — GF_Ceiling top (2.75m) exceeds exterior wall tops (2.70m), expected <= 2.71m. (2) `FloorCeilingBoundsWithinExteriorWalls` — GF_Floor bounds.min.x (0.075m) extends past wall inner edge (0.15m), expected >= 0.14m.
+**Why:** The geometry grammar tests were merged (S0.3 fix branch) but the scene geometry was not updated to match the stricter tolerances. These 2 failures run on every test suite execution and mask real regressions. Every new test run shows "2 failures" and developers have to mentally filter them out.
+**How:** Open `House_Graybox.unity`, adjust GF_Ceiling height and GF_Floor bounds to comply with `GEOMETRY_GRAMMAR.md` rules. Alternatively, if House_Graybox is being superseded by House_Prototype, consider whether these tests should target the new scene or be retired.
+
+**Priority:** P[1]
+**Effort:** ~30m (Size: XS; Human: ~10m, CC: ~20m)
+**Regression risk:** Low — scene geometry adjustment only. Tests already define the expected state.
+**Depends on:** Nothing
+**Types:** [BUG]
+**Tags:** [GEOMETRY, TESTING, S0.3]
+
+**Added:** 2026-05-04 (geometry grammar rules landed hours before scene compliance could be addressed)
+
+---
 
 ## [TD0003] M0: [TECH_DEBT] UNITY_MCP_LESSONS.md: broaden to general dev insights doc
 
@@ -43,6 +60,12 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 **Tags:** [GRAPH, CONSISTENCY]
 
 **Added:** 2026-05-04 (counter-drift session flagged, deferred by Mike)
+
+**`HouseGraphRuntime` referenced in following design docs:**
+  | docs/ARCH.md  | "pending rename" note    │ The canonical table we added — accurately reflects the open decision    |
+  │ 02-architecture/networked-house-runtime-interfaces-contracts.md │ IHouseGraphRuntime (interface) │ Pre-existing — interface name is separate from the concrete class  |
+  │ 05-debug-and-testing/impossible-house-graybox-vertical-slice-plan.md │ HouseGraphRuntime or equivalent        │ Pre-existing hedged reference  │
+  │ 06-claude-prompts/claude-code-task-pack-networked-house-runtime.md   │ HouseGraphRuntime : IHouseGraphRuntime │ Pre-existing prompt pack  |
 
 ---
 
