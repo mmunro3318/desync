@@ -135,21 +135,29 @@ These decisions originated in the Phasmo-Clone era but remain load-bearing becau
 **Why:** Commit messages are cheap to lose; a decision log is the artifact AI agents can re-read at session start.
 **How to apply:** When reviewing a PR, if a non-obvious choice was made and not captured here, push back and ask for an `ARCH.md` entry before approving.
 
-### URP lighting: modular graybox floor/ceiling construction (2026-05-04, S0.1)
+### Modular graybox geometry construction grammar (2026-05-04, S0.3) [SUPERSEDES: "How to apply" rules in S0.1 entry below]
+**What:** Systematic coplanar-face artifact fix across all of `House_Graybox.unity`. Root cause was IEEE 754 float precision: modular pieces sharing exact face positions caused renderer z-fighting visible as banding artifacts on the building exterior and at floor/ceiling junctions. Canonically called the "light leak" bug/fix (that was the original working hypothesis), but the actual cause was coplanar geometry, not lighting.
+**The canonical construction rules are codified in `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md`.** All new room geometry must follow that grammar. Key rules that supersede the S0.1 "inset to wall inner edges" approach:
+- **Separator XZ edges extend to wall MIDPOINT** (R1.3) — 0.075m from outer face for a 0.15m wall. Not just to the inner face; that left a visible gap. Not to the outer face; that caused z-fighting.
+- **Separator tops extend 0.05m ABOVE wall tops** (R1.2) — not flush. Walls terminate INTO the separator volume.
+- **Internal walls trim INWARD** (R3.1) — ends sit 0.05m inside the exterior wall inner face. Not extending to the outer face (previous approach caused z-fighting at the building exterior).
+- **Safety overlap constant is 0.05m everywhere** (R5.3).
+**S0.3 scene changes (House_Graybox.unity):**
+- 6 horizontal separators: XZ edges extended to wall midpoint (0.075m), tops raised 0.05m above wall tops.
+- 17 internal walls: trimmed so exterior-facing ends are 0.05m inside the exterior wall inner face.
+- 4 railings: trimmed at exterior walls (per R4.2), bases lowered 0.05m into floor slabs (per R4.1).
+- Hall_W3: fixed envelope violation (was extending 1m past building back wall).
+**Known limitation:** The grammar is a hand-authored fixture. As house-graph room nodes land (S1A), new geometry will need to follow this grammar or the validator tests will catch violations. A procedural room builder that generates grammar-compliant geometry automatically is tracked as TD0004.
+**References:** `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md` (canonical rules), `docs/handoff-prompts/current/04-geometry-validator-tdd-handoff.md` (TDD seed for EditMode validator), S0.1 entry below (diagnostic history).
+
+### URP lighting: modular graybox floor/ceiling construction (2026-05-04, S0.1) [SUPERSEDED by S0.3 entry above for "How to apply" rules — diagnostic history preserved]
 **What:** Floor/ceiling rects in `House_Graybox.unity` must be inset to wall inner edges so their side faces never protrude through exterior walls. The fix also lowered ceilings so their top faces are flush with wall tops, offset SF floors to overlap with ceilings (eliminating coplanar faces), and set `shadowCastingMode = TwoSided` on all floor/ceiling MeshRenderers.
 **Root cause:** The Phasmo-Clone graybox floor/ceiling cubes spanned the full building footprint (X[0,14] Z[0,10]), matching or exceeding the exterior wall outer edges. The 0.1m-tall side faces of these cubes were visible from outside — lit by interior point lights, they produced bright horizontal bands on the building exterior. A secondary issue was coplanar faces between GF_Ceiling and SF_Floor at Y=2.7.
-**What changed in the scene:**
+**What changed in the scene (S0.1 — partial fix, superseded by S0.3):**
 1. All floor/ceiling rects inset to wall inner edges: X[0.15, 13.85], Z[0.15, 9.85] (SF_Floor_A/B/C inset per-piece based on which edges touch exterior walls).
 2. GF_Ceiling lowered to Y=2.65 (top=2.70, flush with wall tops). SF_Ceiling lowered to Y=5.35 (top=5.40, flush with SF wall tops).
 3. SF_Floor pieces at Y=2.70, overlapping GF_Ceiling by 0.05m — no coplanar faces, no gap.
 4. All 6 floor/ceiling MeshRenderers set to `Cast Shadows = Two Sided`.
-**How to apply for new rooms:**
-- Floor/ceiling rects must be inset to the inner edges of the enclosing walls — never flush with or past the outer wall surface.
-- Ceiling tops must be flush with wall tops (not above them). Wall pieces must fully cover the ceiling's side faces.
-- Adjacent vertical pieces (floor above, ceiling below) must overlap by 0.05m — never coplanar, never gapped.
-- Floor/ceiling pieces must be thin boxes (>=0.1m thick), never flat planes.
-- All floor/ceiling MeshRenderers must have `Cast Shadows = Two Sided`.
-- Grid-snap all modular pieces during placement to prevent sub-millimeter gaps.
 **Hypotheses tested and ruled out during diagnosis:**
 - Shadow bias (zeroed on all lights — no change)
 - Directional light bleed (disabled — no change)

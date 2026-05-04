@@ -137,7 +137,7 @@ Follow the authority/ownership rules in `docs/design/98-unity-research/04-ngo-mu
 
 Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-report.md` and `docs/design/03-systems/lighting-and-visibility-spec.md`.
 
-- `_Project/Scenes/House_Graybox.unity` floor-to-floor light leak is **fixed** (geometry protrusion, not lighting — see `docs/ARCH.md`). Scene is now safe to use as a lighting reference. Construction rules for new rooms: floor/ceiling rects inset to wall inner edges, ceiling tops flush with wall tops, TwoSided shadow casting on all floor/ceiling renderers.
+- `_Project/Scenes/House_Graybox.unity` coplanar geometry artifacts are **fixed** (canonically called the "light leak" fix — actual cause was IEEE 754 z-fighting at shared faces, not lighting). Scene is safe to use as a lighting reference. **Construction rules for new rooms:** follow `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md` — key points: separators extend to wall midpoint (not just inner face), separator tops 0.05m above wall tops (not flush), internal walls trim inward 0.05m. See `docs/ARCH.md` for diagnostic history and S0.3 decision rationale.
 - Atmosphere is driven by the tuned `_Project/Settings/AtmosphereVolumeProfile.asset` — modify the profile, not per-scene volumes, when adjusting global mood.
 - Lighting communicates state; do not reach for ambient-fill solutions that erase the readability tiers defined in the lighting spec.
 

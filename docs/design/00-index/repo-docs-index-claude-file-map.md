@@ -100,6 +100,7 @@ When a task is narrow, Claude should read only the smallest relevant subset of d
 | `networked-house-graybox-test-plan.md` | Plan | Scenario matrix and regression rules for graybox testing | validating the vertical slice | `networked-house-debug-overlay-spec.md`, `networked-house-runtime-interfaces-contracts.md` |
 | `networked-house-vertical-slice-integration-checklist.md` | Checklist | Concrete wiring checklist for the first playable slice | integrating systems in Unity | `networked-house-graybox-test-plan.md`, `networked-house-runtime-interfaces-contracts.md` |
 | `impossible-house-graybox-vertical-slice-plan.md` | Plan | Higher-level plan for the graybox slice | orienting a new implementation pass | `spatial-horror-gdd.md`, `spatial-runtime-framework.md` |
+| `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md` | Spec | Canonical geometry construction grammar — inset, stagger, separator, and coplanar-avoidance rules for graybox rooms; source of truth for the procedural room builder and geometry validator | authoring new room geometry, implementing the procedural room builder (TD0004), running geometry validator TDD (TD0005–TD0008) | `docs/ARCH.md` (S0.3 entry), `docs/handoff-prompts/current/04-geometry-validator-tdd-handoff.md` |
 
 ## Claude execution docs
 
@@ -144,6 +145,7 @@ Use this quick routing table to decide what Claude should read for a given task.
 | Portal/visibility work | `portal-visibility-local-render-streaming-spec.md`, `portal-visibility-sprint-pdd.md`, `sprint-1b-portal-visibility-node-activation.md` |
 | Debug UI work | `networked-house-debug-overlay-spec.md`, `debug-and-visualization-spec.md` |
 | Graybox validation | `networked-house-graybox-test-plan.md`, `networked-house-vertical-slice-integration-checklist.md` |
+| Room geometry authoring / validator TDD | `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md`, `docs/handoff-prompts/current/04-geometry-validator-tdd-handoff.md` |
 | Claude task execution | `claude-code-implementation-prompt-pack-vertical-slice.md` |
 | Objective/anchor loop work | `anchor-artifact-loop-epic.md`, `sprint-5a-anchor-core-state.md`, `match-loop-and-session-flow.md` |
 | Builder/pipeline work | `house-builder-pipeline-epic.md`, `house-layout-dsl-spec.md`, `importer-contracts-and-data-model.md` |
