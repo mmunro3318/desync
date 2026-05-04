@@ -51,6 +51,7 @@ Ideas captured during development that expand scope beyond current sprint. Debat
 - Generation-coded mutation visuals (blue → green → yellow filters showing mutation age)
 
 ### Tooling / Debug Concepts
+- **Procedural Room Geometry Builder** — declarative room definition (dimensions, wall openings, door positions) that generates grammar-compliant geometry automatically. Would eliminate manual coplanar-fix work entirely. Useful as: (a) runtime tool for house-graph room materialization, (b) offline editor tool for rapidly generating batches of test rooms, (c) foundation for a level editor. See `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md` for the construction rules it would encode. *Review when: S1A room node materialization design is underway, or when manual room authoring becomes a bottleneck.* (Identified 2026-05-04)
 - In-game level editor for manual graph manipulation (add nodes, swap edges, spawn entity)
 - Mini-map / graph visualization (`M` key overlay)
 - Graph layout rendering (solved problem — find library for visual graph from data structure)
