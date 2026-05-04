@@ -145,6 +145,7 @@ These decisions originated in the Phasmo-Clone era but remain load-bearing becau
 4. All 6 floor/ceiling MeshRenderers set to `Cast Shadows = Two Sided`.
 **How to apply for new rooms:**
 - Floor/ceiling rects must be inset to the inner edges of the enclosing walls — never flush with or past the outer wall surface.
+- The topmost ceiling (roof) must be inset an additional 0.05m past the wall inner edges (total 0.20m from outer wall) to prevent floating-point coplanar artifacts — unlike lower ceilings, the roof has no overlapping floor piece from above to mask edge seams.
 - Ceiling tops must be flush with wall tops (not above them). Wall pieces must fully cover the ceiling's side faces.
 - Adjacent vertical pieces (floor above, ceiling below) must overlap by 0.05m — never coplanar, never gapped.
 - Floor/ceiling pieces must be thin boxes (>=0.1m thick), never flat planes.
