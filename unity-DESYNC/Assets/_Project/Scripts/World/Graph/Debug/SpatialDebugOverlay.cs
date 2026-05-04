@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Desync.World.Graph.Runtime;
 
 namespace Desync.World.Graph.Debug
@@ -17,8 +18,10 @@ namespace Desync.World.Graph.Debug
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F3)) _visible = !_visible;
-            if (Input.GetKeyDown(KeyCode.F5)) RestartRuntime();
+            var kb = Keyboard.current;
+            if (kb == null) return;
+            if (kb.f3Key.wasPressedThisFrame) _visible = !_visible;
+            if (kb.f5Key.wasPressedThisFrame) RestartRuntime();
             if (_playerTracker == null) // Lazy-find: player spawns dynamically via NGO
                 _playerTracker = FindAnyObjectByType<PlayerNodeTracker>();
         }
