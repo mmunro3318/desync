@@ -33,8 +33,13 @@ The separator's top face must extend **0.05m above** the top of any walls it con
 - Separator top = wall top + 0.05m
 - Separator bottom = separator top - thickness (>= 0.1m)
 
-### R1.3: XZ inset
-Separator XZ edges must be inset **0.05m inside** the inner face of enclosing exterior walls. For a 0.15m-thick exterior wall with inner face at X=0.15, the separator edge is at X=0.20.
+### R1.3: XZ extent to wall midpoint
+Separator XZ edges must extend to the **midpoint** of enclosing exterior walls (50% of wall thickness from the outer face). For a 0.15m-thick exterior wall, the separator edge is at **0.075m** from the outer face. This ensures the separator is visually flush with the wall interior (no gap) while staying safely inside the wall volume (no z-fighting at the outer face).
+
+- Left wall (outer X=0.0): separator X-min = **0.075**
+- Right wall (outer X=14.0): separator X-max = **13.925**
+- Front wall (outer Z=0.0): separator Z-min = **0.075**
+- Back wall (outer Z=10.0): separator Z-max = **9.925**
 
 ### R1.4: Inter-floor overlap
 Where a floor separator sits above a ceiling separator (multi-story), the floor's bottom must extend **0.05m below** the ceiling's top. Never coplanar, never gapped.
@@ -119,6 +124,7 @@ The overlap/inset constant is **0.05m** everywhere. Do not use different values 
 |-----------|-------|
 | Building envelope | X[0, 14], Z[0, 10] |
 | Exterior wall thickness | 0.15m |
+| Exterior wall midpoint | X: 0.075 / 13.925, Z: 0.075 / 9.925 |
 | Interior wall inner faces | X: 0.15 / 13.85, Z: 0.15 / 9.85 |
 | GF height | 0 to 2.70m |
 | SF height | 2.70 to 5.40m |
@@ -133,4 +139,4 @@ The overlap/inset constant is **0.05m** everywhere. Do not use different values 
 | Internal wall extends to exterior outer face (X=0.0) | Z-fighting at building exterior | Trim internal wall to X=0.10 (R3.1) |
 | Thin-plane ceiling (Y-scale < 0.01) | No volume for walls to terminate into | Replace with 0.1m thick rect (R1.1) |
 | Railing base sits exactly on floor top (Y=2.750) | Coplanar face | Lower railing base to Y=2.700 (R4.1) |
-| Roof ceiling inset to wall inner edge only | Float precision causes sub-pixel protrusion | Inset additional 0.05m past inner edge (R1.3 + R1.5) |
+| Separator edge at wall inner face (X=0.15) | Visible gap between floor and wall | Extend to wall midpoint X=0.075 (R1.3) |
