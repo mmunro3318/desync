@@ -25,8 +25,8 @@ Fixed 4 code bugs + identified 1 environment issue that together broke multiplay
 - [x] MPPM (same machine): Host + Join works, both players visible, movement replicates
 - [x] Cross-machine (LAN WiFi): Host on desktop, join from laptop build -- works after firewall .exe allowance
 - [ ] `NetworkBootstrapConsistencyTests` -- should still pass (ConnectionApproval remains false)
-- [ ] Flashlight replication between players
-- [ ] Footstep audio heard on remote player
+- [x] Flashlight replication between players
+- [x] Footstep audio heard on remote player
 
 ## Docs to Update
 
