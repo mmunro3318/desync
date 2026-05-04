@@ -74,7 +74,7 @@ Internal walls partition rooms. They terminate at other walls or at horizontal s
 **Key insight:** The original graybox construction has internal walls extending to the exterior wall **outer face** (X=0.0, Z=0.0), passing through the full wall thickness. This creates z-fighting at the building exterior. The fix is to **trim inward**, not extend outward.
 
 ### R3.1: Trim to inner face overlap
-Where an internal wall meets an exterior wall, the internal wall must be **trimmed** so its exterior-facing end sits **0.05m inside the exterior wall inner face**. The end is embedded in the exterior wall, but does NOT reach the outer face.
+Where an internal wall meets an exterior wall, the internal wall must be **trimmed** so its exterior-facing end penetrates **0.05m into the wall volume past the exterior wall's inner face** (toward the outer face). The end is embedded in the exterior wall, but does NOT reach the outer face.
 
 For a 0.15m-thick exterior wall:
 - Left wall (outer X=0.0, inner X=0.15): internal wall X-min = **0.10**

@@ -8,7 +8,7 @@
 
 DESYNC uses modular graybox geometry (Unity cube primitives) for its house scenes. We've codified construction rules in `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md` to prevent coplanar-face artifacts (light leaks, shadow banding from IEEE 754 float imprecision).
 
-The existing scene `House_Graybox.unity` has **known violations** of these rules — this is intentional. The tests should FAIL against the current scene until a separate fix session corrects the geometry. Write the tests to be correct per the grammar; don't weaken them to match current scene state.
+The scene `House_Graybox.unity` has been **fixed** in branch `fix/quick-fix-geometry-bug-repeat` (merged to `main` prior to this TDD session). Tests written to the grammar should **PASS** against the current scene. If a test fails against `House_Graybox.unity`, either the test has a wrong assertion or an unfixed violation remains — investigate before weakening the test. Write tests to be correct per the grammar; don't weaken them to match scene state.
 
 ### Existing test infrastructure
 - Assembly: `Desync.Tests.EditMode` at `unity-DESYNC/Assets/_Project/Tests/EditMode/`
