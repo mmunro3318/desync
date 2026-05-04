@@ -1,5 +1,35 @@
 # Perplexity Deep Research Prompts — DESYNC Development
 
+| checkbox | batch id | research title | unblocks |
+|---|---|---|---|---|
+|[x]  | **Batch A** | *URP interior lighting and leak debugging* | M1 - S0.1/S0.2 gate |
+| [x] | A1 | URP interior lighting architecture | M1 - S0.1 |
+| [x] | A2 | Floor-to-floor leak diagnosis and fixes | M1 - S0.2 |
+|[x]  | **Batch B** | *Room streaming, NGO sync, and perf budgets* | M1 - S0.2 gate |
+| [x] | B1 | Room streaming strategy tradeoffs | M1 - S0.2 |
+| [x] | B2 | NGO room-mutation sync patterns | M1 - S0.2 |
+| [x] | B3 | Runtime budgets and profiler thresholds | M1 - S0.2 |
+|[x]  | **Batch C** | *Mutable house-graph architecture* | M1 - S1A |
+| [x] | C1 | Spatial graph models and mutation invariants | M1 - S1A |
+| [x] | C2 | Unity C# house-graph runtime design | M1 - S1A |
+|[~]  | **Batch D** | *Observation-lock visibility system* | M1 - S2 |
+| [~] | D1 | Player visibility heuristics (standard search) | M1 - S2 |
+|[x]  | **Batch E** | *Impossible geometry techniques* | M1 - S3 |
+| [x] | E1 | Portals, loops, and Tardis implementation patterns | M1 - S3 |
+|[~]  | **Batch F** | *Dynamic-graph AI navigation* | M4 - Stalker Entity |
+| [~] | F1 | AI pathing and NavMesh under mutations | M4 - Stalker Entity |
+|[~]  | **Batch G** | *Co-op horror multiplayer architecture* | M1 - S6 |
+| [~] | G1 | Authority and consistency patterns for co-op horror | M1 - S6 |
+|[~]  | **Batch H** | *ScriptableObject architecture at scale* | M1 - S1A |
+| [~] | H1 | Definition-vs-runtime SO patterns and pitfalls | M1 - S1A |
+
+**Legend:** 
+- `[ ]` = not completed/attempted
+- `[x]` = completed in Deep Research mode, 
+- `[~]` = attempted in normal Perplexity search mode (ran out of Deep Research uses)
+
+**Note from Mike:** -> `[~]` partial research done `May 3, 2026`: remind me/Mike on/after `May 16, 2026` to perform Deep Dive later after reset if necessary, or to followup with additional prompts in that thread with additional questions/(manual) deeper drilling.
+
 ## How to Use This Document
 
 This document contains research prompts organized into **batches**. Each batch is a coherent research thread.
@@ -18,11 +48,11 @@ This document contains research prompts organized into **batches**. Each batch i
 
 ---
 
-## Batch A: URP Lighting & Graphics Debugging (P0)
+## [x] Batch A: URP Lighting & Graphics Debugging (P0)
 
 > Run in a single thread. Sequential prompts that build context.
 
-### A1 — URP Lighting Architecture in Unity 6
+### [x] A1 — URP Lighting Architecture in Unity 6
 
 ```
 I'm developing a first-person horror game in Unity 6 with URP 17.x. The game features a multi-floor interior house where players explore with flashlights in near-darkness.
@@ -44,7 +74,7 @@ I need a comprehensive technical deep dive on how URP handles lighting in enclos
 Please cite official Unity 6 documentation and community solutions where possible. I need actionable debugging steps, not just conceptual overviews.
 ```
 
-### A2 — Debugging a Specific Floor-to-Floor Light Leak
+### [x] A2 — Debugging a Specific Floor-to-Floor Light Leak
 
 ```
 Building on the URP lighting context: I have a specific bug in my Unity 6 URP project.
@@ -69,11 +99,11 @@ I want to fix this properly, not mask it with shadow planes or overlapping geome
 
 ---
 
-## Batch B: Runtime Geometry Loading & Room-Based Streaming (P0)
+## [x] Batch B: Runtime Geometry Loading & Room-Based Streaming (P0)
 
 > Run in a single thread. Sequential prompts building toward our house graph architecture.
 
-### B1 — Room-Based Level Streaming in Unity 6
+### [x] B1 — Room-Based Level Streaming in Unity 6
 
 ```
 I'm building a first-person horror game in Unity 6 where the house layout is represented as a graph of room nodes connected by portal edges. The graph can mutate at runtime (rooms disconnect, reconnect to different rooms, new rooms get inserted).
@@ -97,7 +127,7 @@ For each approach, I need: memory cost, CPU cost per frame, load latency, and su
 My house is small for MVP (~8-15 rooms), but may grow to 50+ rooms post-MVP. I need an approach that works at both scales.
 ```
 
-### B2 — Multiplayer Room Loading with Netcode for GameObjects
+### [x] B2 — Multiplayer Room Loading with Netcode for GameObjects
 
 ```
 Building on the room streaming context: my game uses Unity's Netcode for GameObjects (NGO) 2.11.x for multiplayer (2-4 players, server-authoritative).
@@ -125,7 +155,7 @@ The house graph is server-authoritative. When the server decides a room mutation
 Practical patterns with code examples preferred. I'm using Unity 6 with NGO 2.11.x.
 ```
 
-### B3 — Performance Budgets for Room-Based Horror Games
+### [x] B3 — Performance Budgets for Room-Based Horror Games
 
 ```
 Building on the room streaming and multiplayer context: I need to establish performance budgets for my room-based horror game.
@@ -152,11 +182,11 @@ I want concrete numbers and thresholds I can use as "if we exceed X, we have a p
 
 ---
 
-## Batch C: Graph Data Structures for Spatial Games (P1)
+## [x] Batch C: Graph Data Structures for Spatial Games (P1)
 
 > Run in a single thread. This informs the House Graph architecture decisions.
 
-### C1 — Graph-Based Level Representation in Games
+### [x] C1 — Graph-Based Level Representation in Games
 
 ```
 I'm building a horror game where the house layout is a graph that mutates at runtime. Rooms are nodes, doorways/portals are edges. The graph can change while players are inside it (edges rerouted, nodes inserted/removed, subgraphs attached).
@@ -180,7 +210,7 @@ I need a comprehensive survey of how games and game engines represent mutable sp
 Focus on practical implementation patterns, not pure CS theory. Code examples in C# preferred.
 ```
 
-### C2 — Implementing a House Graph Runtime in Unity/C#
+### [x] C2 — Implementing a House Graph Runtime in Unity/C#
 
 ```
 Building on the graph data structures context: I need to implement this in Unity 6 with C#.
@@ -213,11 +243,11 @@ Show me the architecture: interfaces, key classes, and how they wire together. I
 
 ---
 
-## Batch D: Observation & Visibility Systems in Games (P1)
+## [~] Batch D: Observation & Visibility Systems in Games (P1)
 
 > Run in a single thread. Informs Sprint 2 (Observation Lock).
 
-### D1 — Player Visibility and Observation Systems
+### [~] D1 — Player Visibility and Observation Systems
 
 ```
 I'm implementing an "observation lock" system for a horror game: spaces that are currently observed (seen by a player) cannot mutate. Only unobserved spaces are eligible for spatial changes.
@@ -243,11 +273,11 @@ I need practical implementation approaches, not perfect solutions. "Good enough"
 
 ---
 
-## Batch E: Spatial Anomaly & Impossible Geometry in Games (P2)
+## [x] Batch E: Spatial Anomaly & Impossible Geometry in Games (P2)
 
 > Run in a single thread. Informs Sprint 3 and the anomaly families.
 
-### E1 — Impossible Geometry Techniques in Real-Time Games
+### [x] E1 — Impossible Geometry Techniques in Real-Time Games
 
 ```
 I'm building a horror game where the house layout is spatially impossible — corridors loop back on themselves, interiors are bigger than exteriors, and rooms connect in non-Euclidean ways. All running in real-time first-person perspective in Unity 6 with URP.
@@ -275,11 +305,11 @@ Cite GDC talks, developer blogs, and open-source implementations where available
 
 ---
 
-## Batch F: AI Pathfinding on Dynamic Graphs (P2)
+## [~] Batch F: AI Pathfinding on Dynamic Graphs (P2)
 
 > Separate thread. Informs M4 (Stalker Entity) — can run during M1/M2 development.
 
-### F1 — AI Navigation in Mutable Level Topology
+### [~] F1 — AI Navigation in Mutable Level Topology
 
 ```
 I'm building a horror game where a stalker entity navigates a house whose layout changes at runtime (edges reroute, rooms swap, new rooms appear). The entity needs to pathfind through this mutable graph while appearing intelligent and purposeful.

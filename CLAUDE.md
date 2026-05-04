@@ -71,6 +71,23 @@ For Unity engine-side conventions, the source of truth is `docs/design/98-unity-
 - `04-ngo-multiplayer-architecture-report.md` — NGO authority/ownership rules
 - `05-testing-profiling-debug-overlay-report.md` — testing & profiling
 - `06-ai-guardrails-and-unity-antipatterns-report.md` — directly informs the rules below
+- `07-urp-lighting-architecture-in-unity-6.md` — URP lighting internals/containment behavior for interiors.
+- `08-room-based-level-streaming-in-unity-6.md` — scene building strategies for streaming many room nodes.
+- `09-multiplayer-room-loading-with-ngo.md` — NGO patterns for authoritative graph-state sync and client-side room loading.
+- `10-performance-budgets-for-room-based-horror-games.md` — frame, memory, loading, physics, and networking budget thresholds.
+- `11-graph-based-level-representation-in-mutable-horror-games.md` — mutable house-graph data models, invariants, and serialization strategies.
+- `12-player-visibility-and-observation-systems.md` — observation-lock visibility heuristics and multiplayer observation-set handling.
+- `13-impossible-geometry-techniques-in-real-games.md` — shipped techniques for portals, loops, substitutions, and Tardis-style spaces.
+- `14-ai-navigation-in-mutable-graph.md` — stalker/entity navigation on runtime-mutating topology.
+- `15-multiplayer-architecture-for-co-op-horror-games.md` — authority, consistency, pacing, and late-join patterns for 2–4 player co-op horror.
+- `16-scriptable-object-patterns-for-runtime-game-systems.md` — definition-vs-runtime SO architecture, tooling, validation, and pitfalls.
+- `98-unity-mcp-claude-code-guide.md` — Unity MCP + Claude Code operational workflow and guardrails for editor-orchestrated development.
+
+Recommended usage shorthand:
+- Use `07`–`10` when de-risking `M1` runtime foundations.
+- Use `11`–`13` when implementing graph, observation, and spatial anomaly systems.
+- Use `14`–`16` when shaping `M4` AI and cross-system data architecture.
+- Use `98` whenever executing Unity work through MCP-driven Claude workflows.
 
 **Architectural Design Decisions:** Record key, major architectural decisions (and *WHY*) during development to prevent future AI agents from straying, in `docs/ARCH.md`. Especially as it comes to Unity development. 
 

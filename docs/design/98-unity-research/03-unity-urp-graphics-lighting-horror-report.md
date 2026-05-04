@@ -5,6 +5,20 @@ This report covers Unity 6.4 Universal Render Pipeline (URP) setup, rendering pa
 
 The central recommendation is: **use Forward+ rendering path, set up a mixed baked/real-time lighting strategy from early prototype phases, fix shadow defaults that Unity 6 ships with at low quality, add a Global Volume post-processing profile with horror-tuned overrides, place one reflection probe per room, and understand the four common light-leak causes and their fixes before spending hours trying to find them by trial and error**.[cite:240][cite:269][cite:280][cite:250]
 
+## Document role and routing
+This document is the **high-level onboarding and common-concepts reference** for URP lighting/graphics in this repo. It is the primary place for shared theory, baseline defaults, and practical debugging heuristics that should not be re-explained across multiple reports.
+
+Use this document when you need:
+- A first-pass setup for URP lighting in Unity 6.
+- Common conceptual grounding (Forward+, shadows, leaks, probes, volumes).
+- Debug-first troubleshooting flow for graybox interior lighting problems.
+
+Use the companion architecture report for structural/system decisions:
+- `docs/design/98-unity-research/07-urp-lighting-architecture-in-unity-6.md`
+
+Use the deep-dive debugging thread when diagnosing the known floor-to-floor leak symptom in the current graybox:
+- `docs/handoff-prompts/current/DEBUG-RESEARCH-debugging-light-leak-urp-issue.md`
+
 ## Executive Summary
 Unity 6 URP ships with lower default shadow quality than Unity 2022 LTS, which surprises developers migrating from older projects. The shadow resolution defaults, shadow distance, and soft shadow quality all need explicit tuning for an indoor horror game that depends on deep, crisp shadows for atmosphere.[cite:240]
 

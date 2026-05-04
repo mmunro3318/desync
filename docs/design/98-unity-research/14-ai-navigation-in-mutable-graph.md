@@ -1,0 +1,39 @@
+# AI Navigation in Mutable Graph
+
+**Note from Mike:** -> rather than validating path on each room/edge approach, we can trigger re-validation and/or repathing on graph mutation events.
+
+For your game, use a **two-layer navigation model**: room-to-room pathfinding on the mutable house graph, plus per-room NavMesh for local motion. For the room graph, the practical default is “plan fast, validate often, replan on edge invalidation,” while using Unity NavMesh surfaces and `NavMeshLink` only for local traversal through currently active portals. [youtube](https://www.youtube.com/watch?v=UGh4VSeKPNA)
+
+## Pathfinding model
+For room-level navigation, treat the house as a dynamic graph and run A* over rooms/portals, but **do not** commit to a long path for very long; instead, validate the next hop each time the entity reaches a room or a portal threshold, and replan when the chosen edge is no longer valid. In your example, if C no longer leads to D, the stalker should discard the stale suffix of the route and compute a new graph path from its current room, not from the original start room, which keeps behavior stable and cheap on a house-scale graph. [youtube](https://www.youtube.com/watch?v=UGh4VSeKPNA)
+
+I would only reach for D* Lite or another incremental search if your room graph is large, mutations are extremely frequent, and you are changing edge costs/availability every few frames; on a typical horror-house graph with tens or low hundreds of rooms, fresh replans from the current node are usually simpler and easier to debug than maintaining incremental search state. Hierarchical navigation is still the right overall architecture: graph search picks the room sequence, and room-local NavMesh handles furniture, door approach, and micro-movement. [docs.unity3d](https://docs.unity3d.com/560/Documentation/Manual/class-NavMeshSurface.html)
+## Unity NavMesh setup
+Unity’s AI Navigation package supports multiple `NavMeshSurface` components in one scene, and each surface builds NavMesh data for a chosen agent type. `BuildNavMesh()` builds and instantiates a surface, while `UpdateNavMesh(NavMeshData)` updates an existing surface and returns an `AsyncOperation`; Unity’s documentation explicitly says this update path is asynchronous. [youtube](https://www.youtube.com/watch?v=UGh4VSeKPNA)
+
+That means a strong Unity 6 pattern is: keep one `NavMeshSurface` per loaded room or room cluster, call `AddData()` when the room becomes active, `RemoveData()` when it unloads, and prefer `UpdateNavMesh(existingData)` over full rebuilds when geometry inside an already loaded room changes. Avoid frequent full `BuildNavMesh()` calls during play because they are heavier, while async updates are better aligned with runtime mutation systems. [reddit](https://www.reddit.com/r/Unity3D/comments/vx24i3/building_my_navmesh_surface_at_runtime_comes_with/)
+## Portal connections
+If each room owns its own NavMesh, connect rooms at doorways with `NavMeshLink`, because Unity’s docs state agents moving between different NavMesh surfaces must use a NavMesh Link. `NavMeshLink` supports bidirectional or one-way traversal, a custom traversal cost via `costModifier`, runtime enable/disable via `activated`, and transform-driven endpoint updates with `autoUpdate`, which fits portals that move or retarget at runtime. [reddit](https://www.reddit.com/r/Unity3D/comments/vx24i3/building_my_navmesh_surface_at_runtime_comes_with/)
+
+For impossible-space horror, this is especially useful because the logical portal can change without rebaking the whole house; you can retarget the link’s start/end transforms and call `UpdateLink()` so the local traversal entry and exit stay valid. Use higher `costModifier` values on uncanny or “entity-only” links so the planner prefers normal routes until the director wants the impossible route to be used. [reddit](https://www.reddit.com/r/Unity3D/comments/vx24i3/building_my_navmesh_surface_at_runtime_comes_with/)
+## Runtime mutation behavior
+When the current path breaks, immediate mechanical replanning is the safest systemic rule, but the **presentation** should vary by AI state. If the stalker is in “hunt” state, replan instantly and keep moving; if it is in “search” state, a short hesitation, head turn, or route correction sells that it noticed something impossible rather than obviously recomputing a graph. [gamedeveloper](https://www.gamedeveloper.com/design/revisiting-the-ai-of-alien-isolation)
+
+For horror pacing, do not make the creature perfectly optimal all the time. Analyses of *Alien: Isolation* describe a separate director that manages pacing with a menace gauge, periodically steering the creature toward the player and then backing it off so tension rises and falls instead of becoming exhausting. Intentional suboptimality matters here: sometimes choose the second-best route, add portal inspection stops, or delay use of entity-only shortcuts until the player has had a brief recovery window, because “smart enough to threaten” is scarier than “omniscient and unbeatable.” [youtube](https://www.youtube.com/watch?v=Nt1XmiDwxhY)
+## Multiplayer authority
+For NGO, keep the stalker fully server-authoritative: the server owns graph state, path decisions, and transform updates, and clients render the replicated result. Unity’s `NetworkTransform` is server-authoritative by default in client-server mode, and interpolation is client-side by default, which is the recommended baseline for smoothing NPC motion on non-authoritative clients. [docs.unity3d](https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@2.4/manual/components/networktransform.html)
+
+To reduce rubber-banding, do not rely on clients predicting NPC navigation the way you might for a player character; instead, send authoritative movement/state plus high-level animation state, and let interpolation hide packet spacing. Be careful with teleports or impossible-space jumps, because NGO has documented interpolation artifacts around teleports on clients; for hard snaps, temporarily handling them as explicit state changes rather than normal movement interpolation is safer. [github](https://github.com/Unity-Technologies/com.unity.netcode.gameobjects/issues/1867)
+## Recommended pattern
+Use this implementation split for Unity 6 + NGO: [youtube](https://www.youtube.com/watch?v=UGh4VSeKPNA)
+
+- Room graph on the server: nodes = rooms, edges = live portals, weights = travel cost + horror/director bias.
+- A* from current room to target room, recomputed on demand when a chosen edge/link invalidates.
+- Per-room `NavMeshSurface` for local motion around props and doorway approach.
+- `NavMeshLink` at each active portal, toggled or retargeted when topology mutates.
+- Async `UpdateNavMesh()` for loaded-room geometry changes; reserve full `BuildNavMesh()` for initial room activation or rare structural swaps. [reddit](https://www.reddit.com/r/Unity3D/comments/vx24i3/building_my_navmesh_surface_at_runtime_comes_with/)
+- Server-owned stalker with `NetworkTransform` interpolation to clients. [docs.unity3d](https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@2.4/manual/components/networktransform.html)
+
+A clean mental model is: the graph decides **where** the monster wants to go, the room NavMesh decides **how** it crosses the current room, and the director decides **when** it should be unfair, merciful, theatrical, or impossible. For your design goal, that last layer is what makes mutable topology feel intentional instead of buggy. [gamedeveloper](https://www.gamedeveloper.com/design/revisiting-the-ai-of-alien-isolation)
+
+Would you like a concrete Unity-side architecture sketch next, with classes like `HouseGraph`, `PortalLinkController`, `RoomNavSurface`, and a server-authoritative `StalkerBrain` state machine?
