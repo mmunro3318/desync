@@ -24,7 +24,7 @@ namespace Desync.World.Graph.Authoring
         {
             if (roomVolume != null && !roomVolume.isTrigger)
             {
-                Debug.LogWarning($"[RoomNodeAuthoring] Room volume on '{gameObject.name}' must be a trigger. Setting isTrigger = true.", this);
+                global::UnityEngine.Debug.LogWarning($"[RoomNodeAuthoring] Room volume on '{gameObject.name}' must be a trigger. Setting isTrigger = true.", this);
                 roomVolume.isTrigger = true;
             }
         }

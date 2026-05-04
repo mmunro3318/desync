@@ -25,7 +25,7 @@ namespace Desync.World.Graph.Authoring
         {
             if (crossingTrigger != null && !crossingTrigger.isTrigger)
             {
-                Debug.LogWarning($"[PortalAnchorAuthoring] Crossing trigger on '{gameObject.name}' must be a trigger. Setting isTrigger = true.", this);
+                global::UnityEngine.Debug.LogWarning($"[PortalAnchorAuthoring] Crossing trigger on '{gameObject.name}' must be a trigger. Setting isTrigger = true.", this);
                 crossingTrigger.isTrigger = true;
             }
         }

@@ -50,6 +50,7 @@ GameObject:
   - component: {fileID: 1206646035411783599}
   - component: {fileID: 108575178734377958}
   - component: {fileID: 5627619103034320438}
+  - component: {fileID: 2404400160009604072}
   m_Layer: 0
   m_Name: PF_Player
   m_TagString: Untagged
@@ -241,6 +242,18 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   settings: {fileID: 11400000, guid: 65f1780ed5941a9459d44c132f945e36, type: 2}
   footstepClips: []
+--- !u!114 &2404400160009604072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3083383243201838581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037df7609b4da9d4aa16610935431856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.PlayerNodeTracker
 --- !u!1 &3602354621629754274
 GameObject:
   m_ObjectHideFlags: 0

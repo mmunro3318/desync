@@ -23,7 +23,7 @@ namespace Desync.World.Graph
         {
             if (graphDefinition == null)
             {
-                Debug.LogError("[GraphRuntimeHost] No HouseGraphDefinition assigned.", this);
+                global::UnityEngine.Debug.LogError("[GraphRuntimeHost] No HouseGraphDefinition assigned.", this);
                 return;
             }
 
@@ -31,13 +31,13 @@ namespace Desync.World.Graph
             if (errors.Count > 0)
             {
                 foreach (var error in errors)
-                    Debug.LogError($"[GraphRuntimeHost] Validation: {error}", this);
+                    global::UnityEngine.Debug.LogError($"[GraphRuntimeHost] Validation: {error}", this);
                 return;
             }
 
             _runtime = new SpatialGraphRuntime();
             _runtime.Initialize(graphDefinition);
-            Debug.Log($"[GraphRuntimeHost] Initialized graph — {_runtime.NodeCount} nodes, {_runtime.EdgeCount} edges");
+            global::UnityEngine.Debug.Log($"[GraphRuntimeHost] Initialized graph — {_runtime.NodeCount} nodes, {_runtime.EdgeCount} edges");
         }
     }
 }

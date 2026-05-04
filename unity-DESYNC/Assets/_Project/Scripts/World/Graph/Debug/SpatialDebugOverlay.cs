@@ -20,7 +20,7 @@ namespace Desync.World.Graph.Debug
             if (Input.GetKeyDown(KeyCode.F3)) _visible = !_visible;
             if (Input.GetKeyDown(KeyCode.F5)) RestartRuntime();
             if (_playerTracker == null) // Lazy-find: player spawns dynamically via NGO
-                _playerTracker = FindFirstObjectByType<PlayerNodeTracker>();
+                _playerTracker = FindAnyObjectByType<PlayerNodeTracker>();
         }
 
         private void RestartRuntime()
