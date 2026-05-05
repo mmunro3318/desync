@@ -10,29 +10,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Jam constraint:** Pride Jam 2026, due **2026-06-12**, theme **"Asylum"**.
 - **Engine:** Unity 6, URP 17.4.0, Netcode for GameObjects (NGO) 2.11.2, Input System 1.19.0.
 
-## Current code state (as of 2026-05-03)
+## Current code state (as of 2026-05-04)
 
-The repo is documentation-heavy with a freshly-migrated Unity foundation. **No spatial-horror runtime systems exist yet** (no house graph, observation, mutation, portal, or anchor systems). What is currently real, all under `unity-DESYNC/Assets/_Project/`:
+The repo has a working house graph runtime (S1A complete) built on a migrated Unity foundation. Observation, mutation, portal, and anchor systems are not yet implemented. All first-party code lives under `unity-DESYNC/Assets/_Project/`:
 
-- **Scripts** (`Scripts/`, namespace `Desync.*`): `Core/GameBootstrap.cs`, `Core/GameplaySettings.cs` (ScriptableObject), `Player/{PlayerInputRouter,PlayerLook,PlayerMotor}.cs`, `Items/FlashlightController.cs`, `Audio/{AmbientAudioManager,FootstepAudio}.cs`, `UI/LobbyUI.cs`.
-- **Scenes** (`Scenes/`): `Bootstrap.unity` (lobby + NetworkManager), `House_Graybox.unity` (two-floor modular graybox; floor-to-floor light leak **fixed 2026-05-04** — geometry inset fix, safe to use as lighting reference).
-- **Tests** (`Tests/EditMode/`): `Desync.Tests.EditMode` asmdef with `NetworkBootstrapConsistencyTests` (regression for NGO `ConnectionApproval` flag/callback drift, TD0002).
-- **Settings**: tuned `GameplaySettings.asset`, `AtmosphereVolumeProfile.asset`, `PlayerInputActions` input asset + generated wrapper.
-- **Prefabs**: `PF_Player` (Motor+Look+Input+Flashlight+Footstep+NetworkObject), `Railing_Graybox`.
+- **Graph system** (`Scripts/World/Graph/`, namespace `Desync.World.Graph.*`): `Definitions/HouseGraphDefinition.cs` (ScriptableObject + definition structs), `Runtime/SpatialGraphRuntime.cs` (O(1) query engine), `Runtime/PortalResolver.cs`, `Runtime/PlayerNodeTracker.cs`, `Runtime/{RuntimeNodeState,RuntimeEdgeState}.cs`, `Authoring/{RoomNodeAuthoring,PortalAnchorAuthoring}.cs`, `GraphRuntimeHost.cs`, `Debug/{SpatialDebugOverlay,SpatialDebugGizmos}.cs`. Deep module boundary via `Desync.World.Graph.asmdef`.
+- **Core** (`Scripts/Core/`): `GameBootstrap.cs`, `GameplaySettings.cs` (ScriptableObject).
+- **Player** (`Scripts/Player/`): `PlayerInputRouter.cs`, `PlayerLook.cs`, `PlayerMotor.cs`.
+- **Other** (`Scripts/`): `Items/FlashlightController.cs`, `Audio/{AmbientAudioManager,FootstepAudio}.cs`, `UI/LobbyUI.cs`.
+- **Scenes** (`Scenes/`): `Bootstrap.unity` (lobby + NetworkManager, loads `House_Prototype`), `House_Prototype.unity` (5-node graph scene with debug overlay + gizmos), `House_Graybox.unity` (legacy two-floor graybox, safe as lighting reference).
+- **Tests** (`Tests/EditMode/`): 73 tests (71 pass, 2 pre-existing geometry failures TD0012). Covers graph definitions, runtime queries, resolver, state, host, player tracker, and network bootstrap.
+- **Data/Prefabs**: `Data/HouseGraphDefinition.asset` (5-node graph SO), `Prefabs/Rooms/Room_*.prefab` (x5 with RoomNodeAuthoring + trigger volumes), `PF_Player`, `Railing_Graybox`.
 - **Network**: `DefaultNetworkPrefabs.asset` registry referencing `PF_Player`.
 
-Full provenance and per-file treatment notes:
-- `docs/handoff-prompts/current/01-migration/work-done/phasmo-clone-carry-forward-manifest.md`
-- `docs/handoff-prompts/current/01-migration/work-done/phasmo-clone-archaeology-and-extraction-report.md`
-
-Treat this code as a **fixture for the new runtime, not the architectural template**. The new spatial-horror systems must be built per the design docs, not by extending what's there.
+The carried-forward player/audio/UI code is a **fixture for the runtime, not the architectural template**. New systems must be built per the design docs, not by extending carried code.
 
 ## Repo layout
 
 ```
 unity-DESYNC/                   # Unity project root (Assets/, Packages/, ProjectSettings/, Library/)
   Assets/_Project/              # all first-party content lives here
-    {Scripts, Scenes, Prefabs, Settings, Art, Audio, Tests}/
+    {Scripts, Scenes, Prefabs, Data, Settings, Art, Audio, Tests}/
 docs/
   design/
     00-index/                   # repo-docs-index-claude-file-map.md (canonical doc map)
@@ -91,6 +89,12 @@ Recommended usage shorthand:
 - Use `14`–`16` when shaping `M4` AI and cross-system data architecture.
 - Use `98` whenever executing Unity work through MCP-driven Claude workflows.
 
+### **WHEN IN DOUBT** 
+
+*If ever not 100% sure how to proceed (design, development, or debugging) and answers aren't clear in repo Unity research* -- with Sonnet web_search subagents:
+- Consult the official Unity 6.4 documentation: `https://docs.unity3d.com/6000.4/Documentation/Manual/UnityManual.html`
+- Consult the Game Patterns and SOLID Design ebook: `docs/design/98-unity-research/UNITY-TEXTBOOK-Level_up_your_code_with_design_patterns_and_SOLID.pdf`
+
 **Architectural Design Decisions:** Record key, major architectural decisions (and *WHY*) during development to prevent future AI agents from straying, in `docs/ARCH.md`. Especially as it comes to Unity development. 
 
 ## Architecture rules
@@ -137,7 +141,7 @@ Follow the authority/ownership rules in `docs/design/98-unity-research/04-ngo-mu
 
 Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-report.md` and `docs/design/03-systems/lighting-and-visibility-spec.md`.
 
-- `_Project/Scenes/House_Graybox.unity` floor-to-floor light leak is **fixed** (geometry protrusion, not lighting — see `docs/ARCH.md`). Scene is now safe to use as a lighting reference. Construction rules for new rooms: floor/ceiling rects inset to wall inner edges, ceiling tops flush with wall tops, TwoSided shadow casting on all floor/ceiling renderers.
+- `_Project/Scenes/House_Graybox.unity` coplanar geometry artifacts are **fixed** (canonically called the "light leak" fix — actual cause was IEEE 754 z-fighting at shared faces, not lighting). Scene is safe to use as a lighting reference. **Construction rules for new rooms:** follow `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md` — key points: separators extend to wall midpoint (not just inner face), separator tops 0.05m above wall tops (not flush), internal walls trim inward 0.05m. See `docs/ARCH.md` for diagnostic history and S0.3 decision rationale.
 - Atmosphere is driven by the tuned `_Project/Settings/AtmosphereVolumeProfile.asset` — modify the profile, not per-scene volumes, when adjusting global mood.
 - Lighting communicates state; do not reach for ambient-fill solutions that erase the readability tiers defined in the lighting spec.
 
@@ -152,6 +156,7 @@ Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-
 ## Don'ts
 
 - **Don't** treat the carried Phasmo-Clone code as the architectural template. It is a fixture, not a foundation.
+- **Don't** use/defer to Phasmo-Clone era naming schemes (ie, `GhostHunt.*` vs `Desync.*`) as canon over our living, Source-of-Truth design docs `ARCH.md` and `ROADMAP.md`
 - **Don't** import internal files across modules. Work through the public interface.
 - **Don't** assume cross-machine multiplayer works beyond local LAN. LAN works with the Windows Firewall `.exe` allowance; internet/NAT traversal is not solved.
 - **Don't** silently expand a function past the LoC budget. Justify in a comment + tag for refactor, and surface to Mike.
@@ -160,7 +165,8 @@ Reference: `docs/design/98-unity-research/03-unity-urp-graphics-lighting-horror-
 - **Don't** modify `Library/`, `Temp/`, `Logs/`, or `UserSettings/` — they are editor-local and not source.
 - **Don't** read `docs/workspace.md` unsolicited — Mike's scratchpad.
 - **Don't** duplicate doc content in code comments or in this file. Link to the source-of-truth doc.
-- **Don't** make aspirational claims about systems that don't exist yet (the house graph runtime, observation lock, portals, anchors — none are implemented).
+- **Don't** make aspirational claims about systems that don't exist yet (the house graph runtime, observation lock, portals, anchors — if not yet implemented).
+- **Don't** ignore discrepencies in docs/code (naming schemes, tech/architectural choices), errors (failed/errored CLI commands, tool calls, MCP requests, fizzled skill invocations) -- **surface them for doc/code alignment**
 
 ## Skill routing
 

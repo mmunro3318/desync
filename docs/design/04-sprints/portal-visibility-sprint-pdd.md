@@ -73,11 +73,11 @@ This sprint should land cleanly inside the existing structure and namespace conv
 - `Assets/_Project/Scenes/Test/`
 
 ## Suggested namespaces
-- `GhostHunt.World.Graph.Visibility`
-- `GhostHunt.World.Graph.Rendering`
-- `GhostHunt.World.Doors`
-- `GhostHunt.UI.Debug`
-- `GhostHunt.Core.Events`
+- `Desync.World.Graph.Visibility`
+- `Desync.World.Graph.Rendering`
+- `Desync.World.Doors`
+- `Desync.UI.Debug`
+- `Desync.Core.Events`
 
 ## Milestone framing
 This sprint breaks into two concrete milestones.

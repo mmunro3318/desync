@@ -68,11 +68,11 @@ This sprint should land in predictable locations within the existing Unity proje
 - `Assets/_Project/Data/Match/Networking/`
 
 ## Suggested namespaces
-- `GhostHunt.Match.Networking`
-- `GhostHunt.World.Graph.Networking`
-- `GhostHunt.World.Graph.Observation`
-- `GhostHunt.World.Graph.Mutation`
-- `GhostHunt.UI.Debug`
+- `Desync.Match.Networking`
+- `Desync.World.Graph.Networking`
+- `Desync.World.Graph.Observation`
+- `Desync.World.Graph.Mutation`
+- `Desync.UI.Debug`
 
 ## Milestone framing
 This sprint breaks into two milestones.

@@ -12,7 +12,7 @@
 |--------|--------|------------|----------|---------|
 | S0.1 Multiplayer Fix | ✅ Complete | — | S1A, S1B | POC |
 | S0.2 Light Leak Fix + Graphics Deep Dive | ✅ Complete | — | S1A, S1B | POC |
-| S1A House Graph Authoring | 🔲 Not Started | S0.1, S0.2 | S1B, S2, S3, S5A | POC |
+| S1A House Graph Authoring | ✅ Complete | S0.1, S0.2 | S1B, S2, S3, S5A | POC |
 | S1B Portal Visibility + Node Activation | 🔲 Not Started | S1A | S2 | POC |
 | S2 Observation Lock System | 🔲 Not Started | S1B | S3, S4A, S4B | POC |
 | S3 Loop Anomaly Vertical Slice | 🔲 Not Started | S2 | S4A, S4B, S6 | POC |
@@ -159,19 +159,19 @@ S0.1 Multiplayer fix ──┘         │                      ├──► S4B
 **Objective:** Author a minimal house graph as data and materialize it as a queryable runtime system. This is the foundation every other system builds on.
 
 **Acceptance Criteria (from docs):**
-- [ ] Canonical house graph definition authored (5-8 nodes: entry, halls, rooms, connector)
-- [ ] `HouseGraphInstance` runtime loads from authored data
-- [ ] Runtime exposes node/edge/portal queries (adjacency, occupancy, active layer)
-- [ ] Graph state replicates over network (NetworkVariable-based)
-- [ ] Room nodes manifest as geometry in scene (load/unload per S0.2 findings)
-- [ ] Debug overlay renders graph topology, node states, edge connections
-- [ ] Quick restart supported (graph reset without scene reload)
+- [x] Canonical house graph definition authored (5 nodes: entry, hall_a, living, kitchen, corridor_b)
+- [x] `SpatialGraphRuntime` loads from `HouseGraphDefinition` ScriptableObject
+- [x] Runtime exposes node/edge/portal queries (GetNode, GetEdge, GetConnectedEdges, GetDestinationNode, GetPortalAnchor)
+- [ ] Graph state replicates over network (NetworkVariable-based) — deferred to S1B/S3
+- [x] Room nodes manifest as geometry in scene (prefab-based, trigger volumes)
+- [x] Debug overlay renders graph topology, node states, edge connections
+- [x] Quick restart supported (F5 graph reset without scene reload)
 
 **Personal Gates (Mike):**
-- [ ] Monitor room node load/unload — no visual artifacts, shearing, or rubber-banding
-- [ ] Color-coded mutation vs baseline nodes visible (blue/green filter for dev)
-- [ ] Graph debug view functional (mini-map or overlay showing node layout)
-- [ ] Multiplayer: both players see same graph state, no drift after mutations
+- [ ] Monitor room node load/unload — no visual artifacts, shearing, or rubber-banding — deferred (rooms are always loaded in S1A)
+- [ ] Color-coded mutation vs baseline nodes visible (blue/green filter for dev) — deferred to S2/S3
+- [x] Graph debug view functional (IMGUI overlay showing node layout, connected edges)
+- [ ] Multiplayer: both players see same graph state, no drift after mutations — deferred to S1B/S3
 
 ---
 
