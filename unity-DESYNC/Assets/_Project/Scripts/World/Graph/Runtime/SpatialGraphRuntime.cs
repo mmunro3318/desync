@@ -66,12 +66,14 @@ namespace Desync.World.Graph.Runtime
             return _edges.TryGetValue(edgeId, out edge);
         }
 
+        private static readonly List<HouseEdgeDefinition> EmptyEdgeList = new();
+
         public IReadOnlyList<HouseEdgeDefinition> GetConnectedEdges(string nodeId)
         {
-            if (string.IsNullOrEmpty(nodeId)) return new List<HouseEdgeDefinition>();
+            if (string.IsNullOrEmpty(nodeId)) return EmptyEdgeList;
             if (_connectedEdges.TryGetValue(nodeId, out var edges))
                 return edges.AsReadOnly();
-            return new List<HouseEdgeDefinition>();
+            return EmptyEdgeList;
         }
 
         /// <summary>

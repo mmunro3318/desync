@@ -93,6 +93,12 @@ namespace Desync.World.Graph.Debug
             _stylesInitialized = true;
         }
 
+        private void OnDestroy()
+        {
+            if (_darkBg != null) Destroy(_darkBg);
+            if (_greenBg != null) Destroy(_greenBg);
+        }
+
         private static Texture2D MakeTex(int w, int h, Color col)
         {
             var tex = new Texture2D(w, h);

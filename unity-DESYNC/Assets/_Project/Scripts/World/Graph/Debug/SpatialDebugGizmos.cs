@@ -23,16 +23,29 @@ namespace Desync.World.Graph.Debug
         private const float AnchorYOffset            = 1.25f;
         private const float AnchorRadius             = 0.3f;
 
+        // Cached to avoid per-frame allocation in OnDrawGizmos
+        private Dictionary<string, HouseNodeDefinition> _cachedNodeLookup;
+        private HouseNodeDefinition[] _cachedNodesSource;
+#if UNITY_EDITOR
+        private GUIStyle _nodeStyle;
+        private GUIStyle _edgeStyle;
+        private GUIStyle _anchorStyle;
+#endif
+
         private void OnDrawGizmos()
         {
             if (graphHost == null || graphHost.Definition == null) return;
 
             var def = graphHost.Definition;
-            // Build a quick lookup so edge drawing is O(1) per edge.
-            var nodeById = BuildNodeLookup(def.nodes);
+            // Rebuild lookup only when the nodes array reference changes
+            if (_cachedNodeLookup == null || _cachedNodesSource != def.nodes)
+            {
+                _cachedNodeLookup = BuildNodeLookup(def.nodes);
+                _cachedNodesSource = def.nodes;
+            }
 
             DrawNodes(def.nodes);
-            DrawEdges(def.edges, nodeById);
+            DrawEdges(def.edges, _cachedNodeLookup);
             DrawAnchors(def.nodes);
         }
 
@@ -48,7 +61,7 @@ namespace Desync.World.Graph.Debug
         {
             Gizmos.color = nodeColor;
 #if UNITY_EDITOR
-            var style = new GUIStyle { normal = { textColor = Color.green } };
+            _nodeStyle ??= new GUIStyle { normal = { textColor = Color.green } };
 #endif
             foreach (var node in nodes)
             {
@@ -56,7 +69,7 @@ namespace Desync.World.Graph.Debug
                 Gizmos.DrawWireCube(center, NodeSize);
 #if UNITY_EDITOR
                 UnityEditor.Handles.Label(center + Vector3.up * (NodeSize.y * 0.5f),
-                    $"{node.nodeId}\n{node.displayName}", style);
+                    $"{node.nodeId}\n{node.displayName}", _nodeStyle);
 #endif
             }
         }
@@ -66,7 +79,7 @@ namespace Desync.World.Graph.Debug
         {
             Gizmos.color = edgeColor;
 #if UNITY_EDITOR
-            var style = new GUIStyle { normal = { textColor = new Color(0.5f, 0.8f, 1.0f) } };
+            _edgeStyle ??= new GUIStyle { normal = { textColor = new Color(0.5f, 0.8f, 1.0f) } };
 #endif
             foreach (var edge in edges)
             {
@@ -77,7 +90,7 @@ namespace Desync.World.Graph.Debug
                 var b = tgt.worldPosition + Vector3.up * NodeYOffset;
                 Gizmos.DrawLine(a, b);
 #if UNITY_EDITOR
-                UnityEditor.Handles.Label((a + b) * 0.5f, edge.edgeId, style);
+                UnityEditor.Handles.Label((a + b) * 0.5f, edge.edgeId, _edgeStyle);
 #endif
             }
         }
@@ -86,7 +99,7 @@ namespace Desync.World.Graph.Debug
         {
             Gizmos.color = anchorColor;
 #if UNITY_EDITOR
-            var style = new GUIStyle { normal = { textColor = new Color(1.0f, 0.6f, 0.3f) } };
+            _anchorStyle ??= new GUIStyle { normal = { textColor = new Color(1.0f, 0.6f, 0.3f) } };
 #endif
             foreach (var node in nodes)
             {
@@ -96,7 +109,7 @@ namespace Desync.World.Graph.Debug
                     var pos = node.worldPosition + anchor.localPosition + Vector3.up * AnchorYOffset;
                     Gizmos.DrawWireSphere(pos, AnchorRadius);
 #if UNITY_EDITOR
-                    UnityEditor.Handles.Label(pos + Vector3.up * AnchorRadius, anchor.anchorId, style);
+                    UnityEditor.Handles.Label(pos + Vector3.up * AnchorRadius, anchor.anchorId, _anchorStyle);
 #endif
                 }
             }

@@ -2,11 +2,45 @@
 
 Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to stub, record, and expand in this document.
 
-**LAST_USED_ID:** TD0012
+**LAST_USED_ID:** TD0014
 
 ---
 
 ## TODO Items
+
+## [TD0013] S2+: [KNOWN_BUG] PlayerNodeTracker trigger overlap race — non-deterministic event ordering
+
+**What:** `PlayerNodeTracker.OnTriggerEnter/Exit` relies on Unity firing trigger events in a specific order during doorway transitions (enter new room before exiting old room). Unity does not guarantee this ordering. If `Exit(A)` fires before `Enter(B)`, `CurrentNodeId` is momentarily null. If two rooms' triggers overlap and events arrive in the wrong order, the player can be tracked as being in the wrong room.
+**Why:** Any downstream system polling `CurrentNodeId` (observation, entity AI, mutation triggers) could make wrong decisions based on stale or null node state. Currently benign because S1A only uses the tracker for debug overlay display.
+**How:** Add a debounce/hysteresis mechanism: buffer exit events for one frame, or use a priority system that prefers the most recent enter over any exit. Alternatively, track all overlapping rooms and use volume containment to resolve ambiguity. Needs tests for the overlap scenario.
+
+**Priority:** P[2]
+**Effort:** ~1h (Size: S; Human: ~10m review, CC: ~50m implementation + tests)
+**Regression risk:** Medium — changes to trigger handling affect all room transitions.
+**Depends on:** Nothing
+**Types:** [KNOWN_BUG]
+**Tags:** [GRAPH, PLAYER_TRACKING, S2]
+
+**Added:** 2026-05-04 (pre-landing review, adversarial finding)
+
+---
+
+## [TD0014] S2+: [KNOWN_BUG] PortalAnchorDefinition.localRotation defaults to invalid Quaternion(0,0,0,0)
+
+**What:** C# struct default for `Quaternion` is `(0,0,0,0)`, not `Quaternion.identity`. Any code that reads `localRotation` from a default-initialized `PortalAnchorDefinition` will get an invalid zero quaternion. Applying this as a rotation produces NaN transforms. Currently nothing reads `localRotation` at runtime, but the portal system (S2) will need it.
+**Why:** Latent NaN bomb. When portal traversal reads anchor rotation for player teleport positioning, uninitialized rotations will silently corrupt transform data.
+**How:** Either initialize `localRotation = Quaternion.identity` in a constructor/factory method, or add validation in `SpatialGraphRuntime.Initialize` to replace zero quaternions with identity.
+
+**Priority:** P[2]
+**Effort:** ~15m (Size: XS; Human: ~5m, CC: ~10m)
+**Regression risk:** Low — no current consumers of localRotation.
+**Depends on:** Nothing
+**Types:** [KNOWN_BUG]
+**Tags:** [GRAPH, PORTAL, S2]
+
+**Added:** 2026-05-04 (pre-landing review, adversarial finding)
+
+---
 
 ## [TD0012] S0.3: [BUG] Fix House_Graybox geometry test failures — grammar rules drift
 
