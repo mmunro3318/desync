@@ -101,10 +101,10 @@ Debug should show:
 Adapt the existing predictable project structure because that earlier approach reduces sprawl and gives each system a stable home [file:13][file:14].
 
 ### Suggested folders
-- `Scripts/Spatial/Definitions`
-- `Scripts/Spatial/Runtime`
-- `Scripts/Spatial/Observation`
-- `Scripts/Spatial/Anomalies`
+- `Scripts/World/Graph/Definitions`
+- `Scripts/World/Graph/Runtime`
+- `Scripts/World/Graph/Observation`
+- `Scripts/World/Graph/Anomalies`
 - `Data/Spatial`
 - `Data/Anomalies`
 - `Prefabs/Debug`

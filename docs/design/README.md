@@ -1,5 +1,7 @@
 # README -- Claude Working Agreement / Task Template
 
+**P[0] NOTE:** The naming schemas in the `99-legacy` docs are **not** canon... reference those legacy files only as archival/historical context from the *Pivot* from Phasmo-Clone to DESYNC. Defer to living design/reference docs for proper names.
+
 ## Purpose
 This document defines the standard working agreement for Claude Code tasks in this repo. Its goal is to keep Claude operating from a small, stable context set, a predictable task shape, and explicit acceptance criteria.
 

@@ -2,11 +2,62 @@
 
 Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to stub, record, and expand in this document.
 
-**LAST_USED_ID:** TD0010
+**LAST_USED_ID:** TD0014
 
 ---
 
 ## TODO Items
+
+## [TD0013] S2+: [KNOWN_BUG] PlayerNodeTracker trigger overlap race — non-deterministic event ordering
+
+**What:** `PlayerNodeTracker.OnTriggerEnter/Exit` relies on Unity firing trigger events in a specific order during doorway transitions (enter new room before exiting old room). Unity does not guarantee this ordering. If `Exit(A)` fires before `Enter(B)`, `CurrentNodeId` is momentarily null. If two rooms' triggers overlap and events arrive in the wrong order, the player can be tracked as being in the wrong room.
+**Why:** Any downstream system polling `CurrentNodeId` (observation, entity AI, mutation triggers) could make wrong decisions based on stale or null node state. Currently benign because S1A only uses the tracker for debug overlay display.
+**How:** Add a debounce/hysteresis mechanism: buffer exit events for one frame, or use a priority system that prefers the most recent enter over any exit. Alternatively, track all overlapping rooms and use volume containment to resolve ambiguity. Needs tests for the overlap scenario.
+
+**Priority:** P[2]
+**Effort:** ~1h (Size: S; Human: ~10m review, CC: ~50m implementation + tests)
+**Regression risk:** Medium — changes to trigger handling affect all room transitions.
+**Depends on:** Nothing
+**Types:** [KNOWN_BUG]
+**Tags:** [GRAPH, PLAYER_TRACKING, S2]
+
+**Added:** 2026-05-04 (pre-landing review, adversarial finding)
+
+---
+
+## [TD0014] S2+: [KNOWN_BUG] PortalAnchorDefinition.localRotation defaults to invalid Quaternion(0,0,0,0)
+
+**What:** C# struct default for `Quaternion` is `(0,0,0,0)`, not `Quaternion.identity`. Any code that reads `localRotation` from a default-initialized `PortalAnchorDefinition` will get an invalid zero quaternion. Applying this as a rotation produces NaN transforms. Currently nothing reads `localRotation` at runtime, but the portal system (S2) will need it.
+**Why:** Latent NaN bomb. When portal traversal reads anchor rotation for player teleport positioning, uninitialized rotations will silently corrupt transform data.
+**How:** Either initialize `localRotation = Quaternion.identity` in a constructor/factory method, or add validation in `SpatialGraphRuntime.Initialize` to replace zero quaternions with identity.
+
+**Priority:** P[2]
+**Effort:** ~15m (Size: XS; Human: ~5m, CC: ~10m)
+**Regression risk:** Low — no current consumers of localRotation.
+**Depends on:** Nothing
+**Types:** [KNOWN_BUG]
+**Tags:** [GRAPH, PORTAL, S2]
+
+**Added:** 2026-05-04 (pre-landing review, adversarial finding)
+
+---
+
+## [TD0012] S0.3: [BUG] Fix House_Graybox geometry test failures — grammar rules drift
+
+**What:** 2 EditMode tests in `HouseGrayboxGeometryTests` fail because `House_Graybox.unity` scene geometry does not comply with the geometry grammar rules codified in S0.3. Specifically: (1) `CeilingsFlushWithWallTops` — GF_Ceiling top (2.75m) exceeds exterior wall tops (2.70m), expected <= 2.71m. (2) `FloorCeilingBoundsWithinExteriorWalls` — GF_Floor bounds.min.x (0.075m) extends past wall inner edge (0.15m), expected >= 0.14m.
+**Why:** The geometry grammar tests were merged (S0.3 fix branch) but the scene geometry was not updated to match the stricter tolerances. These 2 failures run on every test suite execution and mask real regressions. Every new test run shows "2 failures" and developers have to mentally filter them out.
+**How:** Open `House_Graybox.unity`, adjust GF_Ceiling height and GF_Floor bounds to comply with `GEOMETRY_GRAMMAR.md` rules. Alternatively, if House_Graybox is being superseded by House_Prototype, consider whether these tests should target the new scene or be retired.
+
+**Priority:** P[1]
+**Effort:** ~30m (Size: XS; Human: ~10m, CC: ~20m)
+**Regression risk:** Low — scene geometry adjustment only. Tests already define the expected state.
+**Depends on:** Nothing
+**Types:** [BUG]
+**Tags:** [GEOMETRY, TESTING, S0.3]
+
+**Added:** 2026-05-04 (geometry grammar rules landed hours before scene compliance could be addressed)
+
+---
 
 ## [TD0003] M0: [TECH_DEBT] UNITY_MCP_LESSONS.md: broaden to general dev insights doc
 
@@ -26,6 +77,29 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 - Parent: None
 - Source docs:
   - docs/UNITY_MCP_LESSONS.md
+
+---
+
+## [TD0011] S1A: [NAMING] Consider SpatialGraphRuntime → HouseGraphRuntime rename
+
+**What:** The class `SpatialGraphRuntime` uses "Spatial" prefix while all other types in `Desync.World.Graph` use "House" prefix (`HouseGraphDefinition`, `HouseNodeDefinition`, `HouseEdgeDefinition`). Consider renaming to `HouseGraphRuntime` for consistency.
+**Why:** Counter-drift session flagged the naming inconsistency. The "Spatial" prefix comes from the pre-migration framework spec (`Desync.Spatial.*`), while the namespace moved to `Desync.World.Graph.*`. Either name is defensible — "Spatial" describes what it does (spatial queries), "House" matches the type family. Taste call, not a bug.
+**How:** `git mv` + find/replace across 5 referencing files (SpatialGraphRuntime.cs, PortalResolver.cs, GraphRuntimeHost.cs, SpatialGraphRuntimeTests.cs, PortalResolverTests.cs). Low risk — plain C# class, no scene/prefab GUID references.
+
+**Priority:** P[~5]
+**Effort:** ~15m (Size: XS; Human: ~5m, CC: ~10m)
+**Regression risk:** Low — rename + reference update only.
+**Depends on:** S1A merge to main
+**Types:** [NAMING]
+**Tags:** [GRAPH, CONSISTENCY]
+
+**Added:** 2026-05-04 (counter-drift session flagged, deferred by Mike)
+
+**`HouseGraphRuntime` referenced in following design docs:**
+  | docs/ARCH.md  | "pending rename" note    │ The canonical table we added — accurately reflects the open decision    |
+  │ 02-architecture/networked-house-runtime-interfaces-contracts.md │ IHouseGraphRuntime (interface) │ Pre-existing — interface name is separate from the concrete class  |
+  │ 05-debug-and-testing/impossible-house-graybox-vertical-slice-plan.md │ HouseGraphRuntime or equivalent        │ Pre-existing hedged reference  │
+  │ 06-claude-prompts/claude-code-task-pack-networked-house-runtime.md   │ HouseGraphRuntime : IHouseGraphRuntime │ Pre-existing prompt pack  |
 
 ---
 
@@ -59,9 +133,9 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 - Blueprint-style room sketches with edge connections drawn between them
 - Room codes displayed on floors in neon/radioactive orange
 
-- **Update GameBootstrap.gameplaySceneName for House_Prototype** — Change default from `"House_Graybox"` to `"House_Prototype"` in `GameBootstrap.cs:9` and add `House_Prototype` to Build Settings. Current bootstrap targets the old graybox scene. Do this when House_Prototype scene is created in S1A Session 2. Depends on: House_Prototype scene existing. (Identified during S1A eng review, 2026-05-04)
+- ~~**Update GameBootstrap.gameplaySceneName for House_Prototype**~~ — **Completed:** S1A (2026-05-04). Both code default and serialized scene value updated.
 
-- **Add room-volume trigger colliders for GetNodeForPosition** — Each room prefab needs a BoxCollider (isTrigger=true) covering the room's interior volume so GetNodeForPosition works everywhere, not just at doorway thresholds. Handle overlapping triggers at boundaries (last-entered-wins or priority). Needed for spawn, teleport, join-in-progress node resolution. Implement alongside room prefab creation in S1A Session 2. (Identified during S1A eng review, Codex outside voice, 2026-05-04)
+- ~~**Add room-volume trigger colliders for GetNodeForPosition**~~ — **Completed:** S1A (2026-05-04). All 5 room prefabs have BoxCollider (isTrigger=true) + PlayerNodeTracker uses OnTriggerEnter/Exit.
 
 ---
 

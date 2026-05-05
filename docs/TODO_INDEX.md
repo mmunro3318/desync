@@ -20,12 +20,15 @@ Glance-only summary of active TODOs. Read before major planning or scoping decis
 | TD0008 | M1 | TECH_DEBT | GeometryGrammarValidator: hardcoded minInset 0.05f | per-room validation infra (trigger) | 2026-05-04 |
 | TD0009 | M0 | KNOWN_BUG | House_Graybox: GF_Ceiling/SF_Floor coplanar — stagger inter-floor slab Y positions | — | 2026-05-04 |
 | TD0010 | M0 | TECH_DEBT | House_Graybox: 4 unnamed scene-embedded PhysicsMaterials | — | 2026-05-04 |
+| TD0011 | S1A | NAMING | Consider SpatialGraphRuntime → HouseGraphRuntime rename | S1A merge | 2026-05-04 |
+| TD0012 | S0.3 | BUG | Fix House_Graybox geometry test failures — grammar rules drift | — | 2026-05-04 |
 
 ## Counts
 
 - **M0 open:** 3 (TD0003, TD0009, TD0010)
 - **M1 open:** 5 (TD0004–TD0008)
-- **LAST_USED_ID:** TD0010 *(mirror of `docs/TODO.md` header)*
+- **S1A/S0.3 open:** 2 (TD0011, TD0012)
+- **LAST_USED_ID:** TD0012 *(mirror of `docs/TODO.md` header)*
 
 ## Archived / closed
 

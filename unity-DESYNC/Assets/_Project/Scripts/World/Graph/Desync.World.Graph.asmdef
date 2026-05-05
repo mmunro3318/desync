@@ -1,0 +1,16 @@
+{
+    "name": "Desync.World.Graph",
+    "rootNamespace": "Desync.World.Graph",
+    "references": [
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

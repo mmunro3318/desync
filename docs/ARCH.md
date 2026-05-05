@@ -4,6 +4,11 @@ This is the **load-bearing decision log** for DESYNC. Record every decision here
 
 This file supersedes the prior `OLD_ARCHITECTURAL_DECISIONS.md` (Phasmo-Clone era). Decisions below are either **carried forward** (still load-bearing for DESYNC) or **new** (DESYNC-specific).
 
+### Records of decisions go here, not into commit messages alone
+**What:** Any decision a future agent might re-litigate gets an entry in this file with a clear *what / why / how to apply / future review*.
+**Why:** Commit messages are cheap to lose; a decision log is the artifact AI agents can re-read at session start.
+**How to apply:** When reviewing a PR, if a non-obvious choice was made and not captured here, push back and ask for an `ARCH.md` entry before approving.
+
 How to use this doc:
 - Before changing a decision recorded here, read it. If you still want to change it, add a new dated entry that supersedes the old one — do not delete the old reasoning.
 - Decisions about *Unity engine choices* (URP defaults, NGO authority model, etc.) live in `docs/design/98-unity-research/`. This doc records project-specific decisions that go beyond the engine defaults.
@@ -130,11 +135,6 @@ These decisions originated in the Phasmo-Clone era but remain load-bearing becau
 **Why:** EditMode tests run without entering Play mode (cheap CI-friendly), and behavioral assertions survive refactors that only change identifier names. PlayMode infra is heavier; reach for it only when a behavior genuinely requires it.
 **How to apply:** New regression guards should follow the same pattern (open the scene, query the serialized state). PlayMode tests need explicit justification.
 
-### Records of decisions go here, not into commit messages alone
-**What:** Any decision a future agent might re-litigate gets an entry in this file with a clear *what / why / how to apply / future review*.
-**Why:** Commit messages are cheap to lose; a decision log is the artifact AI agents can re-read at session start.
-**How to apply:** When reviewing a PR, if a non-obvious choice was made and not captured here, push back and ask for an `ARCH.md` entry before approving.
-
 ### Modular graybox geometry construction grammar (2026-05-04, S0.3) [SUPERSEDES: "How to apply" rules in S0.1 entry below]
 **What:** Systematic coplanar-face artifact fix across all of `House_Graybox.unity`. Root cause was IEEE 754 float precision: modular pieces sharing exact face positions caused renderer z-fighting visible as banding artifacts on the building exterior and at floor/ceiling junctions. Canonically called the "light leak" bug/fix (that was the original working hypothesis), but the actual cause was coplanar geometry, not lighting.
 **The canonical construction rules are codified in `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md`.** All new room geometry must follow that grammar. Key rules that supersede the S0.1 "inset to wall inner edges" approach:
@@ -167,12 +167,72 @@ These decisions originated in the Phasmo-Clone era but remain load-bearing becau
 
 ---
 
+## S1A — House Graph Authoring and Runtime Shell (2026-05-04)
+
+These decisions were locked during S1A Session 1 (architecture + plan). Design doc approved, eng review cleared. Cross-model review (Codex) ran twice.
+
+### Room geometry strategy: Prefab rooms, not additive scenes
+**What:** Each room node is a prefab instantiated by `SpatialGraphRuntime` at authored positions. Not additive scene loading.
+**Why:** For a 5-node authored graph, prefab instantiation is simpler, faster, and avoids the NGO scene-sync complexity of additive scenes. Additive loading becomes relevant when room count exceeds ~15 (memory/loading budget from research report `98-unity-research/08`).
+**Future review:** Revisit when room count exceeds 15 or when S3 mutations require swapping room geometry at runtime. The prefab approach supports activation/deactivation cleanly for the "stagecraft" pooling pattern (S1B).
+
+### Portal anchors: Transform + BoxCollider trigger
+**What:** Each doorway has a `PortalAnchorAuthoring` component carrying a `Transform` (position/orientation of the passage) and a `BoxCollider` (trigger mode, for crossing detection). Each room has a room-volume `BoxCollider` trigger for `GetNodeForPosition` (player-to-node resolver).
+**Why:** Transform gives portal rendering and teleport destination data. BoxCollider trigger gives physics-based crossing detection without raycasts. Room-volume triggers give cheap spatial queries without manual bounds math.
+**How to apply:** Portal anchors live on child GameObjects of the room prefab. Room-volume triggers are on the room root. Both are `isTrigger = true`.
+
+### Connector IDs: Stable doorway IDs, not cardinal directions
+**What:** Doorway connections use stable string IDs like `door_a`, `door_b` per room. NOT cardinal directions (`north`, `south`, `east`, `west`).
+**Why:** Cardinal IDs break when rooms rotate or when a room has multiple exits on the same wall. Stable IDs are rotation-proof and mutation-proof (S3 can rebind `door_a` to a different destination without renaming).
+**How to apply:** `HouseEdgeDefinition` references source/target nodes by node ID and source/target anchors by stable anchor ID within their respective rooms.
+
+### Network sync: Full snapshot struct for S1A (temporary)
+**What:** Graph runtime state (occupancy, active nodes, topology version) syncs via `NetworkVariable<HouseSnapshot>` — a single struct containing the full state.
+**Why:** For 5 nodes, the snapshot is ~50 bytes. Full snapshot is simpler to implement and debug than delta-based sync. Premature optimization toward deltas would add complexity with no measurable benefit at this scale.
+**Future review:** **Evolve to delta-based sync in S3** when mutations arrive and the graph may change shape mid-round. The snapshot struct will grow linearly with node count; deltas grow with mutation frequency instead.
+**This is explicitly a temporary decision.** Do not treat snapshot sync as the permanent architecture.
+
+### File structure: 9 files, definition structs inlined
+**What:** S1A ships ~9 C# files. Definition structs (`HouseNodeDefinition`, `HouseEdgeDefinition`, `PortalAnchorDefinition`) are inlined into `HouseGraphDefinition.cs` rather than separate files.
+**Why:** At 5 nodes with simple structs, separate files add navigation overhead for no benefit. The 500 LoC split threshold from `CLAUDE.md` applies — if `HouseGraphDefinition.cs` exceeds 500 LoC, extract structs to their own files.
+**File layout:**
+- `Scripts/World/Graph/Definitions/HouseGraphDefinition.cs` — SO + inlined structs
+- `Scripts/World/Graph/Runtime/SpatialGraphRuntime.cs` — runtime query engine
+- `Scripts/World/Graph/Runtime/RuntimeNodeState.cs` — per-node runtime state
+- `Scripts/World/Graph/Runtime/RuntimeEdgeState.cs` — per-edge runtime state
+- `Scripts/World/Graph/Runtime/PortalResolver.cs` — destination lookup
+- `Scripts/World/Graph/Authoring/RoomNodeAuthoring.cs` — scene-to-graph bridge (rooms)
+- `Scripts/World/Graph/Authoring/PortalAnchorAuthoring.cs` — scene-to-graph bridge (portals)
+- `Scripts/UI/Debug/SpatialDebugOverlay.cs` — IMGUI debug text
+- `Scripts/UI/Debug/SpatialDebugGizmos.cs` — in-scene gizmo labels
+
+### Graph population: Hand-authored in Inspector
+**What:** The `HouseGraphDefinition` ScriptableObject is populated by hand in the Unity Inspector for S1A's 5-node graph.
+**Why:** An editor script that auto-scans `RoomNodeAuthoring` components adds complexity for a 5-node graph. Hand authoring gives direct control and is faster to iterate on during graybox.
+**Future review:** When node count exceeds ~20 or when Mike finds Inspector authoring tedious, build an editor tool that scans scene authoring components and populates the SO.
+
+### Debug rendering: IMGUI + OnDrawGizmos
+**What:** `SpatialDebugOverlay` uses `OnGUI()` (IMGUI) for overlay text. `SpatialDebugGizmos` uses `OnDrawGizmos()` for in-scene labels and wireframes.
+**Why:** IMGUI is the fastest path to a working debug overlay — no canvas setup, no prefabs, no UI Toolkit learning curve. Gizmos are the standard Unity pattern for scene-view debug visualization. Both satisfy the "debug-first for hidden state" architecture rule.
+**How to apply:** Debug overlay shows node count, edge count, current node, connected destinations. Gizmos show node positions and edge connections in the Scene view.
+
+### Test strategy: EditMode-first, manual LAN smoke
+**What:** All graph logic (queries, validation, initialization) is tested via EditMode tests. Multiplayer validation is a manual 2-player LAN smoke test (10-step checklist from sprint PDD).
+**Why:** EditMode tests are cheap, fast, CI-friendly, and sufficient for pure data logic. PlayMode NGO test harness is heavy to set up and flaky — deferred to S3+ when the test infrastructure is worth the investment.
+**How to apply:** New graph logic gets an EditMode test. PlayMode tests require explicit justification. The manual smoke checklist is the multiplayer acceptance gate.
+
+### Contract scope: 5 queries + GetNodeForPosition
+**What:** S1A implements: `GetNode`, `GetEdge`, `GetConnectedEdges`, `GetDestinationNode`, `GetPortalAnchor`, plus `GetNodeForPosition` (trigger-volume-based player-to-node resolver). The full `IHouseGraphRuntime` interface from the contracts doc is NOT implemented.
+**Why:** These 6 operations are what S1B and S2 actually need. Building the full interface now means writing code against requirements that don't exist yet.
+**Future review:** Expand the interface when S1B (node activation) or S2 (observation lock) needs additional queries. The runtime's `Dictionary<string,T>` internals make adding queries trivial.
+
+---
+
 ## Open questions / decisions deferred
 
 These are the obvious upcoming forks. They are *not* decisions yet — recorded so a future agent recognizes the open state and doesn't silently pick one.
 
 - **Relay / Lobby integration.** Unity Gaming Services Relay vs. self-hosted vs. Steam — not yet chosen. Cross-machine play is blocked until this lands.
-- **House graph runtime shape.** `docs/design/02-architecture/house-graph-core-epic.md` defines the intent; no runtime types exist yet.
 - **Observation-lock authority model.** Spec exists (`docs/design/03-systems/co-op-observation-and-sync-rules-spec.md`); concrete NGO ownership shape is not chosen.
 - **Persistent post-jam evolution.** Whether the post-jam iteration stays in Unity or moves elsewhere is not decided. Avoid baking deep Unity-isms into module *interfaces* (implementations can be Unity-flavored).
 

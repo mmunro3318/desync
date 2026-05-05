@@ -6,7 +6,7 @@ namespace Desync.Core
 {
     public class GameBootstrap : MonoBehaviour
     {
-        [SerializeField] private string gameplaySceneName = "House_Graybox";
+        [SerializeField] private string gameplaySceneName = "House_Prototype";
         [SerializeField] private ushort port = 7777;
 
         private static GameBootstrap _instance;
