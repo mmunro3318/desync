@@ -2,8 +2,7 @@
     "name": "Desync.World.Graph",
     "rootNamespace": "Desync.World.Graph",
     "references": [
-        "Unity.Netcode.Runtime",
-        "Unity.InputSystem"
+        "Unity.Netcode.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

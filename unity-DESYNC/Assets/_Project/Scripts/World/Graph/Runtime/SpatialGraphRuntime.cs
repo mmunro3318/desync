@@ -54,16 +54,21 @@ namespace Desync.World.Graph.Runtime
 
         public bool GetNode(string nodeId, out HouseNodeDefinition node)
         {
+            node = default;
+            if (string.IsNullOrEmpty(nodeId)) return false;
             return _nodes.TryGetValue(nodeId, out node);
         }
 
         public bool GetEdge(string edgeId, out HouseEdgeDefinition edge)
         {
+            edge = default;
+            if (string.IsNullOrEmpty(edgeId)) return false;
             return _edges.TryGetValue(edgeId, out edge);
         }
 
         public IReadOnlyList<HouseEdgeDefinition> GetConnectedEdges(string nodeId)
         {
+            if (string.IsNullOrEmpty(nodeId)) return new List<HouseEdgeDefinition>();
             if (_connectedEdges.TryGetValue(nodeId, out var edges))
                 return edges.AsReadOnly();
             return new List<HouseEdgeDefinition>();
@@ -77,6 +82,7 @@ namespace Desync.World.Graph.Runtime
         {
             destinationNodeId = null;
 
+            if (string.IsNullOrEmpty(edgeId)) return false;
             if (!_edges.TryGetValue(edgeId, out var edge))
                 return false;
 

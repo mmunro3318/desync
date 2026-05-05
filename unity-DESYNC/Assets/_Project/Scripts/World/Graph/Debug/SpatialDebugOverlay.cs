@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Desync.World.Graph.Runtime;
 
 namespace Desync.World.Graph.Debug
@@ -18,10 +17,6 @@ namespace Desync.World.Graph.Debug
 
         private void Update()
         {
-            var kb = Keyboard.current;
-            if (kb == null) return;
-            if (kb.f3Key.wasPressedThisFrame) _visible = !_visible;
-            if (kb.f5Key.wasPressedThisFrame) RestartRuntime();
             if (_playerTracker == null) // Lazy-find: player spawns dynamically via NGO
                 _playerTracker = FindAnyObjectByType<PlayerNodeTracker>();
         }
@@ -40,13 +35,20 @@ namespace Desync.World.Graph.Debug
 
         private void OnGUI()
         {
+            // Input handling via IMGUI — avoids Input System null-device crash
+            if (Event.current.type == EventType.KeyDown)
+            {
+                if (Event.current.keyCode == KeyCode.F3) _visible = !_visible;
+                if (Event.current.keyCode == KeyCode.F5) RestartRuntime();
+            }
+
             if (!_visible) return;
             EnsureStyles();
 
             const float panelX = 8f, panelY = 8f, panelW = 320f, lineH = 20f;
             var runtime = graphHost != null ? graphHost.Runtime : null;
-            string curId = _playerTracker != null ? _playerTracker.CurrentNodeId : "—";
-            string prevId = _playerTracker != null ? _playerTracker.PreviousNodeId : "—";
+            string curId = _playerTracker != null ? _playerTracker.CurrentNodeId ?? "—" : "—";
+            string prevId = _playerTracker != null ? _playerTracker.PreviousNodeId ?? "—" : "—";
             int nodeCount = runtime != null ? runtime.NodeCount : 0;
             int edgeCount = runtime != null ? runtime.EdgeCount : 0;
 
