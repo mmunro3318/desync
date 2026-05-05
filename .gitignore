@@ -10,6 +10,7 @@ unity-DESYNC/Temp/
 unity-DESYNC/Logs/
 unity-DESYNC/obj/
 unity-DESYNC/UserSettings/
+unity-DESYNC/.plastic/
 
 # Unity generated meta files (usually auto-regenerated)
 *.meta
@@ -20,7 +21,11 @@ unity-DESYNC/UserSettings/
 .vscode/
 *.swp
 *.swo
+*.sln
 .claude/worktrees/
+
+# Unity Screenshots (MCP-generated debug captures)
+unity-DESYNC/Assets/Screenshots/
 
 # OS
 .DS_Store
@@ -33,3 +38,6 @@ unity-DESYNC/Builds/
 # Optional: uncommitted local project files (but Packages/manifest.json IS committed)
 unity-DESYNC/*.slnx
 unity-DESYNC/*.csproj
+
+# Large binary references (use docs/design/98-unity-research/ for .md summaries only)
+*.pdf

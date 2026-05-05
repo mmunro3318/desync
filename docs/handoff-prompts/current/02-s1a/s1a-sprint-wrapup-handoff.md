@@ -148,6 +148,7 @@ Changing `[SerializeField] private string gameplaySceneName = "House_Prototype"`
 **Symptom (Mike playtest, 2026-05-04 15:41):**
 - Player spawns on brown plane with skybox, no visible room geometry (expected — rooms are trigger-only boxes with no mesh)
 - No IMGUI overlay visible (should start with `_visible = true`)
+- No player controller (no response from keys or mouse)
 - F3 and F5 keys do nothing
 - Console: `ArgumentNullException: Value cannot be null. Parameter name: key` — repeating every few seconds (once per Update frame)
 - Screenshot: `docs/handoff-prompts/current/02-s1a/error-console-unity-3-41-pm.png`

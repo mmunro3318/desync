@@ -4,6 +4,11 @@ This is the **load-bearing decision log** for DESYNC. Record every decision here
 
 This file supersedes the prior `OLD_ARCHITECTURAL_DECISIONS.md` (Phasmo-Clone era). Decisions below are either **carried forward** (still load-bearing for DESYNC) or **new** (DESYNC-specific).
 
+### Records of decisions go here, not into commit messages alone
+**What:** Any decision a future agent might re-litigate gets an entry in this file with a clear *what / why / how to apply / future review*.
+**Why:** Commit messages are cheap to lose; a decision log is the artifact AI agents can re-read at session start.
+**How to apply:** When reviewing a PR, if a non-obvious choice was made and not captured here, push back and ask for an `ARCH.md` entry before approving.
+
 How to use this doc:
 - Before changing a decision recorded here, read it. If you still want to change it, add a new dated entry that supersedes the old one — do not delete the old reasoning.
 - Decisions about *Unity engine choices* (URP defaults, NGO authority model, etc.) live in `docs/design/98-unity-research/`. This doc records project-specific decisions that go beyond the engine defaults.
@@ -130,11 +135,6 @@ These decisions originated in the Phasmo-Clone era but remain load-bearing becau
 **Why:** EditMode tests run without entering Play mode (cheap CI-friendly), and behavioral assertions survive refactors that only change identifier names. PlayMode infra is heavier; reach for it only when a behavior genuinely requires it.
 **How to apply:** New regression guards should follow the same pattern (open the scene, query the serialized state). PlayMode tests need explicit justification.
 
-### Records of decisions go here, not into commit messages alone
-**What:** Any decision a future agent might re-litigate gets an entry in this file with a clear *what / why / how to apply / future review*.
-**Why:** Commit messages are cheap to lose; a decision log is the artifact AI agents can re-read at session start.
-**How to apply:** When reviewing a PR, if a non-obvious choice was made and not captured here, push back and ask for an `ARCH.md` entry before approving.
-
 ### Modular graybox geometry construction grammar (2026-05-04, S0.3) [SUPERSEDES: "How to apply" rules in S0.1 entry below]
 **What:** Systematic coplanar-face artifact fix across all of `House_Graybox.unity`. Root cause was IEEE 754 float precision: modular pieces sharing exact face positions caused renderer z-fighting visible as banding artifacts on the building exterior and at floor/ceiling junctions. Canonically called the "light leak" bug/fix (that was the original working hypothesis), but the actual cause was coplanar geometry, not lighting.
 **The canonical construction rules are codified in `docs/handoff-prompts/current/GEOMETRY_GRAMMAR.md`.** All new room geometry must follow that grammar. Key rules that supersede the S0.1 "inset to wall inner edges" approach:
@@ -233,7 +233,6 @@ These decisions were locked during S1A Session 1 (architecture + plan). Design d
 These are the obvious upcoming forks. They are *not* decisions yet — recorded so a future agent recognizes the open state and doesn't silently pick one.
 
 - **Relay / Lobby integration.** Unity Gaming Services Relay vs. self-hosted vs. Steam — not yet chosen. Cross-machine play is blocked until this lands.
-- ~~**House graph runtime shape.** `docs/design/02-architecture/house-graph-core-epic.md` defines the intent; no runtime types exist yet.~~ **Resolved in S1A above.**
 - **Observation-lock authority model.** Spec exists (`docs/design/03-systems/co-op-observation-and-sync-rules-spec.md`); concrete NGO ownership shape is not chosen.
 - **Persistent post-jam evolution.** Whether the post-jam iteration stays in Unity or moves elsewhere is not decided. Avoid baking deep Unity-isms into module *interfaces* (implementations can be Unity-flavored).
 
