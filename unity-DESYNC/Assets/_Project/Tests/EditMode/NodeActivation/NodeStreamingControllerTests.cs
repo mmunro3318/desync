@@ -1,0 +1,91 @@
+using System.Collections.Generic;
+using NUnit.Framework;
+using UnityEngine;
+using Desync.World.Graph.Runtime;
+
+namespace Desync.Tests.EditMode.NodeActivation
+{
+    [TestFixture]
+    public class NodeStreamingControllerTests
+    {
+        [Test]
+        public void UpdatePresentation_ActivatesOccupiedNode_DeactivatesOthers()
+        {
+            var go = new GameObject("Controller");
+            var controller = go.AddComponent<NodeStreamingController>();
+
+            var entryGo = new GameObject("Room_Entry");
+            var entryHandle = entryGo.AddComponent<NodePresentationHandle>();
+            SetNodeId(entryHandle, "entry");
+
+            var hallGo = new GameObject("Room_HallA");
+            var hallHandle = hallGo.AddComponent<NodePresentationHandle>();
+            SetNodeId(hallHandle, "hall_a");
+
+            controller.SetHandles(new[] { entryHandle, hallHandle });
+
+            var ctx = new ViewContext("p1", Vector3.zero, Vector3.forward, "entry");
+            controller.UpdatePresentation(ctx, new List<PortalVisibilityResult>());
+
+            Assert.IsTrue(entryGo.activeSelf, "Occupied node should be active");
+            Assert.IsFalse(hallGo.activeSelf, "Non-occupied node should be inactive");
+
+            Object.DestroyImmediate(go);
+            Object.DestroyImmediate(entryGo);
+            Object.DestroyImmediate(hallGo);
+        }
+
+        [Test]
+        public void UpdatePresentation_PortalVisible_ActivatesDestination()
+        {
+            var go = new GameObject("Controller");
+            var controller = go.AddComponent<NodeStreamingController>();
+
+            var entryGo = new GameObject("Room_Entry");
+            var entryHandle = entryGo.AddComponent<NodePresentationHandle>();
+            SetNodeId(entryHandle, "entry");
+
+            var hallGo = new GameObject("Room_HallA");
+            var hallHandle = hallGo.AddComponent<NodePresentationHandle>();
+            SetNodeId(hallHandle, "hall_a");
+
+            controller.SetHandles(new[] { entryHandle, hallHandle });
+
+            var ctx = new ViewContext("p1", Vector3.zero, Vector3.forward, "entry");
+            var portalResults = new List<PortalVisibilityResult>
+            {
+                new PortalVisibilityResult("anchor_1", "hall_a", true)
+            };
+
+            controller.UpdatePresentation(ctx, portalResults);
+
+            Assert.IsTrue(entryGo.activeSelf, "Occupied node should be active");
+            Assert.IsTrue(hallGo.activeSelf, "Portal-visible node should be active");
+
+            Object.DestroyImmediate(go);
+            Object.DestroyImmediate(entryGo);
+            Object.DestroyImmediate(hallGo);
+        }
+
+        [Test]
+        public void UpdatePresentation_EmptyHandles_DoesNotThrow()
+        {
+            var go = new GameObject("Controller");
+            var controller = go.AddComponent<NodeStreamingController>();
+            controller.SetHandles(new NodePresentationHandle[0]);
+
+            var ctx = new ViewContext("p1", Vector3.zero, Vector3.forward, "entry");
+
+            Assert.DoesNotThrow(() => controller.UpdatePresentation(ctx, new List<PortalVisibilityResult>()));
+
+            Object.DestroyImmediate(go);
+        }
+
+        private static void SetNodeId(NodePresentationHandle handle, string nodeId)
+        {
+            var field = typeof(NodePresentationHandle).GetField("nodeId",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            field.SetValue(handle, nodeId);
+        }
+    }
+}

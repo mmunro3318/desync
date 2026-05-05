@@ -143,5 +143,15 @@ namespace Desync.Tests.EditMode.NodeActivation
             Assert.IsTrue(string.IsNullOrEmpty(handle.NodeId));
             Object.DestroyImmediate(go);
         }
+
+        [Test]
+        public void SetPresentation_AfterDestroy_DoesNotThrow()
+        {
+            var go = new GameObject("TestRoom");
+            var handle = go.AddComponent<NodePresentationHandle>();
+            Object.DestroyImmediate(go);
+
+            Assert.DoesNotThrow(() => handle.SetPresentation(true));
+        }
     }
 }

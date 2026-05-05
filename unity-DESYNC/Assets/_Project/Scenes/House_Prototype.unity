@@ -174,8 +174,45 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1031586669618728670, guid: 1f4ffe813593e3042b062d3a1f1d160b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 190041695}
+    - targetCorrespondingSourceObject: {fileID: 1031586669618728670, guid: 1f4ffe813593e3042b062d3a1f1d160b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 190041694}
   m_SourcePrefab: {fileID: 100100000, guid: 1f4ffe813593e3042b062d3a1f1d160b, type: 3}
+--- !u!1 &190041693 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1031586669618728670, guid: 1f4ffe813593e3042b062d3a1f1d160b, type: 3}
+  m_PrefabInstance: {fileID: 190041692}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &190041694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190041693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
+  nodeId: 
+--- !u!114 &190041695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190041693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
+  nodeId: v_entry
 --- !u!1001 &551227914
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -231,8 +268,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1241628753460242034, guid: e75503bac1780f54cb91d38d8e3a5f01, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 551227916}
   m_SourcePrefab: {fileID: 100100000, guid: e75503bac1780f54cb91d38d8e3a5f01, type: 3}
+--- !u!1 &551227915 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1241628753460242034, guid: e75503bac1780f54cb91d38d8e3a5f01, type: 3}
+  m_PrefabInstance: {fileID: 551227914}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &551227916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 551227915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
+  nodeId: v_living
 --- !u!1 &954383609
 GameObject:
   m_ObjectHideFlags: 0
@@ -360,6 +418,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1011178834
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1011178835}
+  m_Layer: 0
+  m_Name: VisibilityController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1011178835
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011178834}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1068092692
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -415,8 +504,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7781304209927676450, guid: 27e336d24128adc45a15a622845ed99a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1068092694}
   m_SourcePrefab: {fileID: 100100000, guid: 27e336d24128adc45a15a622845ed99a, type: 3}
+--- !u!1 &1068092693 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7781304209927676450, guid: 27e336d24128adc45a15a622845ed99a, type: 3}
+  m_PrefabInstance: {fileID: 1068092692}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1068092694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068092693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
+  nodeId: v_hall_a
 --- !u!1 &1087487403
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,8 +764,73 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1374695746607675031, guid: 06e7007a5d0b4f647ba146b1c7e49449, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1334872872}
   m_SourcePrefab: {fileID: 100100000, guid: 06e7007a5d0b4f647ba146b1c7e49449, type: 3}
+--- !u!1 &1334872871 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1374695746607675031, guid: 06e7007a5d0b4f647ba146b1c7e49449, type: 3}
+  m_PrefabInstance: {fileID: 1334872870}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1334872872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1334872871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
+  nodeId: v_kitchen
+--- !u!1 &1591701028
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1591701030}
+  - component: {fileID: 1591701029}
+  m_Layer: 0
+  m_Name: SpatialVisibilityDebugOverlay
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1591701029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591701028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a0aef5f666cf54469ea97ba81d3da4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Debug.SpatialVisibilityDebugOverlay
+--- !u!4 &1591701030
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591701028}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1599959671
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -711,8 +886,45 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1856554007193490504, guid: 02ccb21b68717694ea919fc16d76079b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1599959674}
+    - targetCorrespondingSourceObject: {fileID: 1856554007193490504, guid: 02ccb21b68717694ea919fc16d76079b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1599959673}
   m_SourcePrefab: {fileID: 100100000, guid: 02ccb21b68717694ea919fc16d76079b, type: 3}
+--- !u!1 &1599959672 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1856554007193490504, guid: 02ccb21b68717694ea919fc16d76079b, type: 3}
+  m_PrefabInstance: {fileID: 1599959671}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1599959673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1599959672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
+  nodeId: 
+--- !u!114 &1599959674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1599959672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
+  nodeId: v_corridor_b
 --- !u!1 &1866176867
 GameObject:
   m_ObjectHideFlags: 0
@@ -761,6 +973,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2082289842
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2082289845}
+  - component: {fileID: 2082289844}
+  - component: {fileID: 2082289843}
+  m_Layer: 0
+  m_Name: VisibilityController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2082289843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082289842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffc8a1288cdd68843a75d14e119f92f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.PortalVisibilityController
+--- !u!114 &2082289844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082289842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19d4eb18379cf634db15f5a20a94de12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodeStreamingController
+--- !u!4 &2082289845
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082289842}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -775,3 +1044,6 @@ SceneRoots:
   - {fileID: 1087487405}
   - {fileID: 1212605314}
   - {fileID: 1866176869}
+  - {fileID: 2082289845}
+  - {fileID: 1011178835}
+  - {fileID: 1591701030}
