@@ -51,9 +51,11 @@ namespace Desync.Tests.EditMode
         }
 
         [Test]
-        public void FloorCeilingBoundsWithinExteriorWalls()
+        public void FloorCeilingBoundsWithinWallMidpoints()
         {
-            var interiorBounds = ComputeExteriorWallInteriorBounds();
+            // Grammar R1.3: separator XZ edges extend to wall MIDPOINT,
+            // not inner edge. Midpoint = (inner + outer) / 2 per wall.
+            var midpointBounds = ComputeExteriorWallMidpointBounds();
             var floorCeilings = FindFloorCeilingRenderers();
 
             foreach (var renderer in floorCeilings)
@@ -61,29 +63,31 @@ namespace Desync.Tests.EditMode
                 var b = renderer.bounds;
                 var name = renderer.gameObject.name;
 
-                Assert.GreaterOrEqual(b.min.x, interiorBounds.min.x - Tolerance,
-                    $"{name} bounds.min.x ({b.min.x:F4}) extends past wall inner edge ({interiorBounds.min.x:F4}).");
-                Assert.LessOrEqual(b.max.x, interiorBounds.max.x + Tolerance,
-                    $"{name} bounds.max.x ({b.max.x:F4}) extends past wall inner edge ({interiorBounds.max.x:F4}).");
-                Assert.GreaterOrEqual(b.min.z, interiorBounds.min.z - Tolerance,
-                    $"{name} bounds.min.z ({b.min.z:F4}) extends past wall inner edge ({interiorBounds.min.z:F4}).");
-                Assert.LessOrEqual(b.max.z, interiorBounds.max.z + Tolerance,
-                    $"{name} bounds.max.z ({b.max.z:F4}) extends past wall inner edge ({interiorBounds.max.z:F4}).");
+                Assert.GreaterOrEqual(b.min.x, midpointBounds.min.x - Tolerance,
+                    $"{name} bounds.min.x ({b.min.x:F4}) extends past wall midpoint ({midpointBounds.min.x:F4}).");
+                Assert.LessOrEqual(b.max.x, midpointBounds.max.x + Tolerance,
+                    $"{name} bounds.max.x ({b.max.x:F4}) extends past wall midpoint ({midpointBounds.max.x:F4}).");
+                Assert.GreaterOrEqual(b.min.z, midpointBounds.min.z - Tolerance,
+                    $"{name} bounds.min.z ({b.min.z:F4}) extends past wall midpoint ({midpointBounds.min.z:F4}).");
+                Assert.LessOrEqual(b.max.z, midpointBounds.max.z + Tolerance,
+                    $"{name} bounds.max.z ({b.max.z:F4}) extends past wall midpoint ({midpointBounds.max.z:F4}).");
             }
         }
 
         [Test]
-        public void CeilingsFlushWithWallTops()
+        public void CeilingTopsAboveWallTops()
         {
-            // GF_Ceiling top should not exceed GF exterior wall tops.
-            AssertCeilingFlushWithWalls(
-                "GF_Ceiling", "GF_Walls_Exterior",
-                "GF_Ceiling top exceeds GF exterior wall tops.");
+            // Grammar R1.2: separator top = wall top + 0.05m.
+            // Ceiling must be ABOVE walls (walls terminate INTO the slab).
+            const float capHeight = 0.05f;
 
-            // SF_Ceiling top should not exceed SF exterior wall tops.
-            AssertCeilingFlushWithWalls(
-                "SF_Ceiling", "SF_Walls_Exterior",
-                "SF_Ceiling top exceeds SF exterior wall tops.");
+            AssertCeilingCapAboveWalls(
+                "GF_Ceiling", "GF_Walls_Exterior", capHeight,
+                "GF_Ceiling");
+
+            AssertCeilingCapAboveWalls(
+                "SF_Ceiling", "SF_Walls_Exterior", capHeight,
+                "SF_Ceiling");
         }
 
         [Test]
@@ -183,6 +187,62 @@ namespace Desync.Tests.EditMode
         // --- Helpers ---
 
         /// <summary>
+        /// Computes the midpoint bounding box (X/Z) from exterior walls.
+        /// Per grammar R1.3, separators extend to wall midpoint, not inner face.
+        /// Midpoint = center of the wall panel on its thin axis.
+        /// </summary>
+        private Bounds ComputeExteriorWallMidpointBounds()
+        {
+            var wallRenderers = CollectExteriorWallRenderers();
+            Assert.IsTrue(wallRenderers.Length > 0,
+                "No MeshRenderers found under exterior wall objects.");
+
+            var outerBounds = wallRenderers[0].bounds;
+            for (int i = 1; i < wallRenderers.Length; i++)
+                outerBounds.Encapsulate(wallRenderers[i].bounds);
+            Vector3 center = outerBounds.center;
+
+            float midMinX = float.MinValue;
+            float midMaxX = float.MaxValue;
+            float midMinZ = float.MinValue;
+            float midMaxZ = float.MaxValue;
+
+            foreach (var wr in wallRenderers)
+            {
+                var wb = wr.bounds;
+                bool thinInX = wb.size.x < wb.size.z;
+
+                if (thinInX)
+                {
+                    float midpoint = wb.center.x;
+                    if (wb.center.x < center.x)
+                        midMinX = Mathf.Max(midMinX, midpoint);
+                    else
+                        midMaxX = Mathf.Min(midMaxX, midpoint);
+                }
+                else
+                {
+                    float midpoint = wb.center.z;
+                    if (wb.center.z < center.z)
+                        midMinZ = Mathf.Max(midMinZ, midpoint);
+                    else
+                        midMaxZ = Mathf.Min(midMaxZ, midpoint);
+                }
+            }
+
+            Assert.AreNotEqual(float.MinValue, midMinX, "No min-X wall found.");
+            Assert.AreNotEqual(float.MaxValue, midMaxX, "No max-X wall found.");
+            Assert.AreNotEqual(float.MinValue, midMinZ, "No min-Z wall found.");
+            Assert.AreNotEqual(float.MaxValue, midMaxZ, "No max-Z wall found.");
+
+            var midBounds = new Bounds();
+            midBounds.SetMinMax(
+                new Vector3(midMinX, outerBounds.min.y, midMinZ),
+                new Vector3(midMaxX, outerBounds.max.y, midMaxZ));
+            return midBounds;
+        }
+
+        /// <summary>
         /// Computes the interior bounding box (X/Z) from exterior wall inner
         /// faces. Each wall panel is classified by its thin axis (X or Z) and
         /// its position relative to center. The inner face of each wall
@@ -268,8 +328,9 @@ namespace Desync.Tests.EditMode
             return renderers;
         }
 
-        private void AssertCeilingFlushWithWalls(
-            string ceilingName, string wallsParentName, string failMessage)
+        private void AssertCeilingCapAboveWalls(
+            string ceilingName, string wallsParentName,
+            float expectedCap, string label)
         {
             var ceiling = FindRequiredObject(ceilingName);
             var ceilingRenderer = ceiling.GetComponent<MeshRenderer>();
@@ -288,11 +349,17 @@ namespace Desync.Tests.EditMode
                     wallMaxY = wr.bounds.max.y;
             }
 
-            Assert.LessOrEqual(
-                ceilingRenderer.bounds.max.y,
-                wallMaxY + Tolerance,
-                $"{failMessage} Ceiling top: {ceilingRenderer.bounds.max.y:F4}, " +
-                $"wall top: {wallMaxY:F4}.");
+            float ceilingTop = ceilingRenderer.bounds.max.y;
+            float expectedTop = wallMaxY + expectedCap;
+
+            // Ceiling top must be above wall tops (R1.2: walls terminate INTO slab)
+            Assert.GreaterOrEqual(ceilingTop, wallMaxY,
+                $"{label} top ({ceilingTop:F4}) is below wall tops ({wallMaxY:F4}).");
+
+            // Ceiling top must not exceed expected cap height + tolerance
+            Assert.LessOrEqual(ceilingTop, expectedTop + Tolerance,
+                $"{label} top ({ceilingTop:F4}) exceeds expected cap " +
+                $"({expectedTop:F4} = wall top {wallMaxY:F4} + {expectedCap}m).");
         }
 
         private static GameObject FindRequiredObject(string name)
