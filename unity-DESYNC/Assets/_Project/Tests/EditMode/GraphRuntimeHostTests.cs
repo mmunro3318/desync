@@ -141,14 +141,14 @@ namespace Desync.Tests.EditMode
                     nodeId = "entry",
                     displayName = "Entry Hall",
                     worldPosition = Vector3.zero,
-                    portalAnchors = new[] { new PortalAnchorDefinition { anchorId = "door_a" } }
+                    portalAnchors = new[] { new PortalAnchorDefinition { anchorId = "door_a", localRotation = Quaternion.identity } }
                 },
                 new HouseNodeDefinition
                 {
                     nodeId = "hall",
                     displayName = "Hallway",
                     worldPosition = new Vector3(5f, 0f, 0f),
-                    portalAnchors = new[] { new PortalAnchorDefinition { anchorId = "door_b" } }
+                    portalAnchors = new[] { new PortalAnchorDefinition { anchorId = "door_b", localRotation = Quaternion.identity } }
                 }
             };
             def.edges = new[]

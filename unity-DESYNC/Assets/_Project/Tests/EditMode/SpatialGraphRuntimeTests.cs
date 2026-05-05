@@ -242,6 +242,36 @@ namespace Desync.Tests.EditMode
             Assert.IsInstanceOf<System.Collections.Generic.IReadOnlyList<HouseEdgeDefinition>>(edges);
         }
 
+        // --- Zero-quaternion sanitization (TD0014) ---
+
+        [Test]
+        public void Initialize_SanitizesZeroQuaternion_ToIdentity()
+        {
+            var def = ScriptableObject.CreateInstance<HouseGraphDefinition>();
+            def.nodes = new[]
+            {
+                new HouseNodeDefinition
+                {
+                    nodeId = "room",
+                    displayName = "Room",
+                    portalAnchors = new[]
+                    {
+                        // localRotation omitted — C# struct zero-inits to (0,0,0,0)
+                        new PortalAnchorDefinition { anchorId = "portal", localPosition = Vector3.forward }
+                    }
+                }
+            };
+
+            var runtime = new SpatialGraphRuntime();
+            runtime.Initialize(def);
+
+            runtime.GetPortalAnchor("room", "portal", out var anchor);
+            Assert.AreEqual(Quaternion.identity, anchor.localRotation,
+                "Zero quaternion (0,0,0,0) should be sanitized to identity (0,0,0,1)");
+
+            Object.DestroyImmediate(def);
+        }
+
         // --- Edge case: null definition ---
 
         [Test]

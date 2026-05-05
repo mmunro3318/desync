@@ -234,13 +234,37 @@ namespace Desync.Tests.EditMode
         }
 
         [Test]
+        public void Validate_WarnsOnZeroQuaternionRotation()
+        {
+            var definition = ScriptableObject.CreateInstance<HouseGraphDefinition>();
+            definition.nodes = new[]
+            {
+                new HouseNodeDefinition
+                {
+                    nodeId = "room",
+                    portalAnchors = new[]
+                    {
+                        // localRotation omitted — zero-inits to (0,0,0,0)
+                        new PortalAnchorDefinition { anchorId = "portal_a", localPosition = Vector3.forward }
+                    }
+                }
+            };
+
+            var errors = definition.Validate();
+
+            Assert.IsTrue(errors.Exists(e => e.Contains("portal_a") && e.Contains("quaternion", System.StringComparison.OrdinalIgnoreCase)),
+                "Validate should warn about zero quaternion on portal_a");
+            Object.DestroyImmediate(definition);
+        }
+
+        [Test]
         public void Validate_ReturnsEmptyForValidGraph()
         {
             var definition = ScriptableObject.CreateInstance<HouseGraphDefinition>();
             definition.nodes = new[]
             {
-                new HouseNodeDefinition { nodeId = "entry", portalAnchors = new[] { new PortalAnchorDefinition { anchorId = "door_a" } } },
-                new HouseNodeDefinition { nodeId = "hall", portalAnchors = new[] { new PortalAnchorDefinition { anchorId = "door_b" } } }
+                new HouseNodeDefinition { nodeId = "entry", portalAnchors = new[] { new PortalAnchorDefinition { anchorId = "door_a", localRotation = Quaternion.identity } } },
+                new HouseNodeDefinition { nodeId = "hall", portalAnchors = new[] { new PortalAnchorDefinition { anchorId = "door_b", localRotation = Quaternion.identity } } }
             };
             definition.edges = new[]
             {

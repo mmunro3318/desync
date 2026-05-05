@@ -35,7 +35,14 @@ namespace Desync.World.Graph.Runtime
                 {
                     foreach (var anchor in node.portalAnchors)
                     {
-                        anchorMap[anchor.anchorId] = anchor;
+                        var sanitized = anchor;
+                        // C# struct zero-init produces quaternion (0,0,0,0) which
+                        // causes NaN when normalized or applied to transforms (TD0014).
+                        var q = sanitized.localRotation;
+                        if (q.x == 0f && q.y == 0f && q.z == 0f && q.w == 0f)
+                            sanitized.localRotation = UnityEngine.Quaternion.identity;
+
+                        anchorMap[anchor.anchorId] = sanitized;
                     }
                 }
                 _anchors[node.nodeId] = anchorMap;

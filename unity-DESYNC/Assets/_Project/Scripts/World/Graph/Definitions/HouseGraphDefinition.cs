@@ -43,6 +43,10 @@ namespace Desync.World.Graph.Definitions
                     {
                         if (!anchors.Add(anchor.anchorId))
                             errors.Add($"Duplicate anchor ID '{anchor.anchorId}' on node '{node.nodeId}'");
+
+                        var q = anchor.localRotation;
+                        if (q.x == 0f && q.y == 0f && q.z == 0f && q.w == 0f)
+                            errors.Add($"Anchor '{anchor.anchorId}' on node '{node.nodeId}' has zero quaternion rotation — will be sanitized to identity at runtime (TD0014)");
                     }
                 }
                 nodeAnchors[node.nodeId] = anchors;
