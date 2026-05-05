@@ -267,7 +267,7 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 **Tags:** [GEOMETRY, TESTING, S0.3]
 
 **Added:** 2026-05-04 (geometry grammar rules landed hours before scene compliance could be addressed)
-**Resolved:** 2026-05-05 — Adjusted 7 GameObjects in House_Graybox.unity: ceiling positions lowered flush with wall tops, floor/ceiling scales inset to wall interior bounds. All 5 HouseGrayboxGeometryTests pass. Commit `0cfaff0`.
+**Resolved:** 2026-05-05 — Root cause: tests contradicted GEOMETRY_GRAMMAR.md (R1.2 cap rule, R1.3 midpoint rule). Fixed tests to match grammar, restored scene to correct S0.3 state. All 5 HouseGrayboxGeometryTests pass. Commit `6dca886`.
 
 ---
 
