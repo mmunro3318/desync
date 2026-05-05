@@ -19,7 +19,7 @@ The repo has a working house graph runtime (S1A complete) built on a migrated Un
 - **Player** (`Scripts/Player/`): `PlayerInputRouter.cs`, `PlayerLook.cs`, `PlayerMotor.cs`.
 - **Other** (`Scripts/`): `Items/FlashlightController.cs`, `Audio/{AmbientAudioManager,FootstepAudio}.cs`, `UI/LobbyUI.cs`.
 - **Scenes** (`Scenes/`): `Bootstrap.unity` (lobby + NetworkManager, loads `House_Prototype`), `House_Prototype.unity` (5-node graph scene with debug overlay + gizmos), `House_Graybox.unity` (legacy two-floor graybox, safe as lighting reference).
-- **Tests** (`Tests/EditMode/`): 73 tests (71 pass, 2 pre-existing geometry failures TD0012). Covers graph definitions, runtime queries, resolver, state, host, player tracker, and network bootstrap.
+- **Tests** (`Tests/EditMode/`): 75 tests (all pass). Covers graph definitions, runtime queries, resolver, state, host, player tracker, network bootstrap, and geometry grammar compliance.
 - **Data/Prefabs**: `Data/HouseGraphDefinition.asset` (5-node graph SO), `Prefabs/Rooms/Room_*.prefab` (x5 with RoomNodeAuthoring + trigger volumes), `PF_Player`, `Railing_Graybox`.
 - **Network**: `DefaultNetworkPrefabs.asset` registry referencing `PF_Player`.
 
