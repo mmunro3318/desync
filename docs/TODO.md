@@ -2,11 +2,221 @@
 
 Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to stub, record, and expand in this document.
 
-**LAST_USED_ID:** TD0014
+**LAST_USED_ID:** TD0020
 
 ---
 
 ## TODO Items
+
+## [TD0015] S1B: [FEATURE] Shared Contracts — ViewContext, activation types, resolver stub
+
+**What:** Define the shared type contracts that all S1B systems depend on: `ViewContext` readonly struct, `[Flags] NodeActivationReason` enum, `NodeActivationResolver` class (stub returning empty dict), `PortalProbeData`/`PortalVisibilityResult` structs, `IPortalVisibilityEvaluator` interface, and `NodePresentationHandle` MonoBehaviour. Write EditMode tests for construction and flag combinations.
+**Why:** All three parallel tracks (TD0017/TD0018/TD0019) and the Gate 0 integration (TD0016) depend on these shared types compiling and being testable. Defining contracts first prevents parallel tracks from making incompatible assumptions about data shapes.
+**How:** TDD-first. Create files in `Scripts/World/Graph/Runtime/`. See PRD Phase 0 tasks P0-1 through P0-6 for exact signatures.
+
+**Priority:** P[1]
+**Effort:** ~1.5h (Size: S; Human: ~10m review, CC: ~1.5h)
+**Regression risk:** Low — new files only, no existing code modified.
+**Depends on:** Nothing — can start immediately
+**Types:** [FEATURE]
+**Tags:** [GRAPH, PORTAL, VISIBILITY, S1B]
+
+**Added:** 2026-05-05 (S1B sprint planning)
+**Context Reference:**
+- Parent: S1B Sprint
+- Source docs:
+  - ~/.gstack/projects/spatial-horror/admin-main-design-20260505-sprint1b-prd.md (Phase 0)
+  - docs/design/04-sprints/sprint-1b-portal-visibility-node-activation.md
+
+### Acceptance Criteria
+- [ ] `ViewContext` readonly struct compiles: `{ string PlayerId; Vector3 CameraPosition; Vector3 CameraForward; string OccupiedNodeId; }`
+- [ ] `[Flags] NodeActivationReason` enum: None=0, Occupied=1, Adjacent=2, PortalVisible=4, DebugForced=8
+- [ ] `NodeActivationResolver.Resolve()` stub compiles and returns empty dictionary
+- [ ] `PortalProbeData` struct: AnchorId, DestinationNodeId, PortalPosition, PortalForward, ApertureSize
+- [ ] `PortalVisibilityResult` struct: AnchorId, DestinationNodeId, IsVisible
+- [ ] `IPortalVisibilityEvaluator` interface with `Evaluate(ViewContext, IReadOnlyList<PortalProbeData>)` signature
+- [ ] `NodePresentationHandle` MonoBehaviour: NodeId property + SetPresentation(bool) with null-guard
+- [ ] EditMode tests pass for ViewContext construction, enum flag operations, resolver stub behavior
+- [ ] No usage of Camera.main, no global state, no NGO types
+
+---
+
+## [TD0016] S1B: [FEATURE] Gate 0 — Single portal end-to-end integration slice
+
+**What:** Build the thinnest possible end-to-end path proving S1B contracts survive Unity runtime: one occupied node (entry), one portal candidate, one destination activation (hall_a), one debug reason displayed. Stubs everywhere — the goal is proving the wiring works, not the logic.
+**Why:** Gate 0 is the risk-burner. If contracts fail under Unity's trigger timing, camera lifecycle, or GameObject activation rules, we discover it here before 3 parallel tracks fan out and build on bad assumptions.
+**How:** Stub `NodeStreamingController` (hardcoded occupied node), stub `PortalVisibilityController` (always returns visible), wire to House_Prototype (entry + hall_a only), stub IMGUI debug overlay showing reasons.
+
+**Priority:** P[1]
+**Effort:** ~2h (Size: S; Human: ~30m Play mode validation, CC: ~1.5h)
+**Regression risk:** Low — stubs only, no production logic. Scene wiring is additive.
+**Depends on:** TD0015
+**Types:** [FEATURE]
+**Tags:** [GRAPH, PORTAL, VISIBILITY, S1B, GATE]
+
+**Added:** 2026-05-05 (S1B sprint planning)
+**Context Reference:**
+- Parent: S1B Sprint
+- Source docs:
+  - ~/.gstack/projects/spatial-horror/admin-main-design-20260505-sprint1b-prd.md (Phase 1)
+
+### Acceptance Criteria (Exit criteria — must be painfully explicit)
+- [ ] One occupied node source: entry node reported as Occupied in active set
+- [ ] One portal candidate: portal between entry→hall_a evaluated (stub: always visible)
+- [ ] One destination activation path: hall_a presentation root toggles to active via SetPresentation(true)
+- [ ] One debug reason visible: IMGUI overlay shows "entry: Occupied" and "hall_a: PortalVisible"
+- [ ] No globals: no Camera.main usage, no singleton "current player" assumption, ViewContext passed through
+- [ ] Presentation toggle works without frame hitches or console errors
+- [ ] **Gate 0 checkpoint:** If contracts need revision based on Unity runtime behavior, revise TD0015 outputs before proceeding to tracks
+
+---
+
+## [TD0017] S1B Track A: [FEATURE] Node activation resolver + streaming controller
+
+**What:** Implement `NodeActivationResolver.Resolve()` (occupied + 1-hop adjacent + portal results merge) and `NodeStreamingController` MonoBehaviour (thin wrapper calling resolver each frame, toggling NodePresentationHandles). Includes debug override mode and assignment of handles to all 5 House_Prototype nodes.
+**Why:** This is the core activation logic — decides which rooms are on/off based on graph topology and player position. Without it, all rooms stay permanently active (current S1A state).
+**How:** TDD-first. Pure C# resolver logic (testable in EditMode), thin MonoBehaviour scene adapter. Reuse cleared dict to minimize GC. See PRD Track A tasks TA-1 through TA-6.
+
+**Owns:** Active-set computation and presentation toggling.
+**Does not own:** Portal-facing evaluation (that's TD0018).
+
+**Priority:** P[1]
+**Effort:** ~3.5h (Size: M; Human: ~15m review, CC: ~3h)
+**Regression risk:** Medium — modifies scene (adds components to 5 room prefabs). Does not modify existing C# files.
+**Depends on:** TD0016 (Gate 0 proves contracts work)
+**Types:** [FEATURE]
+**Tags:** [GRAPH, PORTAL, VISIBILITY, S1B, TRACK_A]
+
+**Added:** 2026-05-05 (S1B sprint planning)
+**Context Reference:**
+- Parent: S1B Sprint
+- Source docs:
+  - ~/.gstack/projects/spatial-horror/admin-main-design-20260505-sprint1b-prd.md (Track A)
+
+### Acceptance Criteria
+- [ ] `NodeActivationResolver.Resolve()` returns occupied node with Occupied flag
+- [ ] Resolver returns 1-hop adjacent nodes with Adjacent flag (via `GetConnectedEdges`)
+- [ ] Resolver merges portal visibility results with PortalVisible flag
+- [ ] EditMode tests cover: occupied set, adjacent set, combined reasons, empty graph, invalid node ID
+- [ ] `NodeStreamingController` calls resolver each frame, toggles NodePresentationHandles accordingly
+- [ ] `[SerializeField] bool forceAllActive` debug override bypasses resolver (all nodes stay active)
+- [ ] All 5 Room_* prefabs in House_Prototype have NodePresentationHandle assigned
+- [ ] Controller lifecycle tests: init, reset, handle missing/destroyed nodes gracefully (logs warning)
+- [ ] Walking between nodes in Play mode updates active set correctly
+
+---
+
+## [TD0018] S1B Track B: [FEATURE] Portal visibility evaluator + viewer-context probe
+
+**What:** Implement `PortalVisibilityEvaluator` (pure C# dot-product check with portal-crossing guard) and `PortalViewProbe` MonoBehaviour (reads portal forward/bounds from PortalAnchorAuthoring) and `PortalVisibilityController` (iterates probes, calls evaluator, exposes results for NodeStreamingController).
+**Why:** This makes looking through a doorway actually activate the destination room — the core "portal visibility" behavior that distinguishes S1B from simple adjacency.
+**How:** TDD-first. Pure C# evaluator (testable in EditMode), thin MonoBehaviour probe/controller. Portal forward = `PortalAnchorAuthoring.transform.forward`. Aperture = `BoxCollider.size`. Default dot-product threshold: 0.5 (60-degree cone), exposed as SerializeField.
+
+**Owns:** Per-viewer portal-visible decisions.
+**Does not own:** Activation policy (that's TD0017).
+
+**Priority:** P[1]
+**Effort:** ~3.5h (Size: M; Human: ~15m review, CC: ~3h)
+**Regression risk:** Low — new files only. Does not modify PortalAnchorAuthoring (reads existing properties).
+**Depends on:** TD0016 (Gate 0 proves contracts work)
+**Types:** [FEATURE]
+**Tags:** [GRAPH, PORTAL, VISIBILITY, S1B, TRACK_B]
+
+**Added:** 2026-05-05 (S1B sprint planning)
+**Context Reference:**
+- Parent: S1B Sprint
+- Source docs:
+  - ~/.gstack/projects/spatial-horror/admin-main-design-20260505-sprint1b-prd.md (Track B)
+
+### Acceptance Criteria
+- [ ] `PortalVisibilityEvaluator`: facing portal (dot > threshold) returns visible
+- [ ] Evaluator: facing away returns not visible
+- [ ] Evaluator: **portal-crossing guard** — player past portal plane (dot of playerPos-portalPos vs portalForward < 0) always returns true
+- [ ] Evaluator: degenerate inputs (zero forward, default ViewContext) handled without exception
+- [ ] EditMode tests cover: facing, away, edge angles, past-plane, degenerate inputs
+- [ ] `PortalViewProbe` reads transform.forward, BoxCollider.size, transform.position from PortalAnchorAuthoring GO
+- [ ] `PortalVisibilityController` iterates probes for occupied node's portals, exposes `IReadOnlyList<PortalVisibilityResult>`
+- [ ] Wired to House_Prototype scene portal anchors
+- [ ] Deterministic: same camera position/direction always produces same result
+- [ ] Dot-product threshold exposed as `[SerializeField] float portalAngleTolerance = 0.5f`
+
+---
+
+## [TD0019] S1B Track C: [FEATURE] Debug visibility overlay + gizmos against public queries
+
+**What:** Create `SpatialVisibilityDebugOverlay` (IMGUI, F4 toggle) showing active nodes with reasons and portal-visible destinations. Extend existing `SpatialDebugGizmos.cs` with visibility wireframes (active=green, portal-visible=yellow, inactive=gray, portal sightline rays).
+**Why:** Debug-first rule: if you can't see it, you can't tune it. The overlay must explain why any node is active using only the debug tools — no source code reading required.
+**How:** Overlay consumes public query APIs from NodeStreamingController/PortalVisibilityController. Does not reach into controller internals. F4 key (F3 remains S1A graph topology). Tests verify overlay handles null/missing controller state gracefully.
+
+**Owns:** Explanation/display of activation state.
+**Does not own:** Anything — reads only, never writes to controllers.
+
+**Priority:** P[1]
+**Effort:** ~2h (Size: S; Human: ~10m review, CC: ~1.5h)
+**Regression risk:** Low — new file + extension of existing gizmos. No logic changes.
+**Depends on:** TD0016 (Gate 0 proves contracts work)
+**Types:** [FEATURE]
+**Tags:** [DEBUG, OVERLAY, VISIBILITY, S1B, TRACK_C]
+
+**Added:** 2026-05-05 (S1B sprint planning)
+**Context Reference:**
+- Parent: S1B Sprint
+- Source docs:
+  - ~/.gstack/projects/spatial-horror/admin-main-design-20260505-sprint1b-prd.md (Track C)
+
+### Acceptance Criteria
+- [ ] `SpatialVisibilityDebugOverlay` toggled with F4 key (F3 unchanged)
+- [ ] Overlay lists every active node with at least one reason (Occupied, Adjacent, PortalVisible, DebugForced)
+- [ ] Overlay shows active portal destinations with node IDs
+- [ ] Overlay shows current ViewContext (player ID, occupied node)
+- [ ] `SpatialDebugGizmos.cs` extended: active nodes green wireframe, portal-visible yellow, inactive gray
+- [ ] Portal sightline rays drawn from camera to portal position
+- [ ] Overlay does not throw when no controller exists (null-safe)
+- [ ] Handles empty state gracefully (no nodes, no portals)
+- [ ] Tests: overlay safe with null controllers, empty results, missing references
+
+---
+
+## [TD0020] S1B: [FEATURE] Integration wiring + Gate 1/Gate 2 smoke test
+
+**What:** Wire Track A + Track B together (PortalVisibilityController feeds results into NodeStreamingController). Wire Track C debug overlay to read from live controllers. Run Gate 1 (transit harness: entry→hall_a→living) and Gate 2 (full 5-node smoke test per sprint PDD checklist). Fix integration issues.
+**Why:** Individual tracks work in isolation but haven't proven they compose correctly. Gate 1 validates transitions don't thrash. Gate 2 validates the full sprint acceptance criteria on the authored test slice.
+**How:** Wire controllers in House_Prototype scene. Run PDD smoke test (10 items). Includes reset/stability testing (repeated enter/look/turn/restart cycles). Budget 60m buffer for integration fixes.
+
+**Priority:** P[1]
+**Effort:** ~3.5h (Size: M; Human: ~1h Play mode testing, CC: ~2.5h)
+**Regression risk:** Medium — final integration may reveal issues requiring fixes in TD0017/TD0018.
+**Depends on:** TD0017, TD0018, TD0019
+**Types:** [FEATURE]
+**Tags:** [GRAPH, PORTAL, VISIBILITY, S1B, INTEGRATION, GATE]
+
+**Added:** 2026-05-05 (S1B sprint planning)
+**Context Reference:**
+- Parent: S1B Sprint
+- Source docs:
+  - ~/.gstack/projects/spatial-horror/admin-main-design-20260505-sprint1b-prd.md (Phase 3)
+  - docs/design/04-sprints/sprint-1b-portal-visibility-node-activation.md (smoke test checklist)
+
+### Acceptance Criteria
+- [ ] PortalVisibilityController results flow into NodeStreamingController's Resolve() call
+- [ ] Debug overlay reads from live controllers (not stubs)
+- [ ] **Gate 1 — Transit harness:** Walk entry→hall_a→living without activation thrash during doorway transitions
+- [ ] **Gate 2 — Full smoke test (all 10 PDD items):**
+  - [ ] Launch from Bootstrap
+  - [ ] Enter House_Prototype
+  - [ ] Occupied node active
+  - [ ] Adjacent nodes active
+  - [ ] Look through doorway → destination marked PortalVisible
+  - [ ] Turn away → portal-visible status updates
+  - [ ] Move to new node → active-node set updates
+  - [ ] Toggle debug override → all nodes active
+  - [ ] Restart round
+  - [ ] Activation state resets cleanly, no blocker errors
+- [ ] Reset/stability: repeated enter/look/turn/restart cycles produce no stale state
+- [ ] No critical console errors
+- [ ] All EditMode tests still pass (73 existing + ~30 new from S1B)
+
+---
 
 ## [TD0013] S2+: [KNOWN_BUG] PlayerNodeTracker trigger overlap race — non-deterministic event ordering
 
@@ -25,7 +235,7 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 
 ---
 
-## [TD0014] S2+: [KNOWN_BUG] PortalAnchorDefinition.localRotation defaults to invalid Quaternion(0,0,0,0)
+## [TD0014] ~~S2+~~ S1B-preflight: [KNOWN_BUG] PortalAnchorDefinition.localRotation defaults to invalid Quaternion(0,0,0,0) — **RESOLVED 2026-05-05**
 
 **What:** C# struct default for `Quaternion` is `(0,0,0,0)`, not `Quaternion.identity`. Any code that reads `localRotation` from a default-initialized `PortalAnchorDefinition` will get an invalid zero quaternion. Applying this as a rotation produces NaN transforms. Currently nothing reads `localRotation` at runtime, but the portal system (S2) will need it.
 **Why:** Latent NaN bomb. When portal traversal reads anchor rotation for player teleport positioning, uninitialized rotations will silently corrupt transform data.
@@ -39,10 +249,11 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 **Tags:** [GRAPH, PORTAL, S2]
 
 **Added:** 2026-05-04 (pre-landing review, adversarial finding)
+**Resolved:** 2026-05-05 — `SpatialGraphRuntime.Initialize()` sanitizes zero quaternions to identity; `HouseGraphDefinition.Validate()` warns on authoring-time detection. Commit `13e6c23`.
 
 ---
 
-## [TD0012] S0.3: [BUG] Fix House_Graybox geometry test failures — grammar rules drift
+## [TD0012] ~~S0.3~~ S1B-preflight: [BUG] Fix House_Graybox geometry test failures — grammar rules drift — **RESOLVED 2026-05-05**
 
 **What:** 2 EditMode tests in `HouseGrayboxGeometryTests` fail because `House_Graybox.unity` scene geometry does not comply with the geometry grammar rules codified in S0.3. Specifically: (1) `CeilingsFlushWithWallTops` — GF_Ceiling top (2.75m) exceeds exterior wall tops (2.70m), expected <= 2.71m. (2) `FloorCeilingBoundsWithinExteriorWalls` — GF_Floor bounds.min.x (0.075m) extends past wall inner edge (0.15m), expected >= 0.14m.
 **Why:** The geometry grammar tests were merged (S0.3 fix branch) but the scene geometry was not updated to match the stricter tolerances. These 2 failures run on every test suite execution and mask real regressions. Every new test run shows "2 failures" and developers have to mentally filter them out.
@@ -56,6 +267,7 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 **Tags:** [GEOMETRY, TESTING, S0.3]
 
 **Added:** 2026-05-04 (geometry grammar rules landed hours before scene compliance could be addressed)
+**Resolved:** 2026-05-05 — Adjusted 7 GameObjects in House_Graybox.unity: ceiling positions lowered flush with wall tops, floor/ceiling scales inset to wall interior bounds. All 5 HouseGrayboxGeometryTests pass. Commit `0cfaff0`.
 
 ---
 

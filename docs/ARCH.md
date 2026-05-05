@@ -221,6 +221,12 @@ These decisions were locked during S1A Session 1 (architecture + plan). Design d
 **Why:** EditMode tests are cheap, fast, CI-friendly, and sufficient for pure data logic. PlayMode NGO test harness is heavy to set up and flaky — deferred to S3+ when the test infrastructure is worth the investment.
 **How to apply:** New graph logic gets an EditMode test. PlayMode tests require explicit justification. The manual smoke checklist is the multiplayer acceptance gate.
 
+### SpatialGraphRuntime is pure C# — no UnityEngine logging dependency
+**What:** `SpatialGraphRuntime` uses Unity value types (`Vector3`, `Quaternion`) from the definitions but does NOT call `Debug.Log`, `Debug.LogWarning`, or any UnityEngine logging. Validation warnings live in `HouseGraphDefinition.Validate()` (which already imports `UnityEngine`); the runtime silently sanitizes bad data (e.g., zero quaternions → identity, TD0014).
+**Why:** Keeps the runtime testable as a pure C# class. No MonoBehaviour lifecycle, no static logger dependency. `GraphRuntimeHost` bridges to Unity (calls `Validate()`, logs errors, then passes the definition to `Initialize()`). Adding a `Debug.Log` to the runtime would leak UnityEngine concerns into the query engine and make it harder to test in isolation.
+**How to apply:** If new runtime sanitization is needed, sanitize silently in `Initialize()` and warn in `Validate()`. Never add `Debug.Log` to `SpatialGraphRuntime`.
+**Decision date:** 2026-05-05 (S1B pre-flight, TD0014 fix).
+
 ### Contract scope: 5 queries + GetNodeForPosition
 **What:** S1A implements: `GetNode`, `GetEdge`, `GetConnectedEdges`, `GetDestinationNode`, `GetPortalAnchor`, plus `GetNodeForPosition` (trigger-volume-based player-to-node resolver). The full `IHouseGraphRuntime` interface from the contracts doc is NOT implemented.
 **Why:** These 6 operations are what S1B and S2 actually need. Building the full interface now means writing code against requirements that don't exist yet.
