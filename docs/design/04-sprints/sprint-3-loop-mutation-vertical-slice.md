@@ -101,11 +101,11 @@ This keeps the project aligned with the rule that new content should mostly mean
 ## Suggested files
 
 ### Runtime / mutation
-- `Scripts/Spatial/Mutations/AnomalyDirector.cs`
-- `Scripts/Spatial/Mutations/LoopMutationDefinition.cs`
-- `Scripts/Spatial/Mutations/LoopPatternDefinition.cs`
-- `Scripts/Spatial/Mutations/GraphMutationService.cs`
-- `Scripts/Spatial/Mutations/RuntimeMutationEvent.cs`
+- `Scripts/World/Graph/Mutations/AnomalyDirector.cs`
+- `Scripts/World/Graph/Mutations/LoopMutationDefinition.cs`
+- `Scripts/World/Graph/Mutations/LoopPatternDefinition.cs`
+- `Scripts/World/Graph/Mutations/GraphMutationService.cs`
+- `Scripts/World/Graph/Mutations/RuntimeMutationEvent.cs`
 
 ### Debug
 - `Scripts/UI/Debug/MutationDebugOverlay.cs`

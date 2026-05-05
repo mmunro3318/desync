@@ -140,15 +140,15 @@ This keeps new anomaly variants data-driven, consistent with the earlier archite
 ## Suggested files
 
 ### Runtime / mutation
-- `Scripts/Spatial/Mutations/SubstitutionPatternDefinition.cs`
-- `Scripts/Spatial/Mutations/NodeVariantDefinition.cs`
-- `Scripts/Spatial/Mutations/GraphMutationService.cs`
-- `Scripts/Spatial/Mutations/RuntimeMutationEvent.cs`
-- `Scripts/Spatial/Mutations/AnomalyDirector.cs`
+- `Scripts/World/Graph/Mutations/SubstitutionPatternDefinition.cs`
+- `Scripts/World/Graph/Mutations/NodeVariantDefinition.cs`
+- `Scripts/World/Graph/Mutations/GraphMutationService.cs`
+- `Scripts/World/Graph/Mutations/RuntimeMutationEvent.cs`
+- `Scripts/World/Graph/Mutations/AnomalyDirector.cs`
 
 ### Authoring / presentation
-- `Scripts/Spatial/Authoring/NodeVariantAuthoring.cs`
-- `Scripts/Spatial/Runtime/NodeVariantController.cs`
+- `Scripts/World/Graph/Authoring/NodeVariantAuthoring.cs`
+- `Scripts/World/Graph/Runtime/NodeVariantController.cs`
 
 ### Debug
 - `Scripts/UI/Debug/SubstitutionDebugOverlay.cs`

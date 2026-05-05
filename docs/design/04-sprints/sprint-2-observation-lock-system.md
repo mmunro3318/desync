@@ -121,10 +121,10 @@ public enum LockReason
 ## Suggested files
 
 ### Runtime
-- `Scripts/Spatial/Runtime/ObservationLockSystem.cs`
-- `Scripts/Spatial/Runtime/NodeObservationState.cs`
-- `Scripts/Spatial/Runtime/EdgeObservationState.cs`
-- `Scripts/Spatial/Definitions/ObservationRulesDefinition.cs`
+- `Scripts/World/Graph/Runtime/ObservationLockSystem.cs`
+- `Scripts/World/Graph/Runtime/NodeObservationState.cs`
+- `Scripts/World/Graph/Runtime/EdgeObservationState.cs`
+- `Scripts/World/Graph/Definitions/ObservationRulesDefinition.cs`
 
 ### Debug
 - `Scripts/UI/Debug/ObservationDebugOverlay.cs`

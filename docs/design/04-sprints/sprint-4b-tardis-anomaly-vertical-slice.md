@@ -133,15 +133,15 @@ This keeps the implementation aligned with the project principle that new conten
 ## Suggested files
 
 ### Runtime / mutation
-- `Scripts/Spatial/Mutations/TardisSubgraphDefinition.cs`
-- `Scripts/Spatial/Mutations/TardisPatternDefinition.cs`
-- `Scripts/Spatial/Mutations/GraphMutationService.cs`
-- `Scripts/Spatial/Mutations/RuntimeMutationEvent.cs`
-- `Scripts/Spatial/Mutations/AnomalyDirector.cs`
+- `Scripts/World/Graph/Mutations/TardisSubgraphDefinition.cs`
+- `Scripts/World/Graph/Mutations/TardisPatternDefinition.cs`
+- `Scripts/World/Graph/Mutations/GraphMutationService.cs`
+- `Scripts/World/Graph/Mutations/RuntimeMutationEvent.cs`
+- `Scripts/World/Graph/Mutations/AnomalyDirector.cs`
 
 ### Authoring
-- `Scripts/Spatial/Authoring/TardisEntryAuthoring.cs`
-- `Scripts/Spatial/Authoring/TardisReturnAuthoring.cs`
+- `Scripts/World/Graph/Authoring/TardisEntryAuthoring.cs`
+- `Scripts/World/Graph/Authoring/TardisReturnAuthoring.cs`
 
 ### Debug
 - `Scripts/UI/Debug/TardisDebugOverlay.cs`

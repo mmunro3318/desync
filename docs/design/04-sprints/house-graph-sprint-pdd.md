@@ -106,7 +106,7 @@ This sprint should formalize the following split.
 - `HouseGraphDefinition`
 - `NodeDefinition`
 - `EdgeDefinition`
-- `PortalDefinition` or graph-safe renamed equivalent
+- `PortalEdgeDefinition` or graph-safe renamed equivalent
 - `VerticalLinkDefinition`
 
 ### Runtime-side
@@ -189,7 +189,7 @@ Implement serializable baseline graph definition classes.
 - `HouseGraphDefinition`
 - `NodeDefinition`
 - `EdgeDefinition`
-- `GraphPortalDefinition` if naming collision avoidance is needed
+- `PortalEdgeDefinition` if naming collision avoidance is needed
 - `VerticalLinkDefinition`
 
 #### Acceptance criteria

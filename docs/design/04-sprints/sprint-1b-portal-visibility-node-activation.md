@@ -117,10 +117,10 @@ Does not own gameplay decisions.
 ## Suggested files
 
 ### Runtime / presentation
-- `Scripts/Spatial/Runtime/NodeStreamingController.cs`
-- `Scripts/Spatial/Runtime/NodePresentationHandle.cs`
-- `Scripts/Spatial/Runtime/PortalVisibilityController.cs`
-- `Scripts/Spatial/Runtime/PortalViewProbe.cs`
+- `Scripts/World/Graph/Runtime/NodeStreamingController.cs`
+- `Scripts/World/Graph/Runtime/NodePresentationHandle.cs`
+- `Scripts/World/Graph/Runtime/PortalVisibilityController.cs`
+- `Scripts/World/Graph/Runtime/PortalViewProbe.cs`
 
 ### Debug
 - `Scripts/UI/Debug/SpatialVisibilityDebugOverlay.cs`
