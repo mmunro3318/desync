@@ -5,28 +5,20 @@ namespace Desync.World.Graph.Runtime
 {
     public class PortalVisibilityController : MonoBehaviour
     {
-        private readonly List<PortalVisibilityResult> _results = new();
+        [Header("Tuning")]
+        [Tooltip("Dot product threshold for portal visibility (0.5 = 60-degree cone)")]
+        [SerializeField] private float dotThreshold = 0.5f;
 
-        /// <summary>
-        /// Gate 0 stub: always returns all probes as visible.
-        /// TB-4 replaces this with real camera-facing evaluation.
-        /// </summary>
+        private PortalVisibilityEvaluator _evaluator;
+
         public IReadOnlyList<PortalVisibilityResult> EvaluatePortals(
             ViewContext ctx,
             IReadOnlyList<PortalProbeData> probes)
         {
-            _results.Clear();
+            if (_evaluator == null)
+                _evaluator = new PortalVisibilityEvaluator(dotThreshold);
 
-            for (int i = 0; i < probes.Count; i++)
-            {
-                _results.Add(new PortalVisibilityResult(
-                    probes[i].AnchorId,
-                    probes[i].DestinationNodeId,
-                    isVisible: true // Stub: always visible
-                ));
-            }
-
-            return _results;
+            return _evaluator.Evaluate(ctx, probes);
         }
     }
 }
