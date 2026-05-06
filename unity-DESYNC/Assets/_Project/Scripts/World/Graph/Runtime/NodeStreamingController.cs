@@ -1,43 +1,96 @@
 using System.Collections.Generic;
+using Desync.World.Graph;
 using UnityEngine;
 
 namespace Desync.World.Graph.Runtime
 {
     public class NodeStreamingController : MonoBehaviour
     {
-        private NodePresentationHandle[] _handles = System.Array.Empty<NodePresentationHandle>();
-        private readonly HashSet<string> _activeNodeIds = new();
+        [Header("References")]
+        [SerializeField] private GraphRuntimeHost graphHost;
+        [SerializeField] private PortalVisibilityController portalController;
+        [SerializeField] private NodePresentationHandle[] handles = System.Array.Empty<NodePresentationHandle>();
 
-        public void SetHandles(IReadOnlyList<NodePresentationHandle> handles)
+        [Header("Debug")]
+        [SerializeField] private bool forceAllActive;
+
+        private PlayerNodeTracker _playerTracker;
+        private Camera _playerCamera;
+        private readonly NodeActivationResolver _resolver = new();
+        private IReadOnlyDictionary<string, NodeActivationReason> _lastResult;
+
+        public IReadOnlyDictionary<string, NodeActivationReason> LastResult => _lastResult;
+        public bool ForceAllActive { get => forceAllActive; set => forceAllActive = value; }
+
+        public void SetHandles(IReadOnlyList<NodePresentationHandle> newHandles)
         {
-            _handles = new NodePresentationHandle[handles.Count];
-            for (int i = 0; i < handles.Count; i++)
-                _handles[i] = handles[i];
+            handles = new NodePresentationHandle[newHandles.Count];
+            for (int i = 0; i < newHandles.Count; i++)
+                handles[i] = newHandles[i];
+        }
+
+        private void Update()
+        {
+            if (forceAllActive)
+            {
+                ActivateAll();
+                return;
+            }
+
+            if (_playerTracker == null)
+                _playerTracker = FindAnyObjectByType<PlayerNodeTracker>();
+            if (_playerCamera == null)
+                _playerCamera = Camera.main;
+
+            if (_playerTracker == null || string.IsNullOrEmpty(_playerTracker.CurrentNodeId))
+                return;
+
+            var ctx = BuildViewContext();
+            var portalResults = GetPortalResults(ctx);
+            UpdatePresentation(ctx, portalResults);
+        }
+
+        private ViewContext BuildViewContext()
+        {
+            var camTransform = _playerCamera != null ? _playerCamera.transform : transform;
+            return new ViewContext(
+                playerId: "local",
+                cameraPosition: camTransform.position,
+                cameraForward: camTransform.forward,
+                occupiedNodeId: _playerTracker.CurrentNodeId
+            );
+        }
+
+        private IReadOnlyList<PortalVisibilityResult> GetPortalResults(ViewContext ctx)
+        {
+            if (portalController == null)
+                return System.Array.Empty<PortalVisibilityResult>();
+
+            // TD0018: Replace stub probes with real PortalViewProbe scene data
+            return portalController.EvaluatePortals(ctx, System.Array.Empty<PortalProbeData>());
         }
 
         public void UpdatePresentation(ViewContext ctx, IReadOnlyList<PortalVisibilityResult> portalResults)
         {
-            _activeNodeIds.Clear();
+            var graph = graphHost != null ? graphHost.Runtime : null;
+            _lastResult = _resolver.Resolve(ctx, graph, portalResults);
 
-            // Occupied node is always active
-            if (!string.IsNullOrEmpty(ctx.OccupiedNodeId))
-                _activeNodeIds.Add(ctx.OccupiedNodeId);
-
-            // Portal-visible destinations are active
-            for (int i = 0; i < portalResults.Count; i++)
+            for (int i = 0; i < handles.Length; i++)
             {
-                if (portalResults[i].IsVisible)
-                    _activeNodeIds.Add(portalResults[i].DestinationNodeId);
-            }
-
-            // Toggle presentation handles
-            for (int i = 0; i < _handles.Length; i++)
-            {
-                var handle = _handles[i];
+                var handle = handles[i];
                 if (handle == null) continue;
 
-                bool shouldBeActive = _activeNodeIds.Contains(handle.NodeId);
+                bool shouldBeActive = _lastResult.ContainsKey(handle.NodeId);
                 handle.SetPresentation(shouldBeActive);
+            }
+        }
+
+        private void ActivateAll()
+        {
+            for (int i = 0; i < handles.Length; i++)
+            {
+                if (handles[i] != null)
+                    handles[i].SetPresentation(true);
             }
         }
     }

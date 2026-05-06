@@ -52,13 +52,13 @@ namespace Desync.Tests.EditMode.NodeActivation
     }
 
     [TestFixture]
-    public class NodeActivationResolverTests
+    public class NodeActivationResolverContractTests
     {
         [Test]
-        public void Resolve_Stub_ReturnsEmptyDictionary()
+        public void Resolve_WithEmptyOccupiedNodeId_ReturnsEmptyDictionary()
         {
             var resolver = new NodeActivationResolver();
-            var ctx = new ViewContext("p1", Vector3.zero, Vector3.forward, "entry");
+            var ctx = new ViewContext("p1", Vector3.zero, Vector3.forward, "");
             var portalResults = new List<PortalVisibilityResult>();
 
             var result = resolver.Resolve(ctx, null, portalResults);
