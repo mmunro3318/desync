@@ -1,22 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Desync.World.Graph.Definitions;
+using Desync.World.Graph.Runtime;
 
 namespace Desync.World.Graph.Debug
 {
     /// <summary>
-    /// Scene-view gizmo overlay for the house graph. Attach to any GameObject alongside
-    /// (or pointing at) a GraphRuntimeHost to see nodes, edges, and portal anchors.
+    /// Scene-view gizmo overlay for the house graph. Draws nodes colored by activation state
+    /// (green=active/occupied, yellow=portal-visible, gray=inactive), edges, and portal anchors.
     /// </summary>
     public class SpatialDebugGizmos : MonoBehaviour
     {
         [Header("Host")]
         [SerializeField] private GraphRuntimeHost graphHost;
 
-        [Header("Colors")]
-        [SerializeField] private Color nodeColor   = new Color(0.2f, 0.8f, 0.3f, 0.3f);
+        [Header("Topology Colors")]
         [SerializeField] private Color edgeColor   = new Color(0.3f, 0.6f, 1.0f, 0.8f);
         [SerializeField] private Color anchorColor = new Color(1.0f, 0.5f, 0.2f, 0.8f);
+
+        [Header("Activation Colors")]
+        [SerializeField] private Color activeNodeColor        = new Color(0.2f, 0.9f, 0.3f, 0.5f);
+        [SerializeField] private Color portalVisibleNodeColor = new Color(1.0f, 0.9f, 0.2f, 0.5f);
+        [SerializeField] private Color inactiveNodeColor      = new Color(0.5f, 0.5f, 0.5f, 0.3f);
+        [SerializeField] private Color sightlineColor         = new Color(1.0f, 1.0f, 0.0f, 0.6f);
 
         private static readonly Vector3 NodeSize     = new Vector3(5f, 3f, 5f);
         private const float NodeYOffset              = 1.5f;
@@ -26,6 +32,8 @@ namespace Desync.World.Graph.Debug
         // Cached to avoid per-frame allocation in OnDrawGizmos
         private Dictionary<string, HouseNodeDefinition> _cachedNodeLookup;
         private HouseNodeDefinition[] _cachedNodesSource;
+        private NodeStreamingController _streamingController;
+        private bool _controllerSearched;
 #if UNITY_EDITOR
         private GUIStyle _nodeStyle;
         private GUIStyle _edgeStyle;
@@ -37,16 +45,26 @@ namespace Desync.World.Graph.Debug
             if (graphHost == null || graphHost.Definition == null) return;
 
             var def = graphHost.Definition;
-            // Rebuild lookup only when the nodes array reference changes
             if (_cachedNodeLookup == null || _cachedNodesSource != def.nodes)
             {
                 _cachedNodeLookup = BuildNodeLookup(def.nodes);
                 _cachedNodesSource = def.nodes;
             }
 
-            DrawNodes(def.nodes);
+            FindController();
+            var activation = _streamingController != null ? _streamingController.LastResult : null;
+
+            DrawNodes(def.nodes, activation);
             DrawEdges(def.edges, _cachedNodeLookup);
             DrawAnchors(def.nodes);
+            DrawPortalSightlines(activation);
+        }
+
+        private void FindController()
+        {
+            if (_streamingController != null || _controllerSearched) return;
+            _streamingController = FindAnyObjectByType<NodeStreamingController>();
+            _controllerSearched = true;
         }
 
         private static Dictionary<string, HouseNodeDefinition> BuildNodeLookup(HouseNodeDefinition[] nodes)
@@ -57,14 +75,15 @@ namespace Desync.World.Graph.Debug
             return map;
         }
 
-        private void DrawNodes(HouseNodeDefinition[] nodes)
+        private void DrawNodes(HouseNodeDefinition[] nodes,
+            IReadOnlyDictionary<string, NodeActivationReason> activation)
         {
-            Gizmos.color = nodeColor;
 #if UNITY_EDITOR
             _nodeStyle ??= new GUIStyle { normal = { textColor = Color.green } };
 #endif
             foreach (var node in nodes)
             {
+                Gizmos.color = GetNodeColor(node.nodeId, activation);
                 var center = node.worldPosition + Vector3.up * NodeYOffset;
                 Gizmos.DrawWireCube(center, NodeSize);
 #if UNITY_EDITOR
@@ -72,6 +91,17 @@ namespace Desync.World.Graph.Debug
                     $"{node.nodeId}\n{node.displayName}", _nodeStyle);
 #endif
             }
+        }
+
+        private Color GetNodeColor(string nodeId,
+            IReadOnlyDictionary<string, NodeActivationReason> activation)
+        {
+            if (activation == null || !activation.TryGetValue(nodeId, out var reason))
+                return inactiveNodeColor;
+
+            if (reason == NodeActivationReason.None) return inactiveNodeColor;
+            if ((reason & NodeActivationReason.PortalVisible) != 0) return portalVisibleNodeColor;
+            return activeNodeColor; // Occupied, Adjacent, or DebugForced
         }
 
         private void DrawEdges(HouseEdgeDefinition[] edges,
@@ -112,6 +142,28 @@ namespace Desync.World.Graph.Debug
                     UnityEditor.Handles.Label(pos + Vector3.up * AnchorRadius, anchor.anchorId, _anchorStyle);
 #endif
                 }
+            }
+        }
+
+        /// <summary>
+        /// Draws sightline rays from the streaming controller's transform to each
+        /// portal-visible node's world position.
+        /// </summary>
+        private void DrawPortalSightlines(
+            IReadOnlyDictionary<string, NodeActivationReason> activation)
+        {
+            if (activation == null || _streamingController == null) return;
+
+            Gizmos.color = sightlineColor;
+            var origin = _streamingController.transform.position + Vector3.up * NodeYOffset;
+
+            foreach (var kvp in activation)
+            {
+                if ((kvp.Value & NodeActivationReason.PortalVisible) == 0) continue;
+                if (!_cachedNodeLookup.TryGetValue(kvp.Key, out var nodeDef)) continue;
+
+                var target = nodeDef.worldPosition + Vector3.up * NodeYOffset;
+                Gizmos.DrawLine(origin, target);
             }
         }
     }
