@@ -18,6 +18,7 @@ namespace Desync.World.Graph.Runtime
         private Camera _playerCamera;
         private readonly NodeActivationResolver _resolver = new();
         private IReadOnlyDictionary<string, NodeActivationReason> _lastResult;
+        private bool _discoveredAtRuntime;
 
         public IReadOnlyDictionary<string, NodeActivationReason> LastResult => _lastResult;
         public bool ForceAllActive { get => forceAllActive; set => forceAllActive = value; }
@@ -29,8 +30,23 @@ namespace Desync.World.Graph.Runtime
                 handles[i] = newHandles[i];
         }
 
+        private void DiscoverReferences()
+        {
+            if (_discoveredAtRuntime) return;
+            _discoveredAtRuntime = true;
+
+            if (graphHost == null)
+                graphHost = FindAnyObjectByType<GraphRuntimeHost>();
+            if (portalController == null)
+                portalController = FindAnyObjectByType<PortalVisibilityController>();
+            if (handles == null || handles.Length == 0)
+                handles = FindObjectsByType<NodePresentationHandle>(FindObjectsSortMode.None);
+        }
+
         private void Update()
         {
+            DiscoverReferences();
+
             if (forceAllActive)
             {
                 ActivateAll();
