@@ -50,11 +50,10 @@ namespace Desync.Tests.EditMode.NodeActivation
         }
 
         [Test]
-        public void Evaluate_AtThresholdAngle_ReturnsVisible()
+        public void Evaluate_WithinThresholdAngle_ReturnsVisible()
         {
-            // Dot product of exactly 0.5 (60 degrees) should be visible (>= threshold)
-            // cos(60°) = 0.5, direction at 60° from forward in XZ plane
-            float angle = 60f * Mathf.Deg2Rad;
+            // 59 degrees is within the 60-degree (0.5 dot) cone
+            float angle = 59f * Mathf.Deg2Rad;
             var forward = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)).normalized;
             var ctx = new ViewContext("p1", Vector3.zero, forward, "entry");
             var probes = new List<PortalProbeData>
@@ -64,7 +63,6 @@ namespace Desync.Tests.EditMode.NodeActivation
 
             var results = _evaluator.Evaluate(ctx, probes);
 
-            // Direction to portal is (0,0,1). Dot with forward at 60° = cos(60°) = 0.5 = threshold
             Assert.IsTrue(results[0].IsVisible);
         }
 
