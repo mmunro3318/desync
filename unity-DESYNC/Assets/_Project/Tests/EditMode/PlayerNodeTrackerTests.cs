@@ -59,12 +59,29 @@ namespace Desync.Tests.EditMode
         }
 
         [Test]
+        public void ExitNode_SetsPreviousToExitedNode()
+        {
+            _tracker.EnterNode("v_entry");
+            _tracker.ExitNode("v_entry");
+            Assert.AreEqual("v_entry", _tracker.PreviousNodeId);
+        }
+
+        [Test]
         public void ExitNode_DoesNotClearIfDifferent()
         {
             _tracker.EnterNode("v_entry");
             _tracker.EnterNode("v_hall_a");
             _tracker.ExitNode("v_entry");
             Assert.AreEqual("v_hall_a", _tracker.CurrentNodeId);
+        }
+
+        [Test]
+        public void ExitNode_DoesNotUpdatePreviousIfDifferent()
+        {
+            _tracker.EnterNode("v_entry");
+            _tracker.EnterNode("v_hall_a");
+            _tracker.ExitNode("v_entry");
+            Assert.AreEqual("v_entry", _tracker.PreviousNodeId);
         }
 
         [Test]
@@ -85,6 +102,73 @@ namespace Desync.Tests.EditMode
         {
             _tracker.EnterNode("");
             Assert.IsNull(_tracker.CurrentNodeId);
+        }
+
+        [Test]
+        public void EnterNode_SameNodeTwice_NoStateChange()
+        {
+            _tracker.EnterNode("v_entry");
+            _tracker.EnterNode("v_entry");
+            Assert.AreEqual("v_entry", _tracker.CurrentNodeId);
+            Assert.IsNull(_tracker.PreviousNodeId);
+        }
+
+        // --- Void zone transitions ---
+
+        [Test]
+        public void ExitToVoid_ThenEnterRoom_PreviousIsNull()
+        {
+            _tracker.EnterNode("v_entry");
+            _tracker.ExitNode("v_entry"); // exit to void
+            _tracker.EnterNode("v_hall_a"); // enter from void
+            Assert.AreEqual("v_hall_a", _tracker.CurrentNodeId);
+            Assert.IsNull(_tracker.PreviousNodeId);
+        }
+
+        [Test]
+        public void ExitToVoid_CurrentIsNull_PreviousIsExitedRoom()
+        {
+            _tracker.EnterNode("v_entry");
+            _tracker.ExitNode("v_entry");
+            Assert.IsNull(_tracker.CurrentNodeId);
+            Assert.AreEqual("v_entry", _tracker.PreviousNodeId);
+        }
+
+        // --- Overlapping trigger transitions (room-to-room) ---
+
+        [Test]
+        public void OverlapTransition_EnterNewBeforeExitOld_TracksCorrectly()
+        {
+            // Player enters hall_a trigger before exiting entry trigger
+            _tracker.EnterNode("v_entry");
+            _tracker.EnterNode("v_hall_a"); // overlap: enter new first
+            _tracker.ExitNode("v_entry");   // then exit old
+            Assert.AreEqual("v_hall_a", _tracker.CurrentNodeId);
+            Assert.AreEqual("v_entry", _tracker.PreviousNodeId);
+        }
+
+        [Test]
+        public void OverlapTransition_ExitOldBeforeEnterNew_TracksCorrectly()
+        {
+            // Player exits entry trigger before entering hall_a trigger
+            _tracker.EnterNode("v_entry");
+            _tracker.ExitNode("v_entry");   // exit old first (brief void)
+            _tracker.EnterNode("v_hall_a"); // then enter new
+            Assert.AreEqual("v_hall_a", _tracker.CurrentNodeId);
+            // Previous is null because we passed through void
+            Assert.IsNull(_tracker.PreviousNodeId);
+        }
+
+        // --- Multi-hop traversal ---
+
+        [Test]
+        public void MultiHopTraversal_PreviousTracksLastRoom()
+        {
+            _tracker.EnterNode("v_entry");
+            _tracker.EnterNode("v_hall_a");
+            _tracker.EnterNode("v_living");
+            Assert.AreEqual("v_living", _tracker.CurrentNodeId);
+            Assert.AreEqual("v_hall_a", _tracker.PreviousNodeId);
         }
     }
 }

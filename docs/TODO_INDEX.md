@@ -28,6 +28,8 @@ Glance-only summary of active TODOs. Read before major planning or scoping decis
 | TD0018 | S1B | FEATURE | Portal visibility evaluator + viewer-context probe | TD0016 | 2026-05-05 |
 | TD0019 | S1B | FEATURE | Debug visibility overlay + gizmos against public queries | TD0016 | 2026-05-05 |
 | TD0020 | S1B | FEATURE | Integration wiring + Gate 1/Gate 2 smoke test | TD0017-19 | 2026-05-05 |
+| TD0021 | S2 | TECH_DEBT | Wire BindLocalPlayer in player spawn path | S1B merge | 2026-05-07 |
+| TD0022 | S2 | BUG | Gizmo activation colors not displaying after BindLocalPlayer refactor | TD0021 | 2026-05-07 |
 
 ## Resolved (this session)
 
@@ -43,8 +45,9 @@ Glance-only summary of active TODOs. Read before major planning or scoping decis
 - **S1A open:** 1 (TD0011)
 - **S2+ open:** 1 (TD0013)
 - **S1B open:** 6 (TD0015–TD0020)
+- **S2 open:** 3 (TD0013, TD0021, TD0022)
 - **Resolved:** 2 (TD0012, TD0014)
-- **LAST_USED_ID:** TD0020 *(mirror of `docs/TODO.md` header)*
+- **LAST_USED_ID:** TD0022 *(mirror of `docs/TODO.md` header)*
 
 ## Archived / closed
 

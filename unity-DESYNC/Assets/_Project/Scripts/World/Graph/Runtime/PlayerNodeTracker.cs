@@ -18,22 +18,27 @@ namespace Desync.World.Graph.Runtime
         public string PreviousNodeId => _previousNodeId;
 
         /// <summary>
-        /// Records entry into a node. Null or empty ids are ignored.
+        /// Records entry into a node. When entering from the void (null zone),
+        /// previous is set to null to reflect the gap in traversal.
         /// </summary>
         public void EnterNode(string nodeId)
         {
             if (string.IsNullOrEmpty(nodeId)) return;
-            _previousNodeId = _currentNodeId;
+            if (_currentNodeId == nodeId) return; // already in this node
+            _previousNodeId = _currentNodeId; // null if arriving from void
             _currentNodeId = nodeId;
         }
 
         /// <summary>
-        /// Clears the current node only if it matches the exited node id,
-        /// guarding against stale exits from a previously vacated room.
+        /// Records exit from a node. Only clears current if it matches the
+        /// exited node id, guarding against stale exits when triggers overlap
+        /// during room-to-room transitions.
         /// </summary>
         public void ExitNode(string nodeId)
         {
-            if (_currentNodeId == nodeId) _currentNodeId = null;
+            if (_currentNodeId != nodeId) return; // stale exit from old room
+            _previousNodeId = _currentNodeId;
+            _currentNodeId = null;
         }
 
         private void OnTriggerEnter(Collider other)

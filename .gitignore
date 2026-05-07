@@ -39,5 +39,5 @@ unity-DESYNC/Builds/
 unity-DESYNC/*.slnx
 unity-DESYNC/*.csproj
 
-# Large binary references (use docs/design/98-unity-research/ for .md summaries only)
+# Large binary references and documents (textbooks, etc.)
 *.pdf

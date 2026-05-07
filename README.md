@@ -22,7 +22,7 @@ CLAUDE.md      operating manual for Claude Code sessions
 
 ## Status
 
-**House graph runtime is live (S1A complete).** A 5-node graph (entry, hall, living room, kitchen, corridor) loads from a ScriptableObject, supports O(1) queries, and renders an IMGUI debug overlay (F3 toggle) with scene-view gizmos. Player movement, lobby, host/join, flashlight, and footstep audio carry forward from M0. Observation lock, mutation, portal visibility, and anchor systems are next (specs in `docs/design/02-architecture/` and `03-systems/`).
+**Portal visibility and node activation are live (S1B complete).** A 5-node graph (entry, hall, living room, kitchen, corridor) loads from a ScriptableObject, supports O(1) queries, and renders IMGUI debug overlays (F3 graph state, F4 activation state) with scene-view gizmos showing node activation colors. The node activation system determines which rooms are live (occupied + adjacent + portal-visible) and streams room presentation on/off accordingly. 125 EditMode tests pass. Observation lock, mutation, and anchor systems are next (specs in `docs/design/02-architecture/` and `03-systems/`).
 
 Cross-machine **local LAN multiplayer is confirmed working**. Internet play (Relay/Lobby/NAT) is not solved. Joining from a build requires manually adding the `.exe` to Windows Firewall allowed apps — Windows does not auto-prompt for UDP-only executables.
 
@@ -32,7 +32,7 @@ Cross-machine **local LAN multiplayer is confirmed working**. Internet play (Rel
 2. Open `Assets/_Project/Scenes/Bootstrap.unity` and confirm both `Bootstrap` and `House_Prototype` are in **Build Settings → Scenes In Build** (Bootstrap first).
 3. Press Play, click **Host**. Verify the player spawns into `House_Prototype` with the IMGUI debug overlay visible (top-left, showing 5 nodes / 4 edges).
 4. From a second Editor instance (Multiplayer Play Mode) or build, **Join** at the host's LAN IP and confirm both players are visible. For builds on a separate machine, add the `.exe` to Windows Firewall allowed apps first (Firewall → Allow an app → browse to the build).
-5. Run **Test Runner → EditMode → Desync.Tests.EditMode** — 71 tests must pass (2 geometry failures in TD0012 are known).
+5. Run **Test Runner → EditMode → Desync.Tests.EditMode** — 125 tests must pass.
 
 Full smoke-test detail is in `CLAUDE.md`.
 

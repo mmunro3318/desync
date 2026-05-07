@@ -13,7 +13,7 @@
 | S0.1 Multiplayer Fix | ✅ Complete | — | S1A, S1B | POC |
 | S0.2 Light Leak Fix + Graphics Deep Dive | ✅ Complete | — | S1A, S1B | POC |
 | S1A House Graph Authoring | ✅ Complete | S0.1, S0.2 | S1B, S2, S3, S5A | POC |
-| S1B Portal Visibility + Node Activation | 🔲 Not Started | S1A | S2 | POC |
+| S1B Portal Visibility + Node Activation | 🚢 Shipping | S1A | S2 | POC |
 | S2 Observation Lock System | 🔲 Not Started | S1B | S3, S4A, S4B | POC |
 | S3 Loop Anomaly Vertical Slice | 🔲 Not Started | S2 | S4A, S4B, S6 | POC |
 | S4A Substitution Anomaly | 🔲 Not Started | S3 | S6 | Jam |

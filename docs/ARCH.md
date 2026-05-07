@@ -234,6 +234,27 @@ These decisions were locked during S1A Session 1 (architecture + plan). Design d
 
 ---
 
+## S1B — Portal Visibility + Node Activation (2026-05-07)
+
+### No Camera.main — local player bound via injection
+**What:** `NodeStreamingController` requires explicit `BindLocalPlayer(PlayerNodeTracker, Camera)` call. No `Camera.main`, no per-frame `FindAnyObjectByType` for tracker or camera.
+**Why:** `Camera.main` in multiplayer can return the wrong camera (local camera paired with remote player's tracker = cross-player room deactivation). Per-frame `FindAnyObjectByType` has the same ambiguity and is O(n) per frame. Scene singletons (graphHost, portalController, handles) still auto-discover because they are not per-player.
+**How to apply:** Player spawn code must call `BindLocalPlayer` after instantiating the local player. Pass null to clear on disconnect/respawn. TD0021 tracks wiring this up.
+**Decision date:** 2026-05-07 (S1B review fix, confirmed by 3 independent reviewers).
+
+### Resolver and evaluator return fresh collections (no aliased mutable state)
+**What:** `NodeActivationResolver.Resolve()` returns a new `Dictionary` and `PortalVisibilityEvaluator.Evaluate()` returns a new `List` on every call. No shared mutable backing field.
+**Why:** The original pattern (clear-and-return same instance) caused aliased mutation: any caller holding a reference to a previous result would see it silently overwritten on the next call. `SpatialDebugGizmos.OnDrawGizmos` (editor thread, different cadence from Update) was the concrete bug: it iterated a half-cleared collection mid-resolve. Confirmed by 2 independent reviewers and a RED test proving the aliasing.
+**How to apply:** Do not reintroduce shared mutable return buffers. If per-frame allocation becomes a GC concern at larger graph sizes, use double-buffering or pooling (tracked as `TD-GC-STREAMING`). For a 5-node graph, allocation is negligible.
+**Decision date:** 2026-05-07 (S1B review fix).
+
+### Node activation model: Occupied + Adjacent + PortalVisible
+**What:** `NodeActivationResolver` computes a set of active nodes per frame: the occupied node (Occupied flag), its 1-hop graph neighbors (Adjacent flag), and any nodes visible through portals (PortalVisible flag). Flags are bitwise-OR'd when a node qualifies for multiple reasons.
+**Why:** This is the minimal activation model that supports portal visibility without over-rendering. Occupied is always active (player is there). Adjacent prevents pop-in when approaching doorways. PortalVisible activates destinations the player can see through thresholds.
+**How to apply:** `NodePresentationHandle.SetPresentation(bool)` toggles room GameObjects on/off. The occupied room must always be active — any future bug that deactivates the occupied room creates a self-lockout (trigger collider disabled, so re-activation trigger cannot fire). A WARNING comment documents this coupling on `NodePresentationHandle`.
+
+---
+
 ## Open questions / decisions deferred
 
 These are the obvious upcoming forks. They are *not* decisions yet — recorded so a future agent recognizes the open state and doesn't silently pick one.
