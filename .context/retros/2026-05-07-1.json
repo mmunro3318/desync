@@ -1,0 +1,41 @@
+{
+  "date": "2026-05-07",
+  "window": "7d",
+  "metrics": {
+    "commits": 41,
+    "contributors": 1,
+    "prs_merged": 4,
+    "insertions": 125208,
+    "deletions": 1118,
+    "net_loc": 124090,
+    "test_loc": 2452,
+    "test_ratio": 0.54,
+    "active_days": 5,
+    "sessions": 11,
+    "deep_sessions": 3,
+    "avg_session_minutes": 58,
+    "loc_per_session_hour": 600,
+    "feat_pct": 0.10,
+    "fix_pct": 0.24,
+    "peak_hour": 12,
+    "ai_assisted_commits": 21
+  },
+  "authors": {
+    "Michael Munro": {
+      "commits": 41,
+      "insertions": 125208,
+      "deletions": 1118,
+      "test_ratio": 0.54,
+      "top_area": "unity-DESYNC/Assets/_Project/"
+    }
+  },
+  "version_range": ["0.0.0", "0.0.0"],
+  "streak_days": 1,
+  "tweetable": "Week of Apr 30: 41 commits (solo), 4 PRs merged, S0.3+S1A+S1B complete, 125 tests, 54% test ratio on first-party C#, 5 active days | Streak: 1d",
+  "test_health": {
+    "total_test_files": 14,
+    "tests_added_this_period": 125,
+    "regression_test_commits": 0,
+    "test_files_changed": 12
+  }
+}

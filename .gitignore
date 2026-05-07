@@ -41,3 +41,7 @@ unity-DESYNC/*.csproj
 
 # Large binary references and documents (textbooks, etc.)
 *.pdf
+docs/design/97-unity-and-game-design-books/*
+docs/agents
+workspace.md
+*.log
