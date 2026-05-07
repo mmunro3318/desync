@@ -33,6 +33,9 @@ namespace Desync.World.Graph.Runtime
         {
             if (presentationRoot == null)
                 global::UnityEngine.Debug.LogWarning($"[NodePresentationHandle] presentationRoot is not assigned on '{name}'.", this);
+
+            if (presentationRoot == transform)
+                global::UnityEngine.Debug.LogError($"[NodePresentationHandle] presentationRoot must be a CHILD transform, not the root. Self-assignment on '{name}' would disable triggers.", this);
         }
     }
 }

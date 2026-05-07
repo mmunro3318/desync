@@ -62,6 +62,11 @@ namespace Desync.Player
 
             var tracker = GetComponent<PlayerNodeTracker>();
             var cam = GetComponentInChildren<Camera>();
+            if (tracker == null || cam == null)
+            {
+                Debug.LogWarning($"[PlayerMotor] Cannot bind streaming context: tracker={tracker != null}, camera={cam != null}. Check PF_Player prefab.", this);
+                return false;
+            }
             nsc.BindLocalPlayer(tracker, cam);
             return true;
         }

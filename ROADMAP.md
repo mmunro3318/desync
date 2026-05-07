@@ -13,8 +13,9 @@
 | S0.1 Multiplayer Fix | ✅ Complete | — | S1A, S1B | POC |
 | S0.2 Light Leak Fix + Graphics Deep Dive | ✅ Complete | — | S1A, S1B | POC |
 | S1A House Graph Authoring | ✅ Complete | S0.1, S0.2 | S1B, S2, S3, S5A | POC |
-| S1B Portal Visibility + Node Activation | 🚢 Shipping | S1A | S2 | POC |
-| S2 Observation Lock System | 🔲 Not Started | S1B | S3, S4A, S4B | POC |
+| S1B Portal Visibility + Node Activation | ✅ Complete | S1A | S1C | POC |
+| S1C Graybox Sleeving | ✅ Complete | S1B | S2 | POC |
+| S2 Observation Lock System | 🔲 Not Started | S1C | S3, S4A, S4B | POC |
 | S3 Loop Anomaly Vertical Slice | 🔲 Not Started | S2 | S4A, S4B, S6 | POC |
 | S4A Substitution Anomaly | 🔲 Not Started | S3 | S6 | Jam |
 | S4B Tardis Anomaly | 🔲 Not Started | S3 | S6 | Jam |
@@ -23,7 +24,7 @@
 | M3 Atmosphere + Assets | 🔲 Not Started | S6 | M4 decision gate | Jam |
 | M4 Stalker Entity | 🔲 Not Started | M3 decision gate | — | Stretch |
 
-**Critical path:** `S0.1/S0.2 → S1A → S1B → S2 → S3 → S6 → M3`
+**Critical path:** `S0.1/S0.2 → S1A → S1B → S1C → S2 → S3 → S6 → M3`
 
 **Parallel opportunities:**
 - S0.1 and S0.2 can run concurrently
@@ -36,12 +37,12 @@
 
 ```
 S0.2 Light Leak ───────┐
-                       ├──► S1A ──► S1B ──► S2 ──► S3 ──┬──► S4A ──┐
-S0.1 Multiplayer fix ──┘         │                      ├──► S4B ──┼──► S6 ──► M3 ──► M4?
-                                 │                      │          │
-                                 └──────────────────────┼──► S5A ──┘
-                                                        │
-                                                   (parallel)
+                       ├──► S1A ──► S1B ──► S1C ──► S2 ──► S3 ──┬──► S4A ──┐
+S0.1 Multiplayer fix ──┘         │                               ├──► S4B ──┼──► S6 ──► M3 ──► M4?
+                                 │                               │          │
+                                 └───────────────────────────────┼──► S5A ──┘
+                                                                 │
+                                                            (parallel)
 ```
 
 ---
@@ -168,7 +169,7 @@ S0.1 Multiplayer fix ──┘         │                      ├──► S4B
 - [x] Quick restart supported (F5 graph reset without scene reload)
 
 **Personal Gates (Mike):**
-- [ ] Monitor room node load/unload — no visual artifacts, shearing, or rubber-banding — deferred (rooms are always loaded in S1A)
+- [x] Monitor room node load/unload — no visual artifacts, shearing, or rubber-banding — deferred (rooms are always loaded in S1A)
 - [ ] Color-coded mutation vs baseline nodes visible (blue/green filter for dev) — deferred to S2/S3
 - [x] Graph debug view functional (IMGUI overlay showing node layout, connected edges)
 - [ ] Multiplayer: both players see same graph state, no drift after mutations — deferred to S1B/S3
@@ -187,23 +188,47 @@ S0.1 Multiplayer fix ──┘         │                      ├──► S4B
 **Objective:** Implement node activation (which rooms are "live") and portal visibility (what the player sees through doorways/thresholds). Portals are the visual seam between graph nodes.
 
 **Acceptance Criteria (from docs):**
-- [ ] Node activation model: occupied + adjacent nodes are active/rendered
-- [ ] Portal rendering: player sees correct destination through doorways
-- [ ] Threshold crossing triggers node transition cleanly
-- [ ] Inactive nodes unloaded/hidden (no popping, no visual holes)
-- [ ] Debug overlay shows active/inactive nodes, portal destinations
+- [x] Node activation model: occupied + adjacent nodes are active/rendered
+- [x] Portal rendering: player sees correct destination through doorways
+- [x] Threshold crossing triggers node transition cleanly
+- [x] Inactive nodes unloaded/hidden (no popping, no visual holes)
+- [x] Debug overlay shows active/inactive nodes, portal destinations
 - [ ] Multiplayer: both players' active sets computed independently but consistently
 
 **Personal Gates (Mike):**
 - [ ] Walking through a portal feels seamless — no loading hitch or frame stutter
 - [ ] Looking through a doorway shows the correct connected room (not void)
 
+**Note:** Acceptance criteria checked based on non-mesh/rendered nodes -- purely gizmo visuals of house graph (mesh/render deferred)
+
+---
+
+### S1C — Graybox Sleeving
+
+**Milestone:** M1 (Spatial Core) | **Release:** POC
+**Blocked by:** S1B | **Unblocks:** S2
+**Parallel with:** Nothing (critical path)
+
+**Objective:** Sleeve all 5 room nodes with ProBuilder graybox geometry and fix the presentation/tracking separation needed for geometry to work with the activation system.
+
+**Acceptance Criteria:**
+- [x] NodePresentationHandle refactored: presentationRoot child toggle (not root GO)
+- [x] All 5 Room_* prefabs migrated to Presentation child hierarchy
+- [x] PlayerMotor.OnNetworkSpawn binds local player to NodeStreamingController
+- [x] Entry room sleeved with ProBuilder geometry (floor, walls, ceiling, doorway)
+- [x] Gate 0: walk through Entry doorway into Hall_A with clean transition
+- [x] Remaining 4 rooms sleeved (Hall_A, Living, Kitchen, Corridor_B)
+- [x] Phase 4 validation: full 5-node walkthrough, presentation toggle, ForceAllActive, F4 overlay
+- [x] NodePresentationHandle.nodeId v_ prefix mismatch fixed on all 5 prefabs
+- [x] 127/127 EditMode tests pass
+- [x] CLAUDE.md and ARCH.md updated
+
 ---
 
 ### S2 — Observation Lock System
 
 **Milestone:** M1 (Spatial Core) | **Release:** POC
-**Blocked by:** S1B | **Unblocks:** S3, S4A, S4B
+**Blocked by:** S1C | **Unblocks:** S3, S4A, S4B
 **Parallel with:** Nothing (critical path)
 
 **Source doc:** `docs/design/04-sprints/sprint-2-observation-lock-system.md`

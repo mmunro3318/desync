@@ -112,7 +112,7 @@ namespace Desync.Tests.EditMode.NodeActivation
         private static void WirePresentationRoot(NodePresentationHandle handle, Transform root)
         {
             var so = new SerializedObject(handle);
-            so.FindProperty("presentationRoot").objectReferenceValue = root;
+            so.FindProperty(TestConstants.PresentationRootField).objectReferenceValue = root;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 

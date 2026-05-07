@@ -89,7 +89,8 @@ namespace Desync.Tests.EditMode.NodeActivation
         }
 
         [Test]
-        public void ForceAllActive_ActivatesAllHandles()
+        // Behavior coverage: ActivateAll calls SetPresentation(true) on all handles, covered by UpdatePresentation tests.
+        public void ForceAllActive_PropertyRoundTrip()
         {
             var go = new GameObject("Controller");
             var controller = go.AddComponent<NodeStreamingController>();
@@ -182,13 +183,6 @@ namespace Desync.Tests.EditMode.NodeActivation
         }
 
         private static GameObject WireWithPresentationChild(GameObject roomGo, NodePresentationHandle handle)
-        {
-            var presentation = new GameObject("Presentation");
-            presentation.transform.SetParent(roomGo.transform);
-            var so = new SerializedObject(handle);
-            so.FindProperty("presentationRoot").objectReferenceValue = presentation.transform;
-            so.ApplyModifiedPropertiesWithoutUndo();
-            return presentation;
-        }
+            => TestConstants.WireWithPresentationChild(roomGo, handle);
     }
 }
