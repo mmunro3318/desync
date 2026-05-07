@@ -100,8 +100,9 @@ namespace Desync.World.Graph.Debug
                 return inactiveNodeColor;
 
             if (reason == NodeActivationReason.None) return inactiveNodeColor;
+            if ((reason & NodeActivationReason.Occupied) != 0) return activeNodeColor;
             if ((reason & NodeActivationReason.PortalVisible) != 0) return portalVisibleNodeColor;
-            return activeNodeColor; // Occupied, Adjacent, or DebugForced
+            return activeNodeColor; // Adjacent or DebugForced
         }
 
         private void DrawEdges(HouseEdgeDefinition[] edges,

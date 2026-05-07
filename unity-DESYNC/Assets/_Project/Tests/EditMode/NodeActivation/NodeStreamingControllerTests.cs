@@ -129,6 +129,46 @@ namespace Desync.Tests.EditMode.NodeActivation
             Object.DestroyImmediate(go);
         }
 
+        [Test]
+        public void BindLocalPlayer_StoresReferences()
+        {
+            var go = new GameObject("Controller");
+            var controller = go.AddComponent<NodeStreamingController>();
+
+            var playerGo = new GameObject("Player");
+            var tracker = playerGo.AddComponent<PlayerNodeTracker>();
+            var cam = playerGo.AddComponent<Camera>();
+
+            Assert.IsFalse(controller.HasLocalPlayer, "Should not have local player before binding");
+
+            controller.BindLocalPlayer(tracker, cam);
+
+            Assert.IsTrue(controller.HasLocalPlayer, "Should have local player after binding");
+
+            Object.DestroyImmediate(go);
+            Object.DestroyImmediate(playerGo);
+        }
+
+        [Test]
+        public void BindLocalPlayer_NullArgs_ClearsBinding()
+        {
+            var go = new GameObject("Controller");
+            var controller = go.AddComponent<NodeStreamingController>();
+
+            var playerGo = new GameObject("Player");
+            var tracker = playerGo.AddComponent<PlayerNodeTracker>();
+            var cam = playerGo.AddComponent<Camera>();
+
+            controller.BindLocalPlayer(tracker, cam);
+            Assert.IsTrue(controller.HasLocalPlayer);
+
+            controller.BindLocalPlayer(null, null);
+            Assert.IsFalse(controller.HasLocalPlayer, "Null args should clear binding");
+
+            Object.DestroyImmediate(go);
+            Object.DestroyImmediate(playerGo);
+        }
+
         private static void SetNodeId(NodePresentationHandle handle, string nodeId)
         {
             var field = typeof(NodePresentationHandle).GetField("nodeId",

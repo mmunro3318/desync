@@ -6,7 +6,6 @@ namespace Desync.World.Graph.Runtime
     public class PortalVisibilityEvaluator : IPortalVisibilityEvaluator
     {
         private readonly float _dotThreshold;
-        private readonly List<PortalVisibilityResult> _results = new();
 
         public PortalVisibilityEvaluator(float dotThreshold = 0.5f)
         {
@@ -17,18 +16,18 @@ namespace Desync.World.Graph.Runtime
             ViewContext ctx,
             IReadOnlyList<PortalProbeData> probes)
         {
-            _results.Clear();
+            var results = new List<PortalVisibilityResult>(probes.Count);
 
             for (int i = 0; i < probes.Count; i++)
             {
                 bool visible = EvaluateSingle(ctx, probes[i]);
-                _results.Add(new PortalVisibilityResult(
+                results.Add(new PortalVisibilityResult(
                     probes[i].AnchorId,
                     probes[i].DestinationNodeId,
                     visible));
             }
 
-            return _results;
+            return results;
         }
 
         private bool EvaluateSingle(ViewContext ctx, PortalProbeData probe)

@@ -5,20 +5,18 @@ namespace Desync.World.Graph.Runtime
 {
     public class NodeActivationResolver
     {
-        private readonly Dictionary<string, NodeActivationReason> _result = new();
-
         public IReadOnlyDictionary<string, NodeActivationReason> Resolve(
             ViewContext ctx,
             SpatialGraphRuntime graph,
             IReadOnlyList<PortalVisibilityResult> portalResults)
         {
-            _result.Clear();
+            var result = new Dictionary<string, NodeActivationReason>();
 
             if (string.IsNullOrEmpty(ctx.OccupiedNodeId))
-                return _result;
+                return result;
 
             // Occupied node always active
-            AddReason(ctx.OccupiedNodeId, NodeActivationReason.Occupied);
+            AddReason(result, ctx.OccupiedNodeId, NodeActivationReason.Occupied);
 
             // 1-hop adjacent nodes
             if (graph != null)
@@ -30,7 +28,7 @@ namespace Desync.World.Graph.Runtime
                     string adjacentId = edge.sourceNodeId == ctx.OccupiedNodeId
                         ? edge.targetNodeId
                         : edge.sourceNodeId;
-                    AddReason(adjacentId, NodeActivationReason.Adjacent);
+                    AddReason(result, adjacentId, NodeActivationReason.Adjacent);
                 }
             }
 
@@ -40,19 +38,20 @@ namespace Desync.World.Graph.Runtime
                 for (int i = 0; i < portalResults.Count; i++)
                 {
                     if (portalResults[i].IsVisible)
-                        AddReason(portalResults[i].DestinationNodeId, NodeActivationReason.PortalVisible);
+                        AddReason(result, portalResults[i].DestinationNodeId, NodeActivationReason.PortalVisible);
                 }
             }
 
-            return _result;
+            return result;
         }
 
-        private void AddReason(string nodeId, NodeActivationReason reason)
+        private static void AddReason(Dictionary<string, NodeActivationReason> result,
+            string nodeId, NodeActivationReason reason)
         {
-            if (_result.TryGetValue(nodeId, out var existing))
-                _result[nodeId] = existing | reason;
+            if (result.TryGetValue(nodeId, out var existing))
+                result[nodeId] = existing | reason;
             else
-                _result[nodeId] = reason;
+                result[nodeId] = reason;
         }
     }
 }

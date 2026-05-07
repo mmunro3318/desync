@@ -150,5 +150,29 @@ namespace Desync.Tests.EditMode.NodeActivation
 
             Assert.AreEqual(0, result.Count);
         }
+
+        [Test]
+        public void Resolve_SecondCall_DoesNotCorruptFirstResult()
+        {
+            var def = CreateSimpleGraph();
+            _graph.Initialize(def);
+
+            var ctx1 = new ViewContext("p1", Vector3.zero, Vector3.forward, "entry");
+            var result1 = _resolver.Resolve(ctx1, _graph, new List<PortalVisibilityResult>());
+
+            // result1: entry (Occupied) + hall_a (Adjacent)
+            Assert.AreEqual(2, result1.Count);
+            Assert.IsTrue(result1.ContainsKey("entry"));
+
+            var ctx2 = new ViewContext("p1", Vector3.zero, Vector3.forward, "living");
+            _resolver.Resolve(ctx2, _graph, new List<PortalVisibilityResult>());
+
+            // result1 must still hold its original data
+            Assert.AreEqual(2, result1.Count, "First result corrupted by second Resolve call");
+            Assert.IsTrue(result1.ContainsKey("entry"), "First result lost 'entry' key after second Resolve");
+            Assert.IsTrue(result1.ContainsKey("hall_a"), "First result lost 'hall_a' key after second Resolve");
+
+            Object.DestroyImmediate(def);
+        }
     }
 }

@@ -144,5 +144,31 @@ namespace Desync.Tests.EditMode.NodeActivation
             Assert.IsTrue(results[0].IsVisible, "Portal ahead should be visible");
             Assert.IsFalse(results[1].IsVisible, "Portal behind should not be visible");
         }
+
+        [Test]
+        public void Evaluate_SecondCall_DoesNotCorruptFirstResult()
+        {
+            var ctx = new ViewContext("p1", Vector3.zero, Vector3.forward, "entry");
+            var probes1 = new List<PortalProbeData>
+            {
+                new PortalProbeData("a1", "hall_a", new Vector3(0, 0, 5), -Vector3.forward, new Vector2(1, 2))
+            };
+
+            var result1 = _evaluator.Evaluate(ctx, probes1);
+            Assert.AreEqual(1, result1.Count);
+            Assert.AreEqual("hall_a", result1[0].DestinationNodeId);
+
+            var probes2 = new List<PortalProbeData>
+            {
+                new PortalProbeData("a2", "kitchen", new Vector3(0, 0, 5), -Vector3.forward, new Vector2(1, 2)),
+                new PortalProbeData("a3", "living", new Vector3(0, 0, 10), -Vector3.forward, new Vector2(1, 2))
+            };
+
+            _evaluator.Evaluate(ctx, probes2);
+
+            // result1 must still hold its original data
+            Assert.AreEqual(1, result1.Count, "First result corrupted by second Evaluate call");
+            Assert.AreEqual("hall_a", result1[0].DestinationNodeId, "First result lost original destination");
+        }
     }
 }

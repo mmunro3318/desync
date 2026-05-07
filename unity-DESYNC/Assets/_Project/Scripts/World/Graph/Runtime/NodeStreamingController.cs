@@ -22,6 +22,17 @@ namespace Desync.World.Graph.Runtime
 
         public IReadOnlyDictionary<string, NodeActivationReason> LastResult => _lastResult;
         public bool ForceAllActive { get => forceAllActive; set => forceAllActive = value; }
+        public bool HasLocalPlayer => _playerTracker != null && _playerCamera != null;
+
+        /// <summary>
+        /// Binds the local player's tracker and camera. Call from player spawn/bootstrap code.
+        /// Pass null to clear (e.g. on disconnect/respawn).
+        /// </summary>
+        public void BindLocalPlayer(PlayerNodeTracker tracker, Camera cam)
+        {
+            _playerTracker = tracker;
+            _playerCamera = cam;
+        }
 
         public void SetHandles(IReadOnlyList<NodePresentationHandle> newHandles)
         {
@@ -53,12 +64,10 @@ namespace Desync.World.Graph.Runtime
                 return;
             }
 
-            if (_playerTracker == null)
-                _playerTracker = FindAnyObjectByType<PlayerNodeTracker>();
-            if (_playerCamera == null)
-                _playerCamera = Camera.main;
+            if (_playerTracker == null || _playerCamera == null)
+                return;
 
-            if (_playerTracker == null || string.IsNullOrEmpty(_playerTracker.CurrentNodeId))
+            if (string.IsNullOrEmpty(_playerTracker.CurrentNodeId))
                 return;
 
             var ctx = BuildViewContext();
