@@ -251,7 +251,23 @@ These decisions were locked during S1A Session 1 (architecture + plan). Design d
 ### Node activation model: Occupied + Adjacent + PortalVisible
 **What:** `NodeActivationResolver` computes a set of active nodes per frame: the occupied node (Occupied flag), its 1-hop graph neighbors (Adjacent flag), and any nodes visible through portals (PortalVisible flag). Flags are bitwise-OR'd when a node qualifies for multiple reasons.
 **Why:** This is the minimal activation model that supports portal visibility without over-rendering. Occupied is always active (player is there). Adjacent prevents pop-in when approaching doorways. PortalVisible activates destinations the player can see through thresholds.
-**How to apply:** `NodePresentationHandle.SetPresentation(bool)` toggles room GameObjects on/off. The occupied room must always be active — any future bug that deactivates the occupied room creates a self-lockout (trigger collider disabled, so re-activation trigger cannot fire). A WARNING comment documents this coupling on `NodePresentationHandle`.
+**How to apply:** `NodePresentationHandle.SetPresentation(bool)` toggles the `presentationRoot` child on/off while the room root (with trigger volumes and authoring) stays always-active. The S1B-era self-lockout risk (deactivating the root killed occupancy triggers) is resolved by the S1C presentation/tracking separation.
+
+---
+
+## S1C — Graybox Sleeving (2026-05-07)
+
+### Presentation/tracking separation in room prefabs
+**What:** Each Room_* prefab has a `Presentation` child GameObject under the root. `NodePresentationHandle.SetPresentation(bool)` toggles `presentationRoot.gameObject.SetActive()` on the child, not the root. Portal anchors, room-volume triggers, and authoring components stay on the always-active root.
+**Why:** S1B's `SetPresentation` toggled the root GO, which disabled occupancy triggers — a self-lockout if the occupied room was ever deactivated. Separating presentation from tracking infrastructure eliminates this coupling. Confirmed necessary by 3 independent sources (S1B WARNING comment, ARCH.md S1B decision, S1B review finding IF-3).
+**How to apply:** Renderable geometry goes under `Presentation`. Tracking/authoring stays on root. Never parent a trigger volume or PortalAnchorAuthoring under Presentation.
+**Decision date:** 2026-05-07 (S1C Phase 0, PRD decision D1).
+
+### PlayerMotor owns local streaming binding (concern-mixing acknowledged)
+**What:** `PlayerMotor.OnNetworkSpawn()` tries `TryBindLocalStreamingContext()` immediately; if NSC is not yet in the scene (player spawns in Bootstrap before gameplay scene loads), subscribes to `SceneManager.sceneLoaded` and retries on each scene load until bound. `OnNetworkDespawn()` unsubscribes and calls `BindLocalPlayer(null, null)` to clear stale refs.
+**Why:** Only the locally-owned player should bind. `PlayerMotor` already gates on `IsOwner`. The scene-load retry handles the NGO timing gap where players spawn in Bootstrap before House_Prototype (with its NSC) is loaded. A dedicated component adds a file and a lifecycle dependency for the same wiring.
+**How to apply:** This is intentional concern-mixing. **Extraction trigger:** extract to a dedicated `LocalPlayerBootstrap` component when 3+ local-player bootstrap responsibilities accumulate in `PlayerMotor`. Before touching `PlayerMotor` code outside this sprint, review whether the extraction trigger has been hit.
+**Decision date:** 2026-05-07 (S1C Phase 1, PRD decision D2).
 
 ---
 

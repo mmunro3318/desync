@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEditor;
 using Desync.World.Graph.Runtime;
 
 namespace Desync.Tests.EditMode.NodeActivation
@@ -17,18 +18,22 @@ namespace Desync.Tests.EditMode.NodeActivation
             var entryGo = new GameObject("Room_Entry");
             var entryHandle = entryGo.AddComponent<NodePresentationHandle>();
             SetNodeId(entryHandle, "entry");
+            var entryPres = WireWithPresentationChild(entryGo, entryHandle);
 
             var hallGo = new GameObject("Room_HallA");
             var hallHandle = hallGo.AddComponent<NodePresentationHandle>();
             SetNodeId(hallHandle, "hall_a");
+            var hallPres = WireWithPresentationChild(hallGo, hallHandle);
 
             controller.SetHandles(new[] { entryHandle, hallHandle });
 
             var ctx = new ViewContext("p1", Vector3.zero, Vector3.forward, "entry");
             controller.UpdatePresentation(ctx, new List<PortalVisibilityResult>());
 
-            Assert.IsTrue(entryGo.activeSelf, "Occupied node should be active");
-            Assert.IsFalse(hallGo.activeSelf, "Non-occupied node should be inactive");
+            Assert.IsTrue(entryPres.activeSelf, "Occupied node presentation should be active");
+            Assert.IsFalse(hallPres.activeSelf, "Non-occupied node presentation should be inactive");
+            Assert.IsTrue(entryGo.activeSelf, "Room root must stay active");
+            Assert.IsTrue(hallGo.activeSelf, "Room root must stay active");
 
             Object.DestroyImmediate(go);
             Object.DestroyImmediate(entryGo);
@@ -44,10 +49,12 @@ namespace Desync.Tests.EditMode.NodeActivation
             var entryGo = new GameObject("Room_Entry");
             var entryHandle = entryGo.AddComponent<NodePresentationHandle>();
             SetNodeId(entryHandle, "entry");
+            var entryPres = WireWithPresentationChild(entryGo, entryHandle);
 
             var hallGo = new GameObject("Room_HallA");
             var hallHandle = hallGo.AddComponent<NodePresentationHandle>();
             SetNodeId(hallHandle, "hall_a");
+            var hallPres = WireWithPresentationChild(hallGo, hallHandle);
 
             controller.SetHandles(new[] { entryHandle, hallHandle });
 
@@ -59,8 +66,8 @@ namespace Desync.Tests.EditMode.NodeActivation
 
             controller.UpdatePresentation(ctx, portalResults);
 
-            Assert.IsTrue(entryGo.activeSelf, "Occupied node should be active");
-            Assert.IsTrue(hallGo.activeSelf, "Portal-visible node should be active");
+            Assert.IsTrue(entryPres.activeSelf, "Occupied node presentation should be active");
+            Assert.IsTrue(hallPres.activeSelf, "Portal-visible node presentation should be active");
 
             Object.DestroyImmediate(go);
             Object.DestroyImmediate(entryGo);
@@ -89,20 +96,18 @@ namespace Desync.Tests.EditMode.NodeActivation
             controller.ForceAllActive = true;
 
             var entryGo = new GameObject("Room_Entry");
-            entryGo.SetActive(false);
             var entryHandle = entryGo.AddComponent<NodePresentationHandle>();
             SetNodeId(entryHandle, "entry");
+            var entryPres = WireWithPresentationChild(entryGo, entryHandle);
+            entryPres.SetActive(false);
 
             var hallGo = new GameObject("Room_HallA");
-            hallGo.SetActive(false);
             var hallHandle = hallGo.AddComponent<NodePresentationHandle>();
             SetNodeId(hallHandle, "hall_a");
+            var hallPres = WireWithPresentationChild(hallGo, hallHandle);
+            hallPres.SetActive(false);
 
             controller.SetHandles(new[] { entryHandle, hallHandle });
-
-            // Call UpdatePresentation with a context that would normally deactivate hall
-            var ctx = new ViewContext("p1", Vector3.zero, Vector3.forward, "entry");
-            controller.UpdatePresentation(ctx, new List<PortalVisibilityResult>());
 
             // ForceAllActive doesn't apply via UpdatePresentation (it's the Update() path)
             // but we can test the public property is settable
@@ -174,6 +179,16 @@ namespace Desync.Tests.EditMode.NodeActivation
             var field = typeof(NodePresentationHandle).GetField("nodeId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             field.SetValue(handle, nodeId);
+        }
+
+        private static GameObject WireWithPresentationChild(GameObject roomGo, NodePresentationHandle handle)
+        {
+            var presentation = new GameObject("Presentation");
+            presentation.transform.SetParent(roomGo.transform);
+            var so = new SerializedObject(handle);
+            so.FindProperty("presentationRoot").objectReferenceValue = presentation.transform;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return presentation;
         }
     }
 }

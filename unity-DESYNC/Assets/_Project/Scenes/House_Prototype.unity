@@ -186,29 +186,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1031586669618728670, guid: 1f4ffe813593e3042b062d3a1f1d160b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 190041695}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1f4ffe813593e3042b062d3a1f1d160b, type: 3}
---- !u!1 &190041693 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1031586669618728670, guid: 1f4ffe813593e3042b062d3a1f1d160b, type: 3}
-  m_PrefabInstance: {fileID: 190041692}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &190041695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 190041693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
-  nodeId: v_entry
 --- !u!134 &440004562
 PhysicsMaterial:
   m_ObjectHideFlags: 0
@@ -289,29 +268,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1241628753460242034, guid: e75503bac1780f54cb91d38d8e3a5f01, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 551227916}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e75503bac1780f54cb91d38d8e3a5f01, type: 3}
---- !u!1 &551227915 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1241628753460242034, guid: e75503bac1780f54cb91d38d8e3a5f01, type: 3}
-  m_PrefabInstance: {fileID: 551227914}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &551227916
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 551227915}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
-  nodeId: v_living
 --- !u!134 &823389343
 PhysicsMaterial:
   m_ObjectHideFlags: 0
@@ -563,29 +521,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7781304209927676450, guid: 27e336d24128adc45a15a622845ed99a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1068092694}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 27e336d24128adc45a15a622845ed99a, type: 3}
---- !u!1 &1068092693 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7781304209927676450, guid: 27e336d24128adc45a15a622845ed99a, type: 3}
-  m_PrefabInstance: {fileID: 1068092692}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1068092694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1068092693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
-  nodeId: v_hall_a
 --- !u!1 &1087487403
 GameObject:
   m_ObjectHideFlags: 0
@@ -848,29 +785,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1374695746607675031, guid: 06e7007a5d0b4f647ba146b1c7e49449, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1334872872}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 06e7007a5d0b4f647ba146b1c7e49449, type: 3}
---- !u!1 &1334872871 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1374695746607675031, guid: 06e7007a5d0b4f647ba146b1c7e49449, type: 3}
-  m_PrefabInstance: {fileID: 1334872870}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1334872872
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1334872871}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
-  nodeId: v_kitchen
 --- !u!1 &1591701028
 GameObject:
   m_ObjectHideFlags: 0
@@ -982,29 +898,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1856554007193490504, guid: 02ccb21b68717694ea919fc16d76079b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1599959674}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 02ccb21b68717694ea919fc16d76079b, type: 3}
---- !u!1 &1599959672 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1856554007193490504, guid: 02ccb21b68717694ea919fc16d76079b, type: 3}
-  m_PrefabInstance: {fileID: 1599959671}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1599959674
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1599959672}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
-  nodeId: v_corridor_b
 --- !u!134 &1686229520
 PhysicsMaterial:
   m_ObjectHideFlags: 0

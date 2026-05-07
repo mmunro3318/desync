@@ -1,6 +1,8 @@
 using Desync.Core;
+using Desync.World.Graph.Runtime;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Desync.Player
 {
@@ -25,10 +27,43 @@ namespace Desync.Player
         {
             if (!IsOwner)
             {
-                // Disable CharacterController on non-owner so it doesn't
-                // fight NetworkTransform position updates
                 _controller.enabled = false;
+                return;
             }
+
+            // Try immediately (works if gameplay scene already loaded).
+            // Also subscribe to sceneLoaded for the Bootstrap→House_Prototype transition
+            // where NSC doesn't exist yet at spawn time.
+            if (!TryBindLocalStreamingContext())
+                SceneManager.sceneLoaded += OnSceneLoadedRetryBind;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (!IsOwner) return;
+
+            SceneManager.sceneLoaded -= OnSceneLoadedRetryBind;
+
+            var nsc = FindAnyObjectByType<NodeStreamingController>();
+            if (nsc != null)
+                nsc.BindLocalPlayer(null, null);
+        }
+
+        private void OnSceneLoadedRetryBind(Scene scene, LoadSceneMode mode)
+        {
+            if (TryBindLocalStreamingContext())
+                SceneManager.sceneLoaded -= OnSceneLoadedRetryBind;
+        }
+
+        private bool TryBindLocalStreamingContext()
+        {
+            var nsc = FindAnyObjectByType<NodeStreamingController>();
+            if (nsc == null) return false;
+
+            var tracker = GetComponent<PlayerNodeTracker>();
+            var cam = GetComponentInChildren<Camera>();
+            nsc.BindLocalPlayer(tracker, cam);
+            return true;
         }
 
         private void ApplyCapsuleSettings()

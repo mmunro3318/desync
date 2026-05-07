@@ -2,7 +2,7 @@
 
 Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to stub, record, and expand in this document.
 
-**LAST_USED_ID:** TD0022
+**LAST_USED_ID:** TD0023
 
 ---
 
@@ -315,37 +315,32 @@ Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to s
 
 ---
 
-## [TD0021] S2: [TECH_DEBT] Wire BindLocalPlayer in player spawn path
+## [TD0021] ~~S2~~ S1C: [TECH_DEBT] Wire BindLocalPlayer in player spawn path — **RESOLVED**
 
-**What:** `NodeStreamingController.BindLocalPlayer(tracker, cam)` was added in S1B review fixes to replace `Camera.main` + per-frame `FindAnyObjectByType`. Nobody calls it yet — `Update()` gracefully no-ops until binding is wired. The player spawn/bootstrap code needs to call `controller.BindLocalPlayer(tracker, cam)` after the local player is instantiated.
-**Why:** Without this call, `NodeStreamingController.Update()` skips the resolve/present loop entirely. Rooms still activate via other paths (ForceAllActive, direct `UpdatePresentation` calls), but the normal runtime path is dormant. Also causes gizmo activation colors to not display (LastResult is null).
-**How:** In the player spawn callback (likely `GameBootstrap` or NGO `OnNetworkSpawn`), find the scene's `NodeStreamingController` and call `BindLocalPlayer(localTracker, localCamera)`. For multiplayer, ensure only the locally-owned player binds.
-
-**Priority:** P[1]
-**Effort:** ~30m (Size: XS; Human: ~5m review, CC: ~25m)
-**Regression risk:** Low — wiring call only, no logic changes.
-**Depends on:** S1B merge
-**Types:** [TECH_DEBT]
-**Tags:** [GRAPH, PLAYER, STREAMING, S2]
-
-**Added:** 2026-05-07 (S1B review fix for Camera.main violation)
+**Resolved:** 2026-05-07 (S1C Phase 1). `PlayerMotor.OnNetworkSpawn()` now calls `BindLocalStreamingContext()` for the local owner. `OnNetworkDespawn()` clears with `BindLocalPlayer(null, null)`. See ARCH.md S1C entry for concern-mixing rationale.
 
 ---
 
-## [TD0022] S2: [BUG] Gizmo activation colors not displaying after BindLocalPlayer refactor
+## [TD0022] ~~S2~~ S1C: [BUG] Gizmo activation colors not displaying — **RESOLVED**
 
-**What:** After removing `Camera.main` / per-frame `FindAnyObjectByType` from `NodeStreamingController.Update()`, gizmo node wireframes no longer show green/yellow activation colors — all nodes render as inactive gray. Root cause: `Update()` returns early because `BindLocalPlayer()` hasn't been called yet (see TD0021), so `LastResult` is never populated. `SpatialDebugGizmos.OnDrawGizmos` reads `LastResult` which is null.
-**Why:** Gizmos are the primary room visualization during graybox development (rooms are trigger-volume-only, no mesh geometry yet). Losing activation color feedback reduces debug visibility.
-**How:** Resolves automatically when TD0021 (BindLocalPlayer wiring) is implemented. Verify gizmo colors return after wiring. If gizmo feedback is needed before TD0021, could add a temporary fallback in gizmos that uses `FindAnyObjectByType<PlayerNodeTracker>` to show occupancy independently.
+**Resolved:** 2026-05-07 (auto-resolved by TD0021 fix in S1C Phase 1). Verify gizmo colors return during Phase 4 validation gate.
 
-**Priority:** P[1]
-**Effort:** ~0m (resolves with TD0021)
-**Regression risk:** None — dependent fix.
-**Depends on:** TD0021
-**Types:** [BUG]
-**Tags:** [DEBUG, GIZMOS, STREAMING, S2]
+---
 
-**Added:** 2026-05-07 (observed after S1B review fix deployment)
+## [TD0023] Pre-Demo: [FEATURE] In-game pause/quit path for builds
+
+**What:** Standalone builds have no way to pause or quit the game. `Application.Quit()` is not wired to any input. Players must Alt+F4.
+**Why:** Needed before any external playtest or friend demo. Not sprint-scoped but blocks showing the game to anyone.
+**How:** Minimal ESC menu: pause (Time.timeScale=0), resume, quit (Application.Quit). No multiplayer disconnect handling needed for first pass.
+
+**Priority:** P[2]
+**Effort:** ~1h (Size: XS; Human: ~5m review, CC: ~45m)
+**Regression risk:** Low — additive UI, no system changes.
+**Depends on:** Nothing
+**Types:** [FEATURE]
+**Tags:** [UI, DEMO, PRE-DEMO]
+
+**Added:** 2026-05-07 (captured during S1C eng review)
 
 ---
 

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 469710010762286206}
   - component: {fileID: 3333347906100775891}
   - component: {fileID: 6682260426004220473}
+  - component: {fileID: 2211697960914211424}
   m_Layer: 0
   m_Name: Room_Kitchen
   m_TagString: Untagged
@@ -32,6 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2147109647067046235}
+  - {fileID: 4990973124097546502}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &3333347906100775891
@@ -69,6 +71,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Authoring.RoomNodeAuthoring
   nodeId: v_kitchen
   roomVolume: {fileID: 3333347906100775891}
+--- !u!114 &2211697960914211424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1374695746607675031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
+  nodeId: kitchen
+  presentationRoot: {fileID: 4990973124097546502}
 --- !u!1 &3543353867344180020
 GameObject:
   m_ObjectHideFlags: 0
@@ -137,3 +153,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Authoring.PortalAnchorAuthoring
   anchorId: p_kitchen_hall_a
   crossingTrigger: {fileID: 5398671499474186906}
+--- !u!1 &4369242789001361387
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4990973124097546502}
+  m_Layer: 0
+  m_Name: Presentation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4990973124097546502
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4369242789001361387}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 469710010762286206}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

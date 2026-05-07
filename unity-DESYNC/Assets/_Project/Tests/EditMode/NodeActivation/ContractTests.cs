@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEditor;
+using UnityEngine.TestTools;
 using Desync.World.Graph.Runtime;
 
 namespace Desync.Tests.EditMode.NodeActivation
@@ -107,29 +109,71 @@ namespace Desync.Tests.EditMode.NodeActivation
     [TestFixture]
     public class NodePresentationHandleTests
     {
+        private static void WirePresentationRoot(NodePresentationHandle handle, Transform root)
+        {
+            var so = new SerializedObject(handle);
+            so.FindProperty("presentationRoot").objectReferenceValue = root;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         [Test]
-        public void SetPresentation_True_ActivatesGameObject()
+        public void SetPresentation_True_ActivatesPresentationChild()
         {
             var go = new GameObject("TestRoom");
+            var presentation = new GameObject("Presentation");
+            presentation.transform.SetParent(go.transform);
             var handle = go.AddComponent<NodePresentationHandle>();
-            go.SetActive(false);
+            WirePresentationRoot(handle, presentation.transform);
+            presentation.SetActive(false);
 
             handle.SetPresentation(true);
 
-            Assert.IsTrue(go.activeSelf);
+            Assert.IsTrue(presentation.activeSelf);
             Object.DestroyImmediate(go);
         }
 
         [Test]
-        public void SetPresentation_False_DeactivatesGameObject()
+        public void SetPresentation_False_DeactivatesPresentationChild()
         {
             var go = new GameObject("TestRoom");
+            var presentation = new GameObject("Presentation");
+            presentation.transform.SetParent(go.transform);
             var handle = go.AddComponent<NodePresentationHandle>();
+            WirePresentationRoot(handle, presentation.transform);
+            presentation.SetActive(true);
+
+            handle.SetPresentation(false);
+
+            Assert.IsFalse(presentation.activeSelf);
+            Object.DestroyImmediate(go);
+        }
+
+        [Test]
+        public void SetPresentation_RootStaysActive_WhenPresentationDisabled()
+        {
+            var go = new GameObject("TestRoom");
+            var presentation = new GameObject("Presentation");
+            presentation.transform.SetParent(go.transform);
+            var handle = go.AddComponent<NodePresentationHandle>();
+            WirePresentationRoot(handle, presentation.transform);
             go.SetActive(true);
 
             handle.SetPresentation(false);
 
-            Assert.IsFalse(go.activeSelf);
+            Assert.IsTrue(go.activeSelf, "Root must stay active when presentation child deactivates");
+            Assert.IsFalse(presentation.activeSelf);
+            Object.DestroyImmediate(go);
+        }
+
+        [Test]
+        public void SetPresentation_NullPresentationRoot_WarnsAndDoesNotThrow()
+        {
+            var go = new GameObject("TestRoom");
+            var handle = go.AddComponent<NodePresentationHandle>();
+            // presentationRoot left null intentionally
+
+            Assert.DoesNotThrow(() => handle.SetPresentation(true));
+            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("presentationRoot"));
             Object.DestroyImmediate(go);
         }
 

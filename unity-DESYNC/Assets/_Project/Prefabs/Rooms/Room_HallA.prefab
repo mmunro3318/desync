@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1184437907962121190
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9205864626779639106}
+  m_Layer: 0
+  m_Name: Presentation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9205864626779639106
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184437907962121190}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3487931137701121266}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3315065279773066431
 GameObject:
   m_ObjectHideFlags: 0
@@ -147,6 +178,7 @@ GameObject:
   - component: {fileID: 3487931137701121266}
   - component: {fileID: 4699005731601280615}
   - component: {fileID: 685242798642897391}
+  - component: {fileID: 7696075572073466088}
   m_Layer: 0
   m_Name: Room_HallA
   m_TagString: Untagged
@@ -170,6 +202,7 @@ Transform:
   - {fileID: 4811930165206464275}
   - {fileID: 7345307209053833371}
   - {fileID: 2888748640407920065}
+  - {fileID: 9205864626779639106}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &4699005731601280615
@@ -207,6 +240,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Authoring.RoomNodeAuthoring
   nodeId: v_hall_a
   roomVolume: {fileID: 4699005731601280615}
+--- !u!114 &7696075572073466088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7781304209927676450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2a6d6821e40a9488b486d7a2cb9d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Runtime.NodePresentationHandle
+  nodeId: hall_a
+  presentationRoot: {fileID: 9205864626779639106}
 --- !u!1 &7808890171990197054
 GameObject:
   m_ObjectHideFlags: 0
