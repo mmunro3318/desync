@@ -263,6 +263,18 @@ These decisions were locked during S1A Session 1 (architecture + plan). Design d
 **How to apply:** Renderable geometry goes under `Presentation`. Tracking/authoring stays on root. Never parent a trigger volume or PortalAnchorAuthoring under Presentation.
 **Decision date:** 2026-05-07 (S1C Phase 0, PRD decision D1).
 
+### NodePresentationHandle.nodeId must match RoomNodeAuthoring.nodeId exactly
+**What:** `NodePresentationHandle.nodeId` must use the `v_` prefix (e.g. `v_entry`, `v_hall_a`) to match `RoomNodeAuthoring.nodeId` and the `HouseGraphDefinition` node IDs. The S1C Phase 0 prefab migration serialized bare names (`entry`, `hall_a`) by mistake, causing `NodeStreamingController.UpdatePresentation` to never match handles to resolved nodes — `SetPresentation(false)` was called for all rooms every frame.
+**Why:** The resolver populates its active-set dictionary with keys from `PlayerNodeTracker.CurrentNodeId` (which comes from `RoomNodeAuthoring.nodeId`). The streaming controller looks up `handle.NodeId` in that dictionary. If the IDs don't match, no room is ever marked active.
+**How to apply:** When wiring `NodePresentationHandle` on a prefab, copy the exact `nodeId` string from the sibling `RoomNodeAuthoring` component. If adding new rooms, use the same `v_` prefix convention as the graph definition asset.
+**Decision date:** 2026-05-07 (S1C Phase 2, found during Gate 0 playtest).
+
+### Graybox geometry: ProBuilder cubes under Presentation child
+**What:** Room graybox geometry (floor, walls, ceiling, doorway openings) is built from ProBuilder cubes parented under each room's `Presentation` child. All pieces use URP default Lit material with `TwoSided` shadow casting. Walls overlap 0.05m into floor/ceiling slabs per GEOMETRY_GRAMMAR.md overlap rules. Doorway openings are 1.0m wide x 2.1m tall, centered on portal anchor Z positions.
+**Why:** ProBuilder gives in-editor mesh editing without external tools. Parenting under Presentation means all geometry toggles with the activation system. Grammar overlap rules prevent z-fighting at wall-slab junctions.
+**How to apply:** New room geometry always goes under the Presentation child, never on the room root. Follow GEOMETRY_GRAMMAR.md for overlap constants (0.05m). Wall thickness is 0.15m. Interior wall center is at ±2.925 from room center (half room size minus half wall thickness).
+**Decision date:** 2026-05-07 (S1C Phase 2).
+
 ### PlayerMotor owns local streaming binding (concern-mixing acknowledged)
 **What:** `PlayerMotor.OnNetworkSpawn()` tries `TryBindLocalStreamingContext()` immediately; if NSC is not yet in the scene (player spawns in Bootstrap before gameplay scene loads), subscribes to `SceneManager.sceneLoaded` and retries on each scene load until bound. `OnNetworkDespawn()` unsubscribes and calls `BindLocalPlayer(null, null)` to clear stale refs.
 **Why:** Only the locally-owned player should bind. `PlayerMotor` already gates on `IsOwner`. The scene-load retry handles the NGO timing gap where players spawn in Bootstrap before House_Prototype (with its NSC) is loaded. A dedicated component adds a file and a lifecycle dependency for the same wiring.
