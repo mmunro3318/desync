@@ -10,16 +10,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Jam constraint:** Pride Jam 2026, due **2026-06-12**, theme **"Asylum"**.
 - **Engine:** Unity 6, URP 17.4.0, Netcode for GameObjects (NGO) 2.11.2, Input System 1.19.0.
 
-## Current code state (as of 2026-05-04)
+## Current code state (as of 2026-05-07)
 
-The repo has a working house graph runtime (S1A complete) built on a migrated Unity foundation. Observation, mutation, portal, and anchor systems are not yet implemented. All first-party code lives under `unity-DESYNC/Assets/_Project/`:
+The repo has a working house graph runtime (S1A complete) and portal visibility / node activation system (S1B complete) built on a migrated Unity foundation. Observation, mutation, and anchor systems are not yet implemented. All first-party code lives under `unity-DESYNC/Assets/_Project/`:
 
 - **Graph system** (`Scripts/World/Graph/`, namespace `Desync.World.Graph.*`): `Definitions/HouseGraphDefinition.cs` (ScriptableObject + definition structs), `Runtime/SpatialGraphRuntime.cs` (O(1) query engine), `Runtime/PortalResolver.cs`, `Runtime/PlayerNodeTracker.cs`, `Runtime/{RuntimeNodeState,RuntimeEdgeState}.cs`, `Authoring/{RoomNodeAuthoring,PortalAnchorAuthoring}.cs`, `GraphRuntimeHost.cs`, `Debug/{SpatialDebugOverlay,SpatialDebugGizmos}.cs`. Deep module boundary via `Desync.World.Graph.asmdef`.
+- **Node activation** (`Scripts/World/Graph/Runtime/`): `ViewContext.cs`, `NodeActivationReason.cs`, `NodeActivationResolver.cs`, `NodeStreamingController.cs`, `NodePresentationHandle.cs`, `PortalVisibilityContracts.cs`, `PortalVisibilityController.cs`, `PortalVisibilityEvaluator.cs`, `Debug/SpatialVisibilityDebugOverlay.cs`. Camera/tracker bound via `NodeStreamingController.BindLocalPlayer()` (no `Camera.main`). Resolver and evaluator return fresh collections per call (no aliased mutable state).
 - **Core** (`Scripts/Core/`): `GameBootstrap.cs`, `GameplaySettings.cs` (ScriptableObject).
 - **Player** (`Scripts/Player/`): `PlayerInputRouter.cs`, `PlayerLook.cs`, `PlayerMotor.cs`.
 - **Other** (`Scripts/`): `Items/FlashlightController.cs`, `Audio/{AmbientAudioManager,FootstepAudio}.cs`, `UI/LobbyUI.cs`.
-- **Scenes** (`Scenes/`): `Bootstrap.unity` (lobby + NetworkManager, loads `House_Prototype`), `House_Prototype.unity` (5-node graph scene with debug overlay + gizmos), `House_Graybox.unity` (legacy two-floor graybox, safe as lighting reference).
-- **Tests** (`Tests/EditMode/`): 75 tests (all pass). Covers graph definitions, runtime queries, resolver, state, host, player tracker, network bootstrap, and geometry grammar compliance.
+- **Scenes** (`Scenes/`): `Bootstrap.unity` (lobby + NetworkManager, loads `House_Prototype`), `House_Prototype.unity` (5-node graph scene with debug overlay + gizmos + activation system), `House_Graybox.unity` (legacy two-floor graybox, safe as lighting reference).
+- **Tests** (`Tests/EditMode/`): 125 tests (all pass). Covers graph definitions, runtime queries, resolver, state, host, player tracker, network bootstrap, geometry grammar compliance, node activation contracts, resolver, evaluator, streaming controller, and visibility overlay.
 - **Data/Prefabs**: `Data/HouseGraphDefinition.asset` (5-node graph SO), `Prefabs/Rooms/Room_*.prefab` (x5 with RoomNodeAuthoring + trigger volumes), `PF_Player`, `Railing_Graybox`.
 - **Network**: `DefaultNetworkPrefabs.asset` registry referencing `PF_Player`.
 
