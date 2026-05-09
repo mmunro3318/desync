@@ -1,4 +1,5 @@
 using Desync.Core;
+using Desync.World.Graph;
 using Desync.World.Graph.Runtime;
 using Unity.Netcode;
 using UnityEngine;
@@ -68,6 +69,11 @@ namespace Desync.Player
                 return false;
             }
             nsc.BindLocalPlayer(tracker, cam);
+
+            var graphHost = FindAnyObjectByType<GraphRuntimeHost>();
+            if (graphHost != null)
+                graphHost.BindObservationTracker(tracker);
+
             return true;
         }
 

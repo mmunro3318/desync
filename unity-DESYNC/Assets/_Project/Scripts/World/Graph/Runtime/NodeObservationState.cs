@@ -49,6 +49,18 @@ namespace Desync.World.Graph.Runtime
             }
         }
 
+        /// <summary>
+        /// Clears active reasons only, preserving grace timer.
+        /// Used during per-tick reason rebuild.
+        /// </summary>
+        public void ClearReasons()
+        {
+            _activeReasons?.Clear();
+        }
+
+        /// <summary>
+        /// Clears all state including grace timer. Used for Reset().
+        /// </summary>
         public void Clear()
         {
             _activeReasons?.Clear();

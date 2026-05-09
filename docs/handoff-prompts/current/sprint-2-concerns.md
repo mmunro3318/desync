@@ -25,3 +25,25 @@ Discoveries during Sprint 2 implementation that may need follow-up as TODOs.
 **Likely fix directions:**
 - Audit `PortalAnchorAuthoring` transform orientations in all 5 room prefabs — forwards should point outward from the room interior through the doorway.
 - Consider whether the portal-crossing guard (`planeDot < 0`) should be tightened or removed for visibility evaluation (it was designed for "keep destination visible after player steps through" but may fire too eagerly from inside the room).
+
+---
+
+## C2: FindObjectsByType overload change may exclude inactive handles
+
+**Discovered:** 2026-05-09, Phase 0 (code review)
+
+**Observation:** The deprecation fix changed `FindObjectsByType<NodePresentationHandle>(FindObjectsSortMode.None)` to `FindObjectsByType<NodePresentationHandle>(FindObjectsInactive.Exclude)`. The old overload included inactive objects; the new one excludes them. If a `NodePresentationHandle` is on a deactivated room prefab root before initial activation, it won't be discovered.
+
+**Likely non-issue:** Room roots stay active (only the `Presentation` child toggles). But worth a Play mode check if room discovery ever breaks.
+
+**Severity:** Low. Monitor.
+
+---
+
+## C3: Per-frame allocations in ObservationLockSystem.Tick()
+
+**Discovered:** 2026-05-09, Phase 2 (code review)
+
+**Observation:** Every `Tick()` creates 3x `HashSet<string>` and 2x `List<string>` (key snapshots for safe iteration). Negligible for a 5-node graph. Should pool allocations if the graph scales significantly.
+
+**Severity:** Low. Add pooling if perf budgets tighten per research report 10.

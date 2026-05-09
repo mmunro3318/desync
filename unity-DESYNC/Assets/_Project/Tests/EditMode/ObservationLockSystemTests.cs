@@ -266,6 +266,201 @@ namespace Desync.Tests.EditMode
 
         #endregion
 
+        #region Grace Timers
+
+        [Test]
+        public void Tick_NodeWasOccupied_ThenLeaves_GracePreventsMutation()
+        {
+            _rules.nodeGraceSeconds = 2.0f;
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            // Frame 1: player occupies entry
+            _input.OccupiedNodeIds.Add("entry");
+            system.Tick(0f);
+            Assert.IsTrue(system.IsNodeLocked("entry"));
+
+            // Frame 2: player leaves — grace starts
+            _input.OccupiedNodeIds.Clear();
+            system.Tick(0.5f);
+            Assert.IsFalse(system.IsNodeLocked("entry"), "No active reasons");
+            Assert.IsFalse(system.IsNodeMutationEligible("entry"), "Should be in grace");
+            Assert.AreEqual(1.5f, system.GetNodeGraceRemaining("entry"), 0.01f);
+
+            // Frame 3: grace continues
+            system.Tick(0.5f);
+            Assert.IsFalse(system.IsNodeMutationEligible("entry"), "Still in grace");
+            Assert.AreEqual(1.0f, system.GetNodeGraceRemaining("entry"), 0.01f);
+
+            // Frame 4: grace continues
+            system.Tick(0.5f);
+            Assert.AreEqual(0.5f, system.GetNodeGraceRemaining("entry"), 0.01f);
+
+            // Frame 5: grace expires
+            system.Tick(0.5f);
+            Assert.IsTrue(system.IsNodeMutationEligible("entry"), "Grace expired");
+            Assert.AreEqual(0f, system.GetNodeGraceRemaining("entry"));
+        }
+
+        [Test]
+        public void Tick_EdgeGrace_DecrementsOverMultipleTicks()
+        {
+            _rules.edgeGraceSeconds = 1.0f;
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            // Lock edge via occupancy
+            _input.OccupiedNodeIds.Add("entry");
+            system.Tick(0f);
+            Assert.IsTrue(system.IsEdgeLocked("entry_to_hall"));
+
+            // Player leaves — edge grace starts
+            _input.OccupiedNodeIds.Clear();
+            system.Tick(0.4f);
+            Assert.IsFalse(system.IsEdgeMutationEligible("entry_to_hall"), "In grace");
+
+            system.Tick(0.4f);
+            Assert.IsFalse(system.IsEdgeMutationEligible("entry_to_hall"), "Still in grace");
+
+            system.Tick(0.4f);
+            Assert.IsTrue(system.IsEdgeMutationEligible("entry_to_hall"), "Grace expired");
+        }
+
+        [Test]
+        public void Tick_ReLockDuringGrace_ClearsGraceTimer()
+        {
+            _rules.nodeGraceSeconds = 2.0f;
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            // Occupy, then leave to start grace
+            _input.OccupiedNodeIds.Add("entry");
+            system.Tick(0f);
+            _input.OccupiedNodeIds.Clear();
+            system.Tick(0.5f);
+            Assert.IsTrue(system.GetNodeGraceRemaining("entry") > 0f, "Should be in grace");
+
+            // Re-occupy — grace should clear
+            _input.OccupiedNodeIds.Add("entry");
+            system.Tick(0f);
+            Assert.IsTrue(system.IsNodeLocked("entry"));
+            Assert.AreEqual(0f, system.GetNodeGraceRemaining("entry"),
+                "Grace should reset when re-locked");
+        }
+
+        [Test]
+        public void Tick_GraceDoesNotRestartAfterExpiry()
+        {
+            _rules.nodeGraceSeconds = 0.5f;
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            // Occupy, leave, grace starts and expires
+            _input.OccupiedNodeIds.Add("entry");
+            system.Tick(0f);
+            _input.OccupiedNodeIds.Clear();
+            system.Tick(0.5f);
+            Assert.IsTrue(system.IsNodeMutationEligible("entry"), "Grace expired");
+
+            // Another tick — should stay eligible, not restart grace
+            system.Tick(0.5f);
+            Assert.IsTrue(system.IsNodeMutationEligible("entry"),
+                "Should stay eligible, not restart grace");
+        }
+
+        #endregion
+
+        #region Visibility Lock
+
+        [Test]
+        public void Tick_VisibleNode_IsLockedWithPortalVisibleReason()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+            _input.VisibleNodeIds.Add("hall_a");
+
+            system.Tick(0f);
+
+            Assert.IsTrue(system.IsNodeLocked("hall_a"));
+            var reasons = system.GetNodeLockReasons("hall_a");
+            Assert.IsTrue(reasons.Contains(LockReason.PortalVisible));
+        }
+
+        [Test]
+        public void Tick_VisibleEdge_IsLockedWithPortalVisibleReason()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+            _input.VisibleEdgeIds.Add("entry_to_hall");
+
+            system.Tick(0f);
+
+            Assert.IsTrue(system.IsEdgeLocked("entry_to_hall"));
+            var reasons = system.GetEdgeLockReasons("entry_to_hall");
+            Assert.IsTrue(reasons.Contains(LockReason.PortalVisible));
+        }
+
+        [Test]
+        public void Tick_NodeOccupiedAndVisible_HasBothReasons()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+            _input.OccupiedNodeIds.Add("entry");
+            _input.VisibleNodeIds.Add("entry");
+
+            system.Tick(0f);
+
+            var reasons = system.GetNodeLockReasons("entry");
+            Assert.IsTrue(reasons.Contains(LockReason.Occupied));
+            Assert.IsTrue(reasons.Contains(LockReason.PortalVisible));
+        }
+
+        [Test]
+        public void Tick_VisibilityDropsButOccupied_NoGraceStarts()
+        {
+            _rules.nodeGraceSeconds = 2.0f;
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            // Both occupied and visible
+            _input.OccupiedNodeIds.Add("entry");
+            _input.VisibleNodeIds.Add("entry");
+            system.Tick(0f);
+
+            // Visibility drops but still occupied — grace should NOT start
+            _input.VisibleNodeIds.Clear();
+            system.Tick(0.5f);
+
+            Assert.IsTrue(system.IsNodeLocked("entry"), "Still occupied");
+            Assert.AreEqual(0f, system.GetNodeGraceRemaining("entry"),
+                "No grace — still has active reason");
+        }
+
+        #endregion
+
+        #region Visibility Refresh Interval
+
+        [Test]
+        public void Tick_VisibilityRefreshInterval_SkipsVisibilityPolling()
+        {
+            // This test verifies the accumulator pattern exists.
+            // With interval > 0, visibility inputs should only be re-evaluated
+            // after the interval elapses.
+            _rules.visibilityRefreshInterval = 1.0f;
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            _input.OccupiedNodeIds.Add("entry");
+            _input.VisibleNodeIds.Add("hall_a");
+            system.Tick(0f);
+            Assert.IsTrue(system.IsNodeLocked("hall_a"), "First tick always evaluates");
+
+            // Remove visibility, tick with small dt — should skip re-evaluation
+            _input.VisibleNodeIds.Clear();
+            system.Tick(0.3f);
+            // hall_a should still appear locked because visibility wasn't re-polled
+            Assert.IsTrue(system.IsNodeLocked("hall_a"),
+                "Visibility not re-polled before interval elapses");
+
+            // Tick past the interval — now it should re-evaluate
+            system.Tick(0.8f);
+            Assert.IsFalse(system.IsNodeLocked("hall_a"),
+                "Visibility re-polled after interval elapsed");
+        }
+
+        #endregion
+
         #region Unknown IDs
 
         [Test]

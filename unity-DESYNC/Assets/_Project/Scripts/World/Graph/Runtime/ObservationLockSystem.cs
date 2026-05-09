@@ -22,6 +22,9 @@ namespace Desync.World.Graph.Runtime
         private readonly Dictionary<string, EdgeObservationState> _edgeStates = new();
 
         private float _visibilityAccumulator;
+        private bool _hasPolledVisibility;
+        private HashSet<string> _lastVisibleNodeSet;
+        private HashSet<string> _lastVisibleEdgeSet;
 
         private static readonly IReadOnlyList<LockReason> EmptyReasons =
             System.Array.Empty<LockReason>();
@@ -38,14 +41,9 @@ namespace Desync.World.Graph.Runtime
 
         public void Tick(float deltaTime)
         {
+            // Occupancy is always polled every frame
             var occupiedNodeIds = _input.GetOccupiedNodeIds();
-            var visibleNodeIds = _input.GetVisibleNodeIds();
-            var visibleEdgeIds = _input.GetVisibleEdgeIds();
-
-            // Build sets for O(1) lookup
             var occupiedSet = new HashSet<string>(occupiedNodeIds);
-            var visibleNodeSet = new HashSet<string>(visibleNodeIds);
-            var visibleEdgeSet = new HashSet<string>(visibleEdgeIds);
 
             // Collect edge IDs adjacent to occupied nodes
             var adjacentEdgeSet = new HashSet<string>();
@@ -56,12 +54,56 @@ namespace Desync.World.Graph.Runtime
                     adjacentEdgeSet.Add(edges[e].edgeId);
             }
 
+            // Visibility polling gated by refresh interval accumulator
+            bool shouldPollVisibility = ShouldPollVisibility(deltaTime);
+            HashSet<string> visibleNodeSet;
+            HashSet<string> visibleEdgeSet;
+
+            if (shouldPollVisibility)
+            {
+                visibleNodeSet = new HashSet<string>(_input.GetVisibleNodeIds());
+                visibleEdgeSet = new HashSet<string>(_input.GetVisibleEdgeIds());
+                _lastVisibleNodeSet = visibleNodeSet;
+                _lastVisibleEdgeSet = visibleEdgeSet;
+            }
+            else
+            {
+                // Reuse last polled visibility data
+                visibleNodeSet = _lastVisibleNodeSet ?? new HashSet<string>();
+                visibleEdgeSet = _lastVisibleEdgeSet ?? new HashSet<string>();
+            }
+
             // Ensure state entries exist for all observed targets
             EnsureNodeEntries(occupiedSet, visibleNodeSet);
             EnsureEdgeEntries(adjacentEdgeSet, visibleEdgeSet);
 
             UpdateNodes(occupiedSet, visibleNodeSet, deltaTime);
             UpdateEdges(adjacentEdgeSet, visibleEdgeSet, deltaTime);
+        }
+
+        private bool ShouldPollVisibility(float deltaTime)
+        {
+            // First tick always polls
+            if (!_hasPolledVisibility)
+            {
+                _hasPolledVisibility = true;
+                return true;
+            }
+
+            float interval = _rules.visibilityRefreshInterval;
+
+            // <= 0 means every frame
+            if (interval <= 0f)
+                return true;
+
+            _visibilityAccumulator += deltaTime;
+            if (_visibilityAccumulator >= interval)
+            {
+                _visibilityAccumulator -= interval;
+                return true;
+            }
+
+            return false;
         }
 
         private void UpdateNodes(
@@ -78,8 +120,8 @@ namespace Desync.World.Graph.Runtime
                 var state = _nodeStates[nodeId];
                 bool wasLocked = state.IsLocked;
 
-                // Rebuild reasons from scratch each tick
-                state.Clear();
+                // Rebuild reasons from scratch each tick (preserve grace timer)
+                state.ClearReasons();
 
                 if (occupiedSet.Contains(nodeId))
                     state.AddReason(LockReason.Occupied);
@@ -112,7 +154,7 @@ namespace Desync.World.Graph.Runtime
                 var state = _edgeStates[edgeId];
                 bool wasLocked = state.IsLocked;
 
-                state.Clear();
+                state.ClearReasons();
 
                 if (adjacentEdgeSet.Contains(edgeId))
                     state.AddReason(LockReason.AdjacentOccupiedEdge);
@@ -161,6 +203,9 @@ namespace Desync.World.Graph.Runtime
             _nodeStates.Clear();
             _edgeStates.Clear();
             _visibilityAccumulator = 0f;
+            _hasPolledVisibility = false;
+            _lastVisibleNodeSet = null;
+            _lastVisibleEdgeSet = null;
         }
 
         #region IObservationLockQuery

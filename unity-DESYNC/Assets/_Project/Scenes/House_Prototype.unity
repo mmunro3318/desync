@@ -3737,6 +3737,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.GraphRuntimeHost
   graphDefinition: {fileID: 11400000, guid: 04b2e79e6ac83b54d85987172f4968b0, type: 2}
+  observationRules: {fileID: 11400000, guid: 933b595506fa1ca449eb93318eee04e9, type: 2}
 --- !u!4 &1087487405
 Transform:
   m_ObjectHideFlags: 0
