@@ -135,6 +135,28 @@ I bring this up because *I'm* ignorant of Unity/C# and **can't** help you if you
 
 ---
 
-● Plan saved to both locations:
-  - Claude plans: ~/.claude/plans/enchanted-launching-sedgewick.md
-  - gstack plans: ~/.gstack/projects/spatial-horror/admin-feat-s1c-graybox-sleeving-eng-review-plan-20260508-015319.md
+### Sprint 2 Review:
+
+  Defer (already tracked or low-risk):
+  - Node/EdgeObservationState duplication (works, refactor when a third state type appears)
+  - Per-frame allocations (C3, already documented)
+  - ObservationInput concrete type (changing now breaks the portal wiring we just validated)
+  - lockDebugVerbose unused (cosmetic)
+  - Mutable struct risk (safe today, flag for co-op sprint)
+  - Null graph path untested (defensive edge case)
+
+### Review Response:
+
+● This is the correct approach. Three specific affirmations:
+
+  [DefaultExecutionOrder] over push model is the right call. The push model (NodeStreamingController calling GraphRuntimeHost.TickObservation()) would solve ordering but          
+  introduces a dependency direction that doesn't exist today and adds a new public method to the host's surface. The attributes are Unity's idiomatic solution, zero coupling      
+  change, and the ordering constraint is visible at the class declaration rather than buried in a call chain. Two lines, done.                                                     
+                                                                                                                                                                                   
+  ForceNodeLock/ForceEdgeLock for test setup is better test design. Testing "after Reset, previously locked nodes are unlocked" via real lock state is an observable-behavior      
+  assertion. The alternative -- mocking internals or using FakeObservationInputSource to tick state into existence -- would test implementation details and break on refactors that
+   preserve behavior. This avoids the "fake coverage" trap where tests pass but don't prove anything about the code path that actually runs in production.
+
+  Deferrals are correctly scoped for jam. C5 (debug overrides unguarded): the F6 overlay requires deliberate keyboard navigation (F6 toggle, arrow keys, L/U/C) -- no player
+  stumbles into this accidentally. Near-zero risk for a jam build. C6 (mutable struct shared List): the only consumer today is OnGUI, which reads within a single frame. The risk
+  materializes when a co-op authority model holds references across tick boundaries -- that's a co-op sprint concern, not Sprint 2.
