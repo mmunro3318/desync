@@ -283,6 +283,40 @@ These decisions were locked during S1A Session 1 (architecture + plan). Design d
 
 ---
 
+## S2 — Observation Lock System (2026-05-09)
+
+### ObservationLockSystem is pure C# with interface-driven input
+**What:** `ObservationLockSystem` takes an `IObservationInputSource` (occupancy, visible nodes, visible edges) and produces lock state per node/edge. No Unity lifecycle, no MonoBehaviour. `GraphRuntimeHost.Update()` calls `Tick(deltaTime)` each frame.
+**Why:** Keeps lock logic testable in EditMode (32 tests). The input abstraction allows swapping the source (local player visibility today, server-aggregated multi-player observation later) without touching lock logic.
+**How to apply:** To add a new observation source (e.g., server-authoritative aggregation for co-op), implement `IObservationInputSource` and pass it to the lock system constructor. Do not add Unity lifecycle methods to `ObservationLockSystem`.
+
+### Execution order: NodeStreamingController(-10) before GraphRuntimeHost(0)
+**What:** `NodeStreamingController` has `[DefaultExecutionOrder(-10)]`, `GraphRuntimeHost` has `[DefaultExecutionOrder(0)]`. The streaming controller runs first, feeds portal results to the observation input source, then the host ticks the lock system.
+**Why:** The observation system must consume current-frame portal visibility, not stale data from the previous frame. Without explicit ordering, Unity's default execution order is non-deterministic between same-priority MonoBehaviours. Confirmed necessary after Codex identified 3 dead paths in a rejected push-model alternative.
+**How to apply:** Do not change either `[DefaultExecutionOrder]` attribute without updating both. If adding new systems that feed data to observation, they must run before GraphRuntimeHost (negative execution order).
+
+### Grace timer is per-target, not per-reason
+**What:** Each node/edge has one `_graceRemaining` float. Grace starts when the LAST lock reason clears, not when any individual reason clears.
+**Why:** Per-reason grace creates unintuitive behavior: a node could have grace ticking for PortalVisible while still locked by Occupied, then briefly flicker to eligible when Occupied clears before the grace timer can restart. Per-target grace is simpler and matches the game design: "this space was recently observed, don't mutate it yet."
+**How to apply:** `NodeObservationState.RemoveReason()` only sets grace when `_activeReasons.Count == 0` after removal.
+
+### ObservationRulesDefinition ScriptableObject for tuning
+**What:** Grace durations (`nodeGraceSeconds`, `edgeGraceSeconds`), visibility refresh interval, and debug verbosity live on `ObservationRulesDefinition` (ScriptableObject), not on the lock system or host.
+**Why:** Follows the `GameplaySettings` pattern: tunable knobs on SOs, runtime state on components. Separate from `GameplaySettings` because observation rules are graph-system-internal, not player-facing gameplay feel.
+**How to apply:** `GraphRuntimeHost` accepts an optional `[SerializeField] ObservationRulesDefinition observationRules`. Null means no observation system (graceful degradation).
+
+### LocalObservationInputSource bridges portal visibility to observation
+**What:** `LocalObservationInputSource` implements `IObservationInputSource` by reading `PlayerNodeTracker.CurrentNodeId` for occupancy and `SetPortalResults()` for visibility. It does not raycast or do its own visibility checks.
+**Why:** Sprint 2 reuses the existing S1B portal visibility evaluator (dot-product heuristic) rather than building a new LOS system. This is intentionally weak: TD0024 tracks adding proper LOS raycasting. The adapter pattern keeps the observation system decoupled from the specific visibility implementation.
+**How to apply:** When TD0024 LOS raycasting ships, modify `LocalObservationInputSource` or create a new `IObservationInputSource` implementation. The lock system requires no changes.
+
+### Debug overlay keyboard-driven (F6 + arrow keys), not IMGUI buttons
+**What:** `ObservationDebugOverlay` uses keyboard input (F6 toggle, Up/Down to select targets, L/U/C for force lock/unlock/clear) instead of clickable IMGUI buttons.
+**Why:** IMGUI buttons require cursor visibility and unlock. In a first-person game with cursor lock, clickable buttons are unusable without breaking gameplay. Keyboard-driven overlay works with cursor locked.
+**How to apply:** New debug overlays for first-person gameplay should follow the same keyboard-driven pattern. Reserve IMGUI buttons for editor-only tools or menus where cursor is free.
+
+---
+
 ## Open questions / decisions deferred
 
 These are the obvious upcoming forks. They are *not* decisions yet — recorded so a future agent recognizes the open state and doesn't silently pick one.

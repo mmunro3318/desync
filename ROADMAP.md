@@ -15,7 +15,7 @@
 | S1A House Graph Authoring | ✅ Complete | S0.1, S0.2 | S1B, S2, S3, S5A | POC |
 | S1B Portal Visibility + Node Activation | ✅ Complete | S1A | S1C | POC |
 | S1C Graybox Sleeving | ✅ Complete | S1B | S2 | POC |
-| S2 Observation Lock System | 🔲 Not Started | S1C | S3, S4A, S4B | POC |
+| S2 Observation Lock System | ✅ Complete | S1C | S3, S4A, S4B | POC |
 | S3 Loop Anomaly Vertical Slice | 🔲 Not Started | S2 | S4A, S4B, S6 | POC |
 | S4A Substitution Anomaly | 🔲 Not Started | S3 | S6 | Jam |
 | S4B Tardis Anomaly | 🔲 Not Started | S3 | S6 | Jam |
@@ -237,16 +237,21 @@ S0.1 Multiplayer fix ──┘         │                               ├─�
 **Objective:** Implement the rule that observed spaces cannot mutate. This is the core "horror contract" — space only changes when you can't see it.
 
 **Acceptance Criteria (from docs):**
-- [ ] Visibility-based lock: nodes in player's validated observation set are locked
-- [ ] Occupancy-based lock: occupied nodes are locked
-- [ ] Grace timer: recently-observed nodes remain locked for N seconds
-- [ ] Mutation eligibility query: runtime answers "can this node/edge mutate right now?"
-- [ ] Debug overlay shows lock state per node (locked/eligible/grace-cooling)
-- [ ] Multiplayer: each player's observation contributes to shared lock state (server authority)
+- [x] Visibility-based lock: nodes in player's validated observation set are locked
+- [x] Occupancy-based lock: occupied nodes are locked
+- [x] Grace timer: recently-observed nodes remain locked for N seconds
+- [x] Mutation eligibility query: runtime answers "can this node/edge mutate right now?"
+- [x] Debug overlay shows lock state per node (locked/eligible/grace-cooling)
+- [ ] Multiplayer: each player's observation contributes to shared lock state (server authority) — deferred to co-op sprint (M4)
 
 **Personal Gates (Mike):**
 - [ ] Can clearly see in debug that walking away from a room unlocks it after grace period
 - [ ] Two players observing different rooms correctly prevents mutation in both
+
+**Known Deferred Concerns:**
+- C1/TD0024: Portal visibility fires for ALL adjacent nodes regardless of camera direction (LOS raycasting deferred to Sprint 3+)
+- C5: Debug override methods available in release builds (deferred to post-jam)
+- C6: Mutable struct shared List reference in GetAllNodeStates (deferred to M4 co-op sprint)
 
 ---
 
