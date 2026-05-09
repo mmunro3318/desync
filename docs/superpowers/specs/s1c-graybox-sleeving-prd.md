@@ -65,11 +65,11 @@ ProBuilder room geometry under Presentation children:
 
 ### Phase sequencing
 
-- [~] **Phase 0:** Module 1 (refactor) + Module 2 (migration) + run all tests
-- [ ] **Phase 1:** Module 3 (binding wiring) + verify gizmo activation colors return (TD0022)
-- [ ] **Phase 2:** Module 4 first room (Entry) + Gate 0 doorway test
-- [ ] **Phase 3:** Module 4 remaining rooms
-- [ ] **Phase 4:** Validation gate (all tests, full walkthrough, portal sightlines, overlays, multiplayer spot-check)
+- [x] **Phase 0:** Module 1 (refactor) + Module 2 (migration) + run all tests
+- [x] **Phase 1:** Module 3 (binding wiring) + verify gizmo activation colors return (TD0022)
+- [x] **Phase 2:** Module 4 first room (Entry) + Gate 0 doorway test
+- [x] **Phase 3:** Module 4 remaining rooms
+- [x] **Phase 4:** Validation gate (all tests, full walkthrough, portal sightlines, overlays, multiplayer spot-check)
 
 ### Additional decisions from eng review
 

@@ -2,7 +2,7 @@
 
 This is the **load-bearing decision log** for DESYNC. Record every decision here that future AI agents (or future Mike) might otherwise re-litigate, and explain *why* — the why is the part that prevents drift.
 
-This file supersedes the prior `OLD_ARCHITECTURAL_DECISIONS.md` (Phasmo-Clone era). Decisions below are either **carried forward** (still load-bearing for DESYNC) or **new** (DESYNC-specific).
+**Do not** (if orchestrator) read this entire document yourself -- use subagents to parse it for key decisions, constraints and rule to guide development, and let /review skill read the full doc to ensure alignment with settled design principals.
 
 ### Records of decisions go here, not into commit messages alone
 **What:** Any decision a future agent might re-litigate gets an entry in this file with a clear *what / why / how to apply / future review*.
