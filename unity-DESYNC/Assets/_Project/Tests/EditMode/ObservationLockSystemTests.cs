@@ -488,5 +488,80 @@ namespace Desync.Tests.EditMode
         }
 
         #endregion
+
+        #region Debug Override
+
+        [Test]
+        public void ForceNodeLock_LocksUnoccupiedNode()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+            system.Tick(0f);
+
+            system.ForceNodeLock("living");
+
+            Assert.IsTrue(system.IsNodeLocked("living"));
+            var reasons = system.GetNodeLockReasons("living");
+            Assert.IsTrue(reasons.Contains(LockReason.DebugForced));
+        }
+
+        [Test]
+        public void ForceNodeUnlock_OverridesOccupancyLock()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+            _input.OccupiedNodeIds.Add("entry");
+            system.Tick(0f);
+            Assert.IsTrue(system.IsNodeLocked("entry"));
+
+            system.ForceNodeUnlock("entry");
+            system.Tick(0f);
+
+            Assert.IsFalse(system.IsNodeLocked("entry"));
+            Assert.IsTrue(system.IsNodeMutationEligible("entry"));
+        }
+
+        [Test]
+        public void ForceNodeLock_SurvivesTick()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            system.ForceNodeLock("living");
+            system.Tick(0f);
+
+            Assert.IsTrue(system.IsNodeLocked("living"));
+            Assert.IsTrue(system.GetNodeLockReasons("living").Contains(LockReason.DebugForced));
+        }
+
+        [Test]
+        public void ForceNodeUnlock_SurvivesMultipleTicks()
+        {
+            _rules.nodeGraceSeconds = 5f;
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+            _input.OccupiedNodeIds.Add("entry");
+            system.Tick(0f);
+
+            system.ForceNodeUnlock("entry");
+            system.Tick(0.1f);
+            Assert.IsTrue(system.IsNodeMutationEligible("entry"), "First tick after unlock");
+
+            system.Tick(0.1f);
+            Assert.IsTrue(system.IsNodeMutationEligible("entry"), "Second tick after unlock");
+        }
+
+        [Test]
+        public void Reset_ClearsDebugOverrides()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            system.ForceNodeLock("living");
+            Assert.IsTrue(system.IsNodeLocked("living"));
+
+            system.Reset();
+            system.Tick(0f);
+
+            Assert.IsFalse(system.IsNodeLocked("living"),
+                "Debug override should be cleared after Reset");
+        }
+
+        #endregion
     }
 }

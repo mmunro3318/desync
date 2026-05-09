@@ -26,6 +26,11 @@ namespace Desync.World.Graph.Runtime
         private HashSet<string> _lastVisibleNodeSet;
         private HashSet<string> _lastVisibleEdgeSet;
 
+        private readonly HashSet<string> _debugForcedLockedNodes = new();
+        private readonly HashSet<string> _debugForcedUnlockedNodes = new();
+        private readonly HashSet<string> _debugForcedLockedEdges = new();
+        private readonly HashSet<string> _debugForcedUnlockedEdges = new();
+
         private static readonly IReadOnlyList<LockReason> EmptyReasons =
             System.Array.Empty<LockReason>();
 
@@ -129,6 +134,17 @@ namespace Desync.World.Graph.Runtime
                 if (visibleNodeSet.Contains(nodeId))
                     state.AddReason(LockReason.PortalVisible);
 
+                if (_debugForcedLockedNodes.Contains(nodeId))
+                    state.AddReason(LockReason.DebugForced);
+
+                // Force-unlock: strip all reasons so node appears unlocked
+                if (_debugForcedUnlockedNodes.Contains(nodeId))
+                {
+                    state.Clear();
+                    _nodeStates[nodeId] = state;
+                    continue;
+                }
+
                 // Grace: was locked, now no active reasons → start grace
                 if (wasLocked && !state.IsLocked && state.GraceRemaining <= 0f)
                     state.StartGrace(_rules.nodeGraceSeconds);
@@ -161,6 +177,16 @@ namespace Desync.World.Graph.Runtime
 
                 if (visibleEdgeSet.Contains(edgeId))
                     state.AddReason(LockReason.PortalVisible);
+
+                if (_debugForcedLockedEdges.Contains(edgeId))
+                    state.AddReason(LockReason.DebugForced);
+
+                if (_debugForcedUnlockedEdges.Contains(edgeId))
+                {
+                    state.Clear();
+                    _edgeStates[edgeId] = state;
+                    continue;
+                }
 
                 if (wasLocked && !state.IsLocked && state.GraceRemaining <= 0f)
                     state.StartGrace(_rules.edgeGraceSeconds);
@@ -198,6 +224,48 @@ namespace Desync.World.Graph.Runtime
                     _edgeStates[id] = new EdgeObservationState();
         }
 
+        public void ForceNodeLock(string nodeId)
+        {
+            _debugForcedUnlockedNodes.Remove(nodeId);
+            _debugForcedLockedNodes.Add(nodeId);
+            if (!_nodeStates.ContainsKey(nodeId))
+                _nodeStates[nodeId] = new NodeObservationState();
+            var state = _nodeStates[nodeId];
+            state.AddReason(LockReason.DebugForced);
+            _nodeStates[nodeId] = state;
+        }
+
+        public void ForceNodeUnlock(string nodeId)
+        {
+            _debugForcedLockedNodes.Remove(nodeId);
+            _debugForcedUnlockedNodes.Add(nodeId);
+        }
+
+        public void ForceEdgeLock(string edgeId)
+        {
+            _debugForcedUnlockedEdges.Remove(edgeId);
+            _debugForcedLockedEdges.Add(edgeId);
+            if (!_edgeStates.ContainsKey(edgeId))
+                _edgeStates[edgeId] = new EdgeObservationState();
+            var state = _edgeStates[edgeId];
+            state.AddReason(LockReason.DebugForced);
+            _edgeStates[edgeId] = state;
+        }
+
+        public void ForceEdgeUnlock(string edgeId)
+        {
+            _debugForcedLockedEdges.Remove(edgeId);
+            _debugForcedUnlockedEdges.Add(edgeId);
+        }
+
+        public void ClearDebugOverrides()
+        {
+            _debugForcedLockedNodes.Clear();
+            _debugForcedUnlockedNodes.Clear();
+            _debugForcedLockedEdges.Clear();
+            _debugForcedUnlockedEdges.Clear();
+        }
+
         public void Reset()
         {
             _nodeStates.Clear();
@@ -206,6 +274,7 @@ namespace Desync.World.Graph.Runtime
             _hasPolledVisibility = false;
             _lastVisibleNodeSet = null;
             _lastVisibleEdgeSet = null;
+            ClearDebugOverrides();
         }
 
         #region IObservationLockQuery

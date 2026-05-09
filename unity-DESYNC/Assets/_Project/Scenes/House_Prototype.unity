@@ -3763,6 +3763,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1212605314}
   - component: {fileID: 1212605313}
+  - component: {fileID: 1212605315}
   m_Layer: 0
   m_Name: SpatialDebugOverlay
   m_TagString: Untagged
@@ -3798,6 +3799,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1212605315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1212605312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f61119f10c386f46837acb56474646b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Debug.ObservationDebugOverlay
+  graphHost: {fileID: 1087487404}
 --- !u!1 &1230116764
 GameObject:
   m_ObjectHideFlags: 0
@@ -7488,6 +7502,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1866176869}
   - component: {fileID: 1866176868}
+  - component: {fileID: 1866176870}
   m_Layer: 0
   m_Name: SpatialDebugGizmos
   m_TagString: Untagged
@@ -7529,6 +7544,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1866176870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1866176867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1afb324262afb4248994b925babd72de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Desync.World.Graph::Desync.World.Graph.Debug.ObservationDebugGizmos
+  graphHost: {fileID: 1087487404}
+  lockedColor: {r: 1, g: 0.2, b: 0.2, a: 0.35}
+  graceColor: {r: 1, g: 0.9, b: 0.2, a: 0.35}
+  eligibleColor: {r: 0.2, g: 1, b: 0.3, a: 0.2}
+  unknownColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.15}
+  edgeLockedColor: {r: 1, g: 0.3, b: 0.3, a: 0.7}
+  edgeGraceColor: {r: 1, g: 0.85, b: 0.2, a: 0.5}
+  edgeEligibleColor: {r: 0.3, g: 0.9, b: 0.4, a: 0.3}
 --- !u!43 &1878413150
 Mesh:
   m_ObjectHideFlags: 0

@@ -76,6 +76,11 @@ namespace Desync.World.Graph.Runtime
 
             var ctx = BuildViewContext();
             var portalResults = GetPortalResults(ctx);
+
+            // Feed portal results to observation lock system before its next Tick
+            if (graphHost != null && graphHost.ObservationInput != null)
+                graphHost.ObservationInput.SetPortalResults(portalResults);
+
             UpdatePresentation(ctx, portalResults);
         }
 
