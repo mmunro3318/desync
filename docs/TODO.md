@@ -2,11 +2,38 @@
 
 Reference `docs/templates/TODO_TEMPLATES.md` for template on TODO structure to stub, record, and expand in this document.
 
-**LAST_USED_ID:** TD0023
+**LAST_USED_ID:** TD0024
 
 ---
 
 ## TODO Items
+
+## [TD0024] [FEATURE] Line-of-sight raycasting for observation visibility
+
+**What:** Replace portal-visibility-only approximation with camera-ray LOS checks for observation lock. Currently, `LocalObservationInputSource` derives visibility entirely from `PortalVisibilityResult` data (portal anchor dot-product heuristic). True LOS would raycast from camera to node/portal targets and reject occluded results.
+**Why:** Portal visibility fires for ALL adjacent nodes regardless of camera direction (C1 concern from Sprint 2). Without LOS, visibility lock adds zero information beyond adjacency. The observation system needs directional awareness to gate mutations meaningfully.
+**How:** Add a raycast pass in `LocalObservationInputSource.GetVisibleNodeIds()` or a separate `IVisibilityRaycastProvider` that filters portal results against Physics.Raycast hits. Must handle: layer masking (only architectural geometry blocks LOS), multiple portal apertures per edge, performance budget (~5 raycasts/frame max for 5-node graph).
+
+**Priority:** P[2]
+**Effort:** ~3h (Size: M; Human: ~15m review, CC: ~3h)
+**Regression risk:** Medium — changes observation truth model, may affect lock timing.
+**Depends on:** Sprint 2 complete (observation lock system operational)
+**Types:** [FEATURE]
+**Tags:** [OBSERVATION, VISIBILITY, SPRINT3+]
+
+**Added:** 2026-05-09 (Sprint 2 Phase 6 polish)
+**Context Reference:**
+- Sprint 2 concerns: docs/handoff-prompts/current/sprint-2-concerns.md (C1)
+- PDD: docs/design/04-sprints/sprint-2-observation-lock-system.md
+
+### Acceptance Criteria
+- [ ] Visibility lock only fires for nodes the camera is actually pointed toward
+- [ ] Occluded portals (wall between camera and portal aperture) do not trigger visibility lock
+- [ ] Performance stays within frame budget (< 0.5ms for visibility pass)
+- [ ] Existing observation lock tests still pass (raycast is additive filter, not replacement)
+- [ ] Debug overlay shows which nodes passed/failed LOS check
+
+---
 
 ## [TD0015] S1B: [FEATURE] Shared Contracts — ViewContext, activation types, resolver stub
 

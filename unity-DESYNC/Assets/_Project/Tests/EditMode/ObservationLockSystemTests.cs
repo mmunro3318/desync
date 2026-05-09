@@ -563,5 +563,33 @@ namespace Desync.Tests.EditMode
         }
 
         #endregion
+
+        #region Reset + Visibility Polling
+
+        [Test]
+        public void Reset_FirstTickAfterReset_PollsVisibility()
+        {
+            _rules.visibilityRefreshInterval = 10f;
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            // First tick polls visibility (interval doesn't matter on first tick)
+            _input.VisibleNodeIds.Add("hall_a");
+            system.Tick(0f);
+            Assert.IsTrue(system.IsNodeLocked("hall_a"), "First tick should poll visibility");
+
+            // Reset
+            system.Reset();
+
+            // After reset, first tick should poll visibility again despite interval
+            _input.VisibleNodeIds.Clear();
+            _input.VisibleNodeIds.Add("living");
+            system.Tick(0f);
+            Assert.IsTrue(system.IsNodeLocked("living"),
+                "First tick after Reset should poll visibility regardless of interval");
+            Assert.IsFalse(system.IsNodeLocked("hall_a"),
+                "Old visibility state should be gone after Reset");
+        }
+
+        #endregion
     }
 }
