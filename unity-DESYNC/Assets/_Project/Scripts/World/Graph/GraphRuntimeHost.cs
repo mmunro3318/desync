@@ -9,6 +9,7 @@ namespace Desync.World.Graph
     /// Loads the graph definition on Awake, creates the observation lock
     /// system, and ticks it each frame.
     /// </summary>
+    [DefaultExecutionOrder(0)]
     public class GraphRuntimeHost : MonoBehaviour
     {
         [Header("Graph Data")]

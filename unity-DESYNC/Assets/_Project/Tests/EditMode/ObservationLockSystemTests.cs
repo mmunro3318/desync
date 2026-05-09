@@ -562,6 +562,46 @@ namespace Desync.Tests.EditMode
                 "Debug override should be cleared after Reset");
         }
 
+        [Test]
+        public void ForceEdgeLock_LocksEdgeNotAdjacentToOccupied()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+            system.Tick(0f);
+
+            system.ForceEdgeLock("hall_to_living");
+
+            Assert.IsTrue(system.IsEdgeLocked("hall_to_living"));
+            var reasons = system.GetEdgeLockReasons("hall_to_living");
+            Assert.IsTrue(reasons.Contains(LockReason.DebugForced));
+        }
+
+        [Test]
+        public void ForceEdgeUnlock_OverridesAdjacentLock()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+            _input.OccupiedNodeIds.Add("entry");
+            system.Tick(0f);
+            Assert.IsTrue(system.IsEdgeLocked("entry_to_hall"));
+
+            system.ForceEdgeUnlock("entry_to_hall");
+            system.Tick(0f);
+
+            Assert.IsFalse(system.IsEdgeLocked("entry_to_hall"));
+            Assert.IsTrue(system.IsEdgeMutationEligible("entry_to_hall"));
+        }
+
+        [Test]
+        public void ForceEdgeLock_SurvivesTick()
+        {
+            var system = new ObservationLockSystem(_input, _graph, _rules);
+
+            system.ForceEdgeLock("hall_to_living");
+            system.Tick(0f);
+
+            Assert.IsTrue(system.IsEdgeLocked("hall_to_living"));
+            Assert.IsTrue(system.GetEdgeLockReasons("hall_to_living").Contains(LockReason.DebugForced));
+        }
+
         #endregion
 
         #region Reset + Visibility Polling

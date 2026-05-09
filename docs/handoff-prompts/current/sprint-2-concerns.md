@@ -47,3 +47,45 @@ Discoveries during Sprint 2 implementation that may need follow-up as TODOs.
 **Observation:** Every `Tick()` creates 3x `HashSet<string>` and 2x `List<string>` (key snapshots for safe iteration). Negligible for a 5-node graph. Should pool allocations if the graph scales significantly.
 
 **Severity:** Low. Add pooling if perf budgets tighten per research report 10.
+
+---
+
+## C4: Update execution order race between NodeStreamingController and GraphRuntimeHost
+
+**Discovered:** 2026-05-09, Phase 5 (adversarial code review)
+
+**Observation:** `NodeStreamingController.Update()` feeds portal results to the observation input source. `GraphRuntimeHost.Update()` ticks the lock system. Unity does not guarantee `Update()` call order between MonoBehaviours. If the host ticks first, the lock system evaluates with stale/empty portal data for one frame. In a horror game, this could let a mutation fire on a room the player is looking at through a portal.
+
+**Fix applied:** `[DefaultExecutionOrder(-10)]` on `NodeStreamingController`, `[DefaultExecutionOrder(0)]` on `GraphRuntimeHost`. Attributes are declarative, travel with the class, and create no dead paths. Codex review validated this approach over the alternative (moving `Tick()` into the controller) which would have created 3 dead paths where observation stops ticking.
+
+**Alternative considered and rejected:** `TickObservation()` push model — controller calls host tick explicitly after feeding data. Codex identified that `NodeStreamingController.Update()` has 3 early-return paths (forceAllActive, no player, empty nodeId) that would freeze stale locks and grace timers. A `_hasExternalTicker` latch would also become a one-way trap across despawn/reconnect.
+
+**Severity:** Fixed. No follow-up needed.
+
+---
+
+## C5: Debug override methods available in release builds
+
+**Discovered:** 2026-05-09, Phase 5 (adversarial code review)
+
+**Observation:** `ForceNodeLock`, `ForceNodeUnlock`, `ForceEdgeLock`, `ForceEdgeUnlock`, and `ClearDebugOverrides` on `ObservationLockSystem` are public methods with no preprocessor guards. They exist in release builds.
+
+**Why not fixed now:** Codex review identified that `#if UNITY_EDITOR || DEVELOPMENT_BUILD` guards on `ObservationLockSystem` create a build-target-dependent public API. The overlay's `GetLockSystem()` cast references the concrete type — guarding the methods causes compile errors in release builds. Fixing properly requires either: (a) moving debug methods to a separate `ObservationLockDebugExtensions` class, or (b) guarding the entire overlay with `#if`. Both add complexity for a jam project.
+
+**Risk assessment:** Near-zero for a jam build. The methods are no-ops without intentional calls. No mutation system exists yet to exploit forced unlocks.
+
+**Deferred to:** Post-jam hardening. When the mutation system (M3/M4) ships and debug overrides could actually cause gameplay impact, extract debug methods to a guarded utility class.
+
+---
+
+## C6: Mutable struct + shared List reference in observation state
+
+**Discovered:** 2026-05-09, Phase 5 (adversarial code review)
+
+**Observation:** `NodeObservationState` is a struct containing a `List<LockReason>`. `GetAllNodeStates()` exposes the dictionary. Consumers get struct copies that share the same mutable list. If a consumer holds a reference across tick boundaries, they'll see the list cleared mid-read.
+
+**Current risk:** Safe. The only consumers are IMGUI overlays that read within a single `OnGUI` frame. No cross-frame references exist.
+
+**Deferred to:** Co-op sprint (M4). When multiplayer observation aggregation ships, state may be read across network tick boundaries. At that point, consider making state types immutable or returning snapshots.
+
+**Severity:** Low. Monitor when adding new observation state consumers.

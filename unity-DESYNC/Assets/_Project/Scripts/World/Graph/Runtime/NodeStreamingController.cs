@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Desync.World.Graph.Runtime
 {
+    [DefaultExecutionOrder(-10)]
     public class NodeStreamingController : MonoBehaviour
     {
         [Header("References")]
