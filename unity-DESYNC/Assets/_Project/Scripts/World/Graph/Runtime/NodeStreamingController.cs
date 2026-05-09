@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Desync.World.Graph;
+using Desync.World.Graph.Authoring;
 using UnityEngine;
 
 namespace Desync.World.Graph.Runtime
@@ -16,6 +17,7 @@ namespace Desync.World.Graph.Runtime
 
         private PlayerNodeTracker _playerTracker;
         private Camera _playerCamera;
+        private PortalAnchorAuthoring[] _portalAnchors = System.Array.Empty<PortalAnchorAuthoring>();
         private readonly NodeActivationResolver _resolver = new();
         private IReadOnlyDictionary<string, NodeActivationReason> _lastResult;
         private bool _discoveredAtRuntime;
@@ -51,7 +53,9 @@ namespace Desync.World.Graph.Runtime
             if (portalController == null)
                 portalController = FindAnyObjectByType<PortalVisibilityController>();
             if (handles == null || handles.Length == 0)
-                handles = FindObjectsByType<NodePresentationHandle>(FindObjectsSortMode.None);
+                handles = FindObjectsByType<NodePresentationHandle>(FindObjectsInactive.Exclude);
+            if (_portalAnchors == null || _portalAnchors.Length == 0)
+                _portalAnchors = FindObjectsByType<PortalAnchorAuthoring>(FindObjectsInactive.Include);
         }
 
         private void Update()
@@ -91,8 +95,69 @@ namespace Desync.World.Graph.Runtime
             if (portalController == null)
                 return System.Array.Empty<PortalVisibilityResult>();
 
-            // TD0018: Replace stub probes with real PortalViewProbe scene data
-            return portalController.EvaluatePortals(ctx, System.Array.Empty<PortalProbeData>());
+            var graph = graphHost != null ? graphHost.Runtime : null;
+            if (graph == null)
+                return System.Array.Empty<PortalVisibilityResult>();
+
+            var probes = BuildPortalProbes(_portalAnchors, graph, ctx.OccupiedNodeId);
+            return portalController.EvaluatePortals(ctx, probes);
+        }
+
+        /// <summary>
+        /// Builds PortalProbeData from scene-placed portal anchors by looking up
+        /// destination node IDs from graph edges. Only anchors whose anchorId
+        /// appears on an edge connected to currentNodeId produce probes.
+        /// </summary>
+        public static List<PortalProbeData> BuildPortalProbes(
+            PortalAnchorAuthoring[] anchors,
+            SpatialGraphRuntime graph,
+            string currentNodeId)
+        {
+            var probes = new List<PortalProbeData>();
+
+            if (anchors == null || graph == null || string.IsNullOrEmpty(currentNodeId))
+                return probes;
+
+            var edges = graph.GetConnectedEdges(currentNodeId);
+
+            for (int i = 0; i < anchors.Length; i++)
+            {
+                var anchor = anchors[i];
+                if (anchor == null) continue;
+
+                string anchorId = anchor.AnchorId;
+                if (string.IsNullOrEmpty(anchorId)) continue;
+
+                // Find the edge that connects this anchor to a destination
+                string destinationNodeId = null;
+                for (int e = 0; e < edges.Count; e++)
+                {
+                    var edge = edges[e];
+                    if (edge.sourceNodeId == currentNodeId && edge.sourceAnchorId == anchorId)
+                    {
+                        destinationNodeId = edge.targetNodeId;
+                        break;
+                    }
+                    if (edge.targetNodeId == currentNodeId && edge.targetAnchorId == anchorId)
+                    {
+                        destinationNodeId = edge.sourceNodeId;
+                        break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(destinationNodeId))
+                    continue;
+
+                var t = anchor.transform;
+                probes.Add(new PortalProbeData(
+                    anchorId,
+                    destinationNodeId,
+                    t.position,
+                    t.forward,
+                    Vector2.one));
+            }
+
+            return probes;
         }
 
         public void UpdatePresentation(ViewContext ctx, IReadOnlyList<PortalVisibilityResult> portalResults)
