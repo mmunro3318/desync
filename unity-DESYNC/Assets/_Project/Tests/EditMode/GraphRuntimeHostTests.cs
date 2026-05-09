@@ -129,6 +129,135 @@ namespace Desync.Tests.EditMode
             Object.DestroyImmediate(def);
         }
 
+        #region Observation Binding
+
+        [Test]
+        public void BindObservationTracker_ReplacesLockSystemInstance()
+        {
+            var def = BuildMinimalValidDefinition();
+            var rules = ScriptableObject.CreateInstance<ObservationRulesDefinition>();
+            SetSerializedField(_host, "graphDefinition", def);
+            SetSerializedField(_host, "observationRules", rules);
+            InvokeAwake(_host);
+
+            var preBind = _host.ObservationLock;
+            Assert.IsNotNull(preBind, "Lock system should exist after Awake with rules");
+
+            var trackerGo = new GameObject("Tracker");
+            var tracker = trackerGo.AddComponent<PlayerNodeTracker>();
+
+            _host.BindObservationTracker(tracker);
+
+            Assert.IsNotNull(_host.ObservationLock, "Lock system should exist after bind");
+            Assert.AreNotSame(preBind, _host.ObservationLock,
+                "Bind should create a new lock system instance");
+
+            Object.DestroyImmediate(trackerGo);
+            Object.DestroyImmediate(def);
+            Object.DestroyImmediate(rules);
+        }
+
+        [Test]
+        public void BindObservationTracker_NoRules_DoesNotThrow()
+        {
+            var def = BuildMinimalValidDefinition();
+            SetSerializedField(_host, "graphDefinition", def);
+            LogAssert.Expect(LogType.Warning,
+                "[GraphRuntimeHost] No ObservationRulesDefinition assigned — observation lock disabled.");
+            InvokeAwake(_host);
+
+            var trackerGo = new GameObject("Tracker");
+            var tracker = trackerGo.AddComponent<PlayerNodeTracker>();
+
+            Assert.DoesNotThrow(() => _host.BindObservationTracker(tracker),
+                "Should not throw when observation system was not initialized");
+
+            Object.DestroyImmediate(trackerGo);
+            Object.DestroyImmediate(def);
+        }
+
+        [Test]
+        public void BindObservationTracker_ClearsPriorLockState()
+        {
+            var def = BuildMinimalValidDefinition();
+            var rules = ScriptableObject.CreateInstance<ObservationRulesDefinition>();
+            SetSerializedField(_host, "graphDefinition", def);
+            SetSerializedField(_host, "observationRules", rules);
+            InvokeAwake(_host);
+
+            // Create real lock state via debug override
+            var lockSystem = _host.ObservationLock as ObservationLockSystem;
+            Assert.IsNotNull(lockSystem);
+            lockSystem.ForceNodeLock("entry");
+            Assert.IsTrue(_host.ObservationLock.IsNodeLocked("entry"),
+                "Precondition: entry should be locked before rebind");
+
+            var trackerGo = new GameObject("Tracker");
+            var tracker = trackerGo.AddComponent<PlayerNodeTracker>();
+
+            _host.BindObservationTracker(tracker);
+
+            Assert.IsFalse(_host.ObservationLock.IsNodeLocked("entry"),
+                "Lock state should be cleared after rebind");
+            Assert.AreEqual(0, _host.ObservationLock.GetAllNodeStates().Count,
+                "All node states should be empty after rebind");
+
+            Object.DestroyImmediate(trackerGo);
+            Object.DestroyImmediate(def);
+            Object.DestroyImmediate(rules);
+        }
+
+        #endregion
+
+        #region Observation Reset
+
+        [Test]
+        public void ResetObservation_NoRules_DoesNotThrow()
+        {
+            var def = BuildMinimalValidDefinition();
+            SetSerializedField(_host, "graphDefinition", def);
+            LogAssert.Expect(LogType.Warning,
+                "[GraphRuntimeHost] No ObservationRulesDefinition assigned — observation lock disabled.");
+            InvokeAwake(_host);
+
+            Assert.DoesNotThrow(() => _host.ResetObservation(),
+                "Should not throw when observation system was not initialized");
+
+            Object.DestroyImmediate(def);
+        }
+
+        [Test]
+        public void ResetObservation_ClearsLockState()
+        {
+            var def = BuildMinimalValidDefinition();
+            var rules = ScriptableObject.CreateInstance<ObservationRulesDefinition>();
+            SetSerializedField(_host, "graphDefinition", def);
+            SetSerializedField(_host, "observationRules", rules);
+            InvokeAwake(_host);
+
+            // Create real lock state via debug override
+            var lockSystem = _host.ObservationLock as ObservationLockSystem;
+            Assert.IsNotNull(lockSystem);
+            lockSystem.ForceNodeLock("entry");
+            lockSystem.ForceEdgeLock("entry_to_hall");
+            Assert.IsTrue(_host.ObservationLock.IsNodeLocked("entry"),
+                "Precondition: node should be locked");
+            Assert.IsTrue(_host.ObservationLock.IsEdgeLocked("entry_to_hall"),
+                "Precondition: edge should be locked");
+
+            _host.ResetObservation();
+
+            Assert.AreEqual(0, _host.ObservationLock.GetAllNodeStates().Count,
+                "All node states should be cleared after ResetObservation");
+            Assert.AreEqual(0, _host.ObservationLock.GetAllEdgeStates().Count,
+                "All edge states should be cleared after ResetObservation");
+
+            Object.DestroyImmediate(def);
+            Object.DestroyImmediate(rules);
+        }
+
+        #endregion
+
         // --- Helpers ---
 
         private static HouseGraphDefinition BuildMinimalValidDefinition()

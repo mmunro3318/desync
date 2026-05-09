@@ -30,7 +30,8 @@ namespace Desync.World.Graph.Debug
             }
             graphHost.Runtime.Reset();
             graphHost.Runtime.Initialize(graphHost.Definition);
-            UnityEngine.Debug.Log("[SpatialDebugOverlay] Graph runtime restarted via F5.");
+            graphHost.ResetObservation();
+            UnityEngine.Debug.Log("[SpatialDebugOverlay] Graph runtime + observation restarted via F5.");
         }
 
         private void OnGUI()

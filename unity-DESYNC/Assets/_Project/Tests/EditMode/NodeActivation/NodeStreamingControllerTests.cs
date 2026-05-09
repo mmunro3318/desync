@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEditor;
+using Desync.World.Graph.Definitions;
 using Desync.World.Graph.Runtime;
+using Desync.World.Graph.Authoring;
 
 namespace Desync.Tests.EditMode.NodeActivation
 {
@@ -184,5 +186,209 @@ namespace Desync.Tests.EditMode.NodeActivation
 
         private static GameObject WireWithPresentationChild(GameObject roomGo, NodePresentationHandle handle)
             => TestConstants.WireWithPresentationChild(roomGo, handle);
+
+        #region BuildPortalProbes Tests (TD0018)
+
+        private static void SetAnchorId(PortalAnchorAuthoring anchor, string anchorId)
+        {
+            var field = typeof(PortalAnchorAuthoring).GetField("anchorId",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            field.SetValue(anchor, anchorId);
+        }
+
+        [Test]
+        public void BuildPortalProbes_SingleAnchorWithMatchingEdge_ReturnsCorrectProbe()
+        {
+            // Arrange: graph with entry->hall_a edge via door_a/door_b
+            var definition = ScriptableObject.CreateInstance<HouseGraphDefinition>();
+            definition.nodes = new[]
+            {
+                new HouseNodeDefinition
+                {
+                    nodeId = "entry",
+                    displayName = "Entry",
+                    worldPosition = Vector3.zero,
+                    portalAnchors = new[]
+                    {
+                        new PortalAnchorDefinition { anchorId = "door_a", localPosition = Vector3.zero }
+                    }
+                },
+                new HouseNodeDefinition
+                {
+                    nodeId = "hall_a",
+                    displayName = "Hall A",
+                    worldPosition = new Vector3(6f, 0f, 0f),
+                    portalAnchors = new[]
+                    {
+                        new PortalAnchorDefinition { anchorId = "door_b", localPosition = Vector3.zero }
+                    }
+                }
+            };
+            definition.edges = new[]
+            {
+                new HouseEdgeDefinition
+                {
+                    edgeId = "entry_to_hall",
+                    sourceNodeId = "entry",
+                    targetNodeId = "hall_a",
+                    sourceAnchorId = "door_a",
+                    targetAnchorId = "door_b"
+                }
+            };
+
+            var graph = new SpatialGraphRuntime();
+            graph.Initialize(definition);
+
+            // Scene anchor at a known position/forward
+            var anchorGo = new GameObject("Portal_door_a");
+            anchorGo.transform.position = new Vector3(3f, 1f, 0f);
+            anchorGo.transform.forward = Vector3.right;
+            var anchor = anchorGo.AddComponent<PortalAnchorAuthoring>();
+            SetAnchorId(anchor, "door_a");
+
+            // Act
+            var probes = NodeStreamingController.BuildPortalProbes(
+                new[] { anchor }, graph, "entry");
+
+            // Assert
+            Assert.AreEqual(1, probes.Count, "Should return one probe for the matching anchor");
+            Assert.AreEqual("door_a", probes[0].AnchorId);
+            Assert.AreEqual("hall_a", probes[0].DestinationNodeId);
+            Assert.AreEqual(anchorGo.transform.position, probes[0].PortalPosition);
+            Assert.AreEqual(anchorGo.transform.forward, probes[0].PortalForward);
+
+            // Cleanup
+            Object.DestroyImmediate(anchorGo);
+            Object.DestroyImmediate(definition);
+        }
+
+        [Test]
+        public void BuildPortalProbes_AnchorWithNoMatchingEdge_ReturnsEmpty()
+        {
+            // Arrange: graph with no edges at all
+            var definition = ScriptableObject.CreateInstance<HouseGraphDefinition>();
+            definition.nodes = new[]
+            {
+                new HouseNodeDefinition
+                {
+                    nodeId = "entry",
+                    displayName = "Entry",
+                    worldPosition = Vector3.zero,
+                    portalAnchors = System.Array.Empty<PortalAnchorDefinition>()
+                }
+            };
+            definition.edges = System.Array.Empty<HouseEdgeDefinition>();
+
+            var graph = new SpatialGraphRuntime();
+            graph.Initialize(definition);
+
+            var anchorGo = new GameObject("Portal_orphan");
+            var anchor = anchorGo.AddComponent<PortalAnchorAuthoring>();
+            SetAnchorId(anchor, "orphan_anchor");
+
+            // Act
+            var probes = NodeStreamingController.BuildPortalProbes(
+                new[] { anchor }, graph, "entry");
+
+            // Assert
+            Assert.AreEqual(0, probes.Count, "Anchor with no matching edge should produce no probes");
+
+            Object.DestroyImmediate(anchorGo);
+            Object.DestroyImmediate(definition);
+        }
+
+        [Test]
+        public void BuildPortalProbes_NullInputs_ReturnsEmpty()
+        {
+            var probes = NodeStreamingController.BuildPortalProbes(null, null, null);
+            Assert.AreEqual(0, probes.Count);
+        }
+
+        [Test]
+        public void BuildPortalProbes_MultipleAnchors_OnlyCurrentNodeEdgesProduceProbes()
+        {
+            // Arrange: 3-node graph, player in entry. Two anchors: one on entry's edge, one on hall's edge.
+            var definition = ScriptableObject.CreateInstance<HouseGraphDefinition>();
+            definition.nodes = new[]
+            {
+                new HouseNodeDefinition
+                {
+                    nodeId = "entry",
+                    displayName = "Entry",
+                    worldPosition = Vector3.zero,
+                    portalAnchors = new[]
+                    {
+                        new PortalAnchorDefinition { anchorId = "door_a", localPosition = Vector3.zero }
+                    }
+                },
+                new HouseNodeDefinition
+                {
+                    nodeId = "hall_a",
+                    displayName = "Hall A",
+                    worldPosition = new Vector3(6f, 0f, 0f),
+                    portalAnchors = new[]
+                    {
+                        new PortalAnchorDefinition { anchorId = "door_b", localPosition = Vector3.zero },
+                        new PortalAnchorDefinition { anchorId = "door_c", localPosition = Vector3.zero }
+                    }
+                },
+                new HouseNodeDefinition
+                {
+                    nodeId = "living",
+                    displayName = "Living",
+                    worldPosition = new Vector3(12f, 0f, 0f),
+                    portalAnchors = new[]
+                    {
+                        new PortalAnchorDefinition { anchorId = "door_d", localPosition = Vector3.zero }
+                    }
+                }
+            };
+            definition.edges = new[]
+            {
+                new HouseEdgeDefinition
+                {
+                    edgeId = "entry_to_hall",
+                    sourceNodeId = "entry",
+                    targetNodeId = "hall_a",
+                    sourceAnchorId = "door_a",
+                    targetAnchorId = "door_b"
+                },
+                new HouseEdgeDefinition
+                {
+                    edgeId = "hall_to_living",
+                    sourceNodeId = "hall_a",
+                    targetNodeId = "living",
+                    sourceAnchorId = "door_c",
+                    targetAnchorId = "door_d"
+                }
+            };
+
+            var graph = new SpatialGraphRuntime();
+            graph.Initialize(definition);
+
+            // Two scene anchors: door_a (entry's portal) and door_c (hall's portal)
+            var anchorGoA = new GameObject("Portal_door_a");
+            var anchorA = anchorGoA.AddComponent<PortalAnchorAuthoring>();
+            SetAnchorId(anchorA, "door_a");
+
+            var anchorGoC = new GameObject("Portal_door_c");
+            var anchorC = anchorGoC.AddComponent<PortalAnchorAuthoring>();
+            SetAnchorId(anchorC, "door_c");
+
+            // Act: player is in "entry" — only door_a should produce a probe
+            var probes = NodeStreamingController.BuildPortalProbes(
+                new[] { anchorA, anchorC }, graph, "entry");
+
+            // Assert
+            Assert.AreEqual(1, probes.Count, "Only anchor on current node's edge should produce a probe");
+            Assert.AreEqual("door_a", probes[0].AnchorId);
+            Assert.AreEqual("hall_a", probes[0].DestinationNodeId);
+
+            Object.DestroyImmediate(anchorGoA);
+            Object.DestroyImmediate(anchorGoC);
+            Object.DestroyImmediate(definition);
+        }
+
+        #endregion
     }
 }
