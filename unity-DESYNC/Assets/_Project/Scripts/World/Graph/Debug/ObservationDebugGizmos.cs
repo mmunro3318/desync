@@ -149,11 +149,13 @@ namespace Desync.World.Graph.Debug
                 if (i > 0) sb.Append('+');
                 sb.Append(reasons[i] switch
                 {
+                    LockReason.None => "",
                     LockReason.Occupied => "OCC",
                     LockReason.AdjacentOccupiedEdge => "ADJ",
                     LockReason.PortalVisible => "VIS",
                     LockReason.DebugForced => "DBG",
                     LockReason.ProtectedByRule => "RULE",
+                    LockReason.GracePeriod => "GRC",
                     _ => "?"
                 });
             }
